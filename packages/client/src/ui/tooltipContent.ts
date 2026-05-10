@@ -1,7 +1,14 @@
 import { t } from '../i18n';
 import { formatEnemyRarityLabel } from '../i18n/labels';
-import { enemyRarityIndex, getStructureConfig } from '../game/stateSelectors';
-import type { Enemy, StructureType, Tile } from '../game/stateTypes';
+import {
+  enemyRarityIndex,
+  getStructureConfig,
+} from '@realmfall/core/game/stateSelectors';
+import type {
+  Enemy,
+  StructureType,
+  Tile,
+} from '@realmfall/core/game/stateTypes';
 
 interface TooltipLineFactory<Line> {
   stat: (label: string, value: string) => Line;

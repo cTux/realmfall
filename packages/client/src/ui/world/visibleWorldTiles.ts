@@ -1,5 +1,5 @@
-import { hexKey, type HexCoord } from '../../game/hex';
-import type { Tile } from '../../game/stateTypes';
+import { hexKey, type HexCoord } from '@realmfall/core/game/hex';
+import type { Tile } from '@realmfall/core/game/stateTypes';
 
 export const WORLD_HEX_REVEAL_DURATION_MS = 220;
 

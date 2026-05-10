@@ -2,8 +2,8 @@ import type {
   CombatActorState,
   CombatState,
   Enemy,
-} from '../../../game/stateTypes';
-import type { PlayerStatusEffect } from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
+import type { PlayerStatusEffect } from '@realmfall/core/game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

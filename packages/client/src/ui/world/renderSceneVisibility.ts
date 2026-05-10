@@ -1,4 +1,4 @@
-import { hexDistance, hexKey, type HexCoord } from '../../game/hex';
+import { hexDistance, hexKey, type HexCoord } from '@realmfall/core/game/hex';
 import {
   isUnknownVisibleWorldTile,
   type VisibleWorldTile,

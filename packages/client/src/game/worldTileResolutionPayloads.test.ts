@@ -1,6 +1,6 @@
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import type { ResolveWorldTilesRequest } from '@realmfall/common';
-import { resolveWorldTiles } from './worldTileResolutionPayloadsTestkit';
+import { resolveWorldTiles } from '@realmfall/core/game/worldTileResolutionPayloads';
 
 describe('resolveWorldTiles', () => {
   it('builds deterministic payloads with enemy references resolved', () => {
@@ -32,10 +32,10 @@ describe('resolveWorldTiles', () => {
 afterEach(() => {
   vi.resetModules();
   vi.clearAllMocks();
-  vi.doUnmock('./world');
-  vi.doUnmock('./combat');
-  vi.doUnmock('./territories');
-  vi.doUnmock('./worldBoss');
+  vi.doUnmock('@realmfall/core/game/world');
+  vi.doUnmock('@realmfall/core/game/combat');
+  vi.doUnmock('@realmfall/core/game/territories');
+  vi.doUnmock('@realmfall/core/game/worldBoss');
 });
 
 describe('resolveWorldTiles DTO mapping', () => {
@@ -91,11 +91,11 @@ describe('resolveWorldTiles DTO mapping', () => {
       extraTileField: 'drop-me',
     });
 
-    vi.doMock('./world', () => ({
+    vi.doMock('@realmfall/core/game/world', () => ({
       buildTile: buildSurfaceTile,
       buildSurfaceTile,
     }));
-    vi.doMock('./combat', () => ({
+    vi.doMock('@realmfall/core/game/combat', () => ({
       enemyIndexFromId: () => 0,
       makeEnemy: () => ({
         id: 'enemy-4,-2-0',
@@ -133,15 +133,15 @@ describe('resolveWorldTiles DTO mapping', () => {
         extraEnemyField: 'drop-me',
       }),
     }));
-    vi.doMock('./territories', () => ({
+    vi.doMock('@realmfall/core/game/territories', () => ({
       isFactionNpcEnemyId: () => false,
     }));
-    vi.doMock('./worldBoss', () => ({
+    vi.doMock('@realmfall/core/game/worldBoss', () => ({
       isWorldBossEnemyId: () => false,
     }));
 
     const { resolveWorldTiles: resolveMockedWorldTiles } =
-      await import('./worldTileResolutionPayloads');
+      await import('@realmfall/core/game/worldTileResolutionPayloads');
 
     const result = resolveMockedWorldTiles({
       requestId: 'req-dto',
@@ -276,23 +276,23 @@ describe('resolveWorldTiles DTO mapping', () => {
       },
     });
 
-    vi.doMock('./world', () => ({
+    vi.doMock('@realmfall/core/game/world', () => ({
       buildTile: buildSurfaceTile,
       buildSurfaceTile,
     }));
-    vi.doMock('./combat', () => ({
+    vi.doMock('@realmfall/core/game/combat', () => ({
       enemyIndexFromId: () => 9,
       makeEnemy,
     }));
-    vi.doMock('./territories', () => ({
+    vi.doMock('@realmfall/core/game/territories', () => ({
       isFactionNpcEnemyId: (enemyId: string) => enemyId === 'world-boss-6,-2',
     }));
-    vi.doMock('./worldBoss', () => ({
+    vi.doMock('@realmfall/core/game/worldBoss', () => ({
       isWorldBossEnemyId: (enemyId: string) => enemyId === 'world-boss-6,-2',
     }));
 
     const { resolveWorldTiles: resolveMockedWorldTiles } =
-      await import('./worldTileResolutionPayloads');
+      await import('@realmfall/core/game/worldTileResolutionPayloads');
 
     resolveMockedWorldTiles({
       requestId: 'req-branches',
@@ -340,23 +340,23 @@ describe('resolveWorldTiles DTO mapping', () => {
       enemyIds: ['enemy-5,-1-0'],
     });
 
-    vi.doMock('./world', () => ({
+    vi.doMock('@realmfall/core/game/world', () => ({
       buildTile: buildSurfaceTile,
       buildSurfaceTile,
     }));
-    vi.doMock('./combat', () => ({
+    vi.doMock('@realmfall/core/game/combat', () => ({
       enemyIndexFromId: () => 0,
       makeEnemy,
     }));
-    vi.doMock('./territories', () => ({
+    vi.doMock('@realmfall/core/game/territories', () => ({
       isFactionNpcEnemyId: () => false,
     }));
-    vi.doMock('./worldBoss', () => ({
+    vi.doMock('@realmfall/core/game/worldBoss', () => ({
       isWorldBossEnemyId: () => false,
     }));
 
     const { resolveWorldTiles: resolveMockedWorldTiles } =
-      await import('./worldTileResolutionPayloads');
+      await import('@realmfall/core/game/worldTileResolutionPayloads');
 
     resolveMockedWorldTiles({
       requestId: 'req-hostile',
@@ -415,23 +415,23 @@ describe('resolveWorldTiles DTO mapping', () => {
       },
     });
 
-    vi.doMock('./world', () => ({
+    vi.doMock('@realmfall/core/game/world', () => ({
       buildTile: buildSurfaceTile,
       buildSurfaceTile,
     }));
-    vi.doMock('./combat', () => ({
+    vi.doMock('@realmfall/core/game/combat', () => ({
       enemyIndexFromId: () => 0,
       makeEnemy,
     }));
-    vi.doMock('./territories', () => ({
+    vi.doMock('@realmfall/core/game/territories', () => ({
       isFactionNpcEnemyId: (enemyId: string) => enemyId === 'enemy-4,-1-0',
     }));
-    vi.doMock('./worldBoss', () => ({
+    vi.doMock('@realmfall/core/game/worldBoss', () => ({
       isWorldBossEnemyId: () => false,
     }));
 
     const { resolveWorldTiles: resolveMockedWorldTiles } =
-      await import('./worldTileResolutionPayloads');
+      await import('@realmfall/core/game/worldTileResolutionPayloads');
 
     resolveMockedWorldTiles({
       requestId: 'req-claim-npc',

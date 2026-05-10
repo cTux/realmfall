@@ -6,8 +6,8 @@ import {
   type SetStateAction,
 } from 'react';
 import { createWorkerGameplayTransitionSource } from './gameplay/createWorkerGameplayTransitionSource';
-import { getCombatAutomationDelay } from '../../game/stateCombat';
-import type { GameState } from '../../game/stateTypes';
+import { getCombatAutomationDelay } from '@realmfall/core/game/stateCombat';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import type { GameplayTransitionSource } from './gameplay/gameplayTransitionSourceTypes';
 
 interface UseCombatAutomationOptions {

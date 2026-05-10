@@ -1,10 +1,10 @@
 import { act } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { buildItemFromConfig } from '../../../game/content/items';
-import { ItemId } from '../../../game/content/ids';
-import { generateDungeonWorld } from '../../../game/dungeons/generation/generateDungeonWorld';
-import { hexKey } from '../../../game/hex';
-import type { GameState } from '../../../game/stateTypes';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { ItemId } from '@realmfall/core/game/content/ids';
+import { generateDungeonWorld } from '@realmfall/core/game/dungeons/generation/generateDungeonWorld';
+import { hexKey } from '@realmfall/core/game/hex';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import styles from '../styles.module.scss';
 import {
   createHydratedAppGame,

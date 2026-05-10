@@ -1,1 +1,1 @@
-export * from '../game/content/tags';
+export * from '@realmfall/core/game/content/tags';

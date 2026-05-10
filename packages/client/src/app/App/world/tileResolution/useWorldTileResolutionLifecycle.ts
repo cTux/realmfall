@@ -7,12 +7,12 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import { hexKey, hexesInRange, type HexCoord } from '../../../../game/hex';
+import { hexKey, hexesInRange, type HexCoord } from '@realmfall/core/game/hex';
 import {
   getActiveWorld,
   replaceWorldCollections,
-} from '../../../../game/dungeons/worldState';
-import type { GameState } from '../../../../game/stateTypes';
+} from '@realmfall/core/game/dungeons/worldState';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import type { VisibleWorldTile } from '../../../../ui/world/visibleWorldTiles';
 import type { WorldTileResolutionOverlayEntry } from './worldTileResolutionCoordinator';
 
@@ -155,7 +155,7 @@ export function useWorldTileResolutionLifecycle({
       ] = await Promise.all([
         import('../buildVisibleWorldTiles'),
         import('../../selectors/reuseVisibleTilesIfUnchanged'),
-        import('../../../../game/worldTileResolutionRuntime'),
+        import('@realmfall/core/game/worldTileResolutionRuntime'),
         import('./createLocalTileResolutionSource'),
         import('./createWorkerTileResolutionSource'),
         import('./worldTileResolutionCoordinator'),

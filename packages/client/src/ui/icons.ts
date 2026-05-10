@@ -2,15 +2,15 @@ import {
   getEnemyConfig,
   getItemConfig,
   getStructureConfig,
-} from '../game/stateSelectors';
+} from '@realmfall/core/game/stateSelectors';
 import type {
   Enemy,
   EquipmentSlot,
   Item,
   SkillName,
   StructureType,
-} from '../game/stateTypes';
-import { EquipmentSlotId } from '../game/content/ids';
+} from '@realmfall/core/game/stateTypes';
+import { EquipmentSlotId } from '@realmfall/core/game/content/ids';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import weaponIcon from '../assets/icons/plain-dagger.svg';
@@ -60,7 +60,7 @@ import gearsIcon from '../assets/icons/gears.svg';
 import padlockIcon from '../assets/icons/padlock.svg';
 import furnaceIcon from '../assets/icons/furnace.svg';
 import minerIcon from '../assets/icons/miner.svg';
-import { isRecipePage } from '../game/inventory';
+import { isRecipePage } from '@realmfall/core/game/inventory';
 import { resolveIconAsset } from './iconAssets';
 import { rarityColor } from './rarity';
 import {
@@ -72,7 +72,7 @@ import {
   ItemCategoryIconKey,
   RECIPE_PAGE_TINT,
 } from '@realmfall/ui-react';
-import { GameTag } from '../game/content/tags';
+import { GameTag } from '@realmfall/core/game/content/tags';
 
 export const Icons = {
   Player: playerIcon,

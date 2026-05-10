@@ -1,8 +1,8 @@
-import { applyEnemyAbility } from '../../game/stateCombatEnemyAbility';
-import { applyPlayerAbility } from '../../game/stateCombatPlayerAbility';
-import { StateCombatTestkit } from '../../game/stateCombatTestkit';
-import { createCombatState } from '../../game/stateCombatState';
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { applyEnemyAbility } from '@realmfall/core/game/stateCombatEnemyAbility';
+import { applyPlayerAbility } from '@realmfall/core/game/stateCombatPlayerAbility';
+import { StateCombatTestkit } from '@realmfall/core/game/stateCombatTestkit';
+import { createCombatState } from '@realmfall/core/game/stateCombatState';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,

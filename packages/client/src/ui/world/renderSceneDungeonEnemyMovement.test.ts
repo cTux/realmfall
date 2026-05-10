@@ -1,14 +1,14 @@
 import { describe, expect, it } from 'vitest';
-import { makeEnemy } from '../../game/combat';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
+import { makeEnemy } from '@realmfall/core/game/combat';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
 import {
   createDungeonWorldState,
   setActiveWorld,
-} from '../../game/dungeons/worldState';
-import { hexKey, type HexCoord } from '../../game/hex';
-import { createGame } from '../../game/stateFactory';
-import { getVisibleTiles } from '../../game/stateSelectors';
-import type { Enemy, Tile } from '../../game/stateTypes';
+} from '@realmfall/core/game/dungeons/worldState';
+import { hexKey, type HexCoord } from '@realmfall/core/game/hex';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
+import type { Enemy, Tile } from '@realmfall/core/game/stateTypes';
 import {
   collectDescendants,
   createMockApp,

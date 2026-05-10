@@ -241,7 +241,8 @@ describe('worldIcons', () => {
       getReachableWorldIconAssetIds,
       structureIconFor,
     } = await import('./worldIcons');
-    const { getEnemiesAt } = await import('../../game/stateSelectors');
+    const { getEnemiesAt } =
+      await import('@realmfall/core/game/stateSelectors');
     const { terrainArtFor } = await import('./worldTerrainArt');
 
     const game = createGame(1, 'world-icons-reachable-assets');

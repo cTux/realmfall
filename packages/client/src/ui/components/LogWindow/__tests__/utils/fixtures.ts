@@ -1,4 +1,4 @@
-import type { LogEntry, LogRichSegment } from '../../../../../game/stateTypes';
+import type { LogEntry, LogRichSegment } from '@realmfall/core/game/stateTypes';
 
 export function createSystemLog(params: {
   id: string;

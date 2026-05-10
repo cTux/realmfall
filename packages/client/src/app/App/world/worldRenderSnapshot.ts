@@ -1,6 +1,6 @@
-import type { GameState, HexCoord } from '../../../game/stateTypes';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
-import { getActiveWorld } from '../../../game/dungeons/worldState';
+import { getActiveWorld } from '@realmfall/core/game/dungeons/worldState';
 
 function coordToken(coord: HexCoord | null | undefined) {
   if (!coord) {

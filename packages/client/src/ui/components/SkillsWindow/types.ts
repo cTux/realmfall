@@ -1,4 +1,4 @@
-import type { SkillName } from '../../../game/stateTypes';
+import type { SkillName } from '@realmfall/core/game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

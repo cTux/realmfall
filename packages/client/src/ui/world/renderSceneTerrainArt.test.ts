@@ -1,4 +1,4 @@
-import { createGame } from '../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import {
   createMockApp,
   getWorldGroundLayer,
@@ -14,7 +14,7 @@ describe('renderScene terrain art', () => {
   it('keeps dungeon terrain art on the standard sprite path', async () => {
     const { renderScene } = await import('./renderScene');
     const { createDungeonWorldState, setActiveWorld } =
-      await import('../../game/dungeons/worldState');
+      await import('@realmfall/core/game/dungeons/worldState');
 
     const game = createGame(2, 'render-scene-dungeon-terrain-mask');
     const dungeonId = 'dungeon:render-scene-dungeon-terrain-mask:1,0';
@@ -91,7 +91,7 @@ describe('renderScene terrain art', () => {
   it('uses distinct background tints for dungeon floors and walls', async () => {
     const { renderScene } = await import('./renderScene');
     const { createDungeonWorldState, setActiveWorld } =
-      await import('../../game/dungeons/worldState');
+      await import('@realmfall/core/game/dungeons/worldState');
 
     const game = createGame(2, 'render-scene-dungeon-wall-style');
     const dungeonId = 'dungeon:render-scene-dungeon-wall-style:1,0';

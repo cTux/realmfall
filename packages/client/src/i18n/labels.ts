@@ -1,4 +1,7 @@
-import { getItemCategory, type ItemCategory } from '../game/content/items';
+import {
+  getItemCategory,
+  type ItemCategory,
+} from '@realmfall/core/game/content/items';
 import type {
   EnemyRarity,
   EquipmentSlot,
@@ -7,7 +10,7 @@ import type {
   SecondaryStatKey,
   SkillName,
   Terrain,
-} from '../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
 import { t } from './index';
 
 type DungeonTerrainTheme = 'brick' | 'mud' | 'obsidian';

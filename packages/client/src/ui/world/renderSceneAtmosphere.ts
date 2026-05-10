@@ -1,5 +1,5 @@
 import { type Application, type Graphics } from 'pixi.js';
-import type { WorldKind } from '../../game/stateTypes';
+import type { WorldKind } from '@realmfall/core/game/stateTypes';
 import { getTimeOfDayLighting, scaleColor } from './timeOfDay';
 import {
   blendLightSources,

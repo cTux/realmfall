@@ -1,17 +1,17 @@
-import { getSkillTags } from '../../game/content/tags';
-import { professionRecipeOutputBonus } from '../../game/crafting';
+import { getSkillTags } from '@realmfall/core/game/content/tags';
+import { professionRecipeOutputBonus } from '@realmfall/core/game/crafting';
 import {
   gatheringBonusChance,
   gatheringYieldBonus,
   skillLevelThreshold,
-} from '../../game/stateSelectors';
+} from '@realmfall/core/game/stateSelectors';
 import {
   Skill,
   type Enemy,
   type SkillName,
   type StructureType,
   type Tile,
-} from '../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
 import { t } from '../../i18n';
 import { buildEnemyTooltip, buildStructureTooltip } from '../tooltipContent';
 import { type TooltipLine, tagTooltipLines } from './shared';

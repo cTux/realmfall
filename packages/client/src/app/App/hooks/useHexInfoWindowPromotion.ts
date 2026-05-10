@@ -4,9 +4,9 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react';
-import { getRecipeSkillForStructure } from '../../../game/crafting';
-import { isEnemyInitiatedCombat } from '../../../game/stateCombatEngagement';
-import type { GameState, Tile } from '../../../game/stateTypes';
+import { getRecipeSkillForStructure } from '@realmfall/core/game/crafting';
+import { isEnemyInitiatedCombat } from '@realmfall/core/game/stateCombatEngagement';
+import type { GameState, Tile } from '@realmfall/core/game/stateTypes';
 import type { WindowVisibilityState } from '../../constants';
 
 interface UseHexInfoWindowPromotionArgs {

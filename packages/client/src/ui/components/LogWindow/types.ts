@@ -1,4 +1,4 @@
-import type { LogEntry, LogKind } from '../../../game/stateTypes';
+import type { LogEntry, LogKind } from '@realmfall/core/game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

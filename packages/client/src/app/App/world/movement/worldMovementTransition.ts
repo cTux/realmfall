@@ -1,5 +1,5 @@
-import { WORLD_MOVE_VISUAL_DURATION_MS } from '../../../../game/config';
-import { hexDistance, hexKey, type HexCoord } from '../../../../game/hex';
+import { WORLD_MOVE_VISUAL_DURATION_MS } from '@realmfall/core/game/config';
+import { hexDistance, hexKey, type HexCoord } from '@realmfall/core/game/hex';
 import { tileToPoint } from '../../../../ui/world/renderSceneMath';
 import type { VisibleWorldTile } from '../../../../ui/world/visibleWorldTiles';
 

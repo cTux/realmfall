@@ -1,7 +1,7 @@
-import { EquipmentSlotId } from '../game/content/ids';
-import { createSkillRecord } from '../game/skillRecords';
-import { createGame } from '../game/stateFactory';
-import type { Item } from '../game/stateTypes';
+import { EquipmentSlotId } from '@realmfall/core/game/content/ids';
+import { createSkillRecord } from '@realmfall/core/game/skillRecords';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import type { Item } from '@realmfall/core/game/stateTypes';
 import { DEFAULT_WINDOWS } from '../app/constants';
 
 export function createWindowMarkupGame() {

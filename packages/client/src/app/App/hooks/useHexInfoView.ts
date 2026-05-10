@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import {
   describeStructure,
   describeStructureDescription,
-} from '../../../game/world';
+} from '@realmfall/core/game/world';
 import type { AppWindowsViewState } from '../AppWindows.types';
 import {
   formatTerrainDescription,

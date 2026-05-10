@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createGame } from '../../../game/stateFactory';
-import type { GameState } from '../../../game/stateTypes';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { useGameActionHandlers } from './useGameActionHandlersTestkit';
 
 describe('useGameActionHandlers', () => {

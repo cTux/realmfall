@@ -1,6 +1,9 @@
-import type { CombatEngagementMetadata, GameState } from '../game/stateTypes';
-import { TREASURE_GOBLIN_BALANCE } from '../game/config';
-import { createDefaultCombatEngagement } from '../game/stateCombatState';
+import type {
+  CombatEngagementMetadata,
+  GameState,
+} from '@realmfall/core/game/stateTypes';
+import { TREASURE_GOBLIN_BALANCE } from '@realmfall/core/game/config';
+import { createDefaultCombatEngagement } from '@realmfall/core/game/stateCombatState';
 import {
   isCooldownMap,
   isFiniteNumber,

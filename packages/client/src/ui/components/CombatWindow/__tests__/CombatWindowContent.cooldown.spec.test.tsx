@@ -1,4 +1,4 @@
-import { createCombatActorState } from '../../../../game/combat';
+import { createCombatActorState } from '@realmfall/core/game/combat';
 import { CombatWindowContentTestkit } from './CombatWindowContentTestkit';
 import {
   createDefaultCombat,

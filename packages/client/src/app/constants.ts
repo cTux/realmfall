@@ -9,8 +9,12 @@ import backpackIcon from '../assets/game-icons/delapouite/backpack.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import gearsIcon from '../assets/icons/gears.svg';
 import toolboxIcon from '../assets/game-icons/delapouite/toolbox.svg';
-import { LOG_KINDS, type LogKind } from '../game/stateTypes';
-import { HEX_SIZE, WORLD_RADIUS, WORLD_REVEAL_RADIUS } from '../game/config';
+import { LOG_KINDS, type LogKind } from '@realmfall/core/game/stateTypes';
+import {
+  HEX_SIZE,
+  WORLD_RADIUS,
+  WORLD_REVEAL_RADIUS,
+} from '@realmfall/core/game/config';
 import { DEFAULT_AUDIO_SETTINGS } from './audioSettings';
 import { DEFAULT_GAMEPLAY_SETTINGS } from './gameplaySettings';
 import { DEFAULT_GRAPHICS_SETTINGS } from './graphicsSettings';

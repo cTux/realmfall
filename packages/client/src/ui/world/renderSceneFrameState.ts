@@ -1,8 +1,12 @@
 import { type Application } from 'pixi.js';
-import { getActiveWorld } from '../../game/dungeons/worldState';
-import { getCurrentWorldRevealRadius } from '../../game/stateOutposts';
-import { getPlayerCombatStats } from '../../game/stateSelectors';
-import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
+import { getActiveWorld } from '@realmfall/core/game/dungeons/worldState';
+import { getCurrentWorldRevealRadius } from '@realmfall/core/game/stateOutposts';
+import { getPlayerCombatStats } from '@realmfall/core/game/stateSelectors';
+import type {
+  GameState,
+  HexCoord,
+  WorldKind,
+} from '@realmfall/core/game/stateTypes';
 import {
   getCloudRenderInputs,
   getAnimatedRenderToken,

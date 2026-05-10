@@ -1,11 +1,11 @@
 import { memo, useMemo } from 'react';
 import { useWorldClockTime } from '../../../app/App/worldClockStore';
-import { getAbilityDefinition } from '../../../game/abilities';
-import { DEFAULT_ENEMY_MANA } from '../../../game/combat';
-import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
-import { getEnemyCombatAttack } from '../../../game/stateCombat';
-import type { CombatActorState } from '../../../game/stateTypes';
-import type { PlayerStatusEffect } from '../../../game/stateTypes';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
+import { DEFAULT_ENEMY_MANA } from '@realmfall/core/game/combat';
+import { getStatusEffectDefinition } from '@realmfall/core/game/content/statusEffects';
+import { getEnemyCombatAttack } from '@realmfall/core/game/stateCombat';
+import type { CombatActorState } from '@realmfall/core/game/stateTypes';
+import type { PlayerStatusEffect } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import {
   formatEnemyRarityLabel,

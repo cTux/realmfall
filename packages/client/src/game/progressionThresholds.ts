@@ -1,1 +1,1 @@
-export * from './progression/thresholds';
+export * from '@realmfall/core/game/progressionThresholds';

@@ -1,7 +1,7 @@
 import { act } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { createStartedCombatEncounter } from '../../../game/stateCombatEngagement';
-import type { GameState } from '../../../game/stateTypes';
+import { createStartedCombatEncounter } from '@realmfall/core/game/stateCombatEngagement';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import {
   createHydratedAppGame,
   flushLazyModules,

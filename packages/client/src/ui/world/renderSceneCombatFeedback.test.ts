@@ -1,6 +1,6 @@
-import { createGame } from '../../game/stateFactory';
-import { getPlayerCombatStats } from '../../game/stateSelectors';
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { getPlayerCombatStats } from '@realmfall/core/game/stateSelectors';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
 import { getWorldHexSize } from './renderSceneMath';
 import {
   collectDescendants,
@@ -116,7 +116,8 @@ describe('renderScene combat feedback', () => {
   });
 
   it('emits and renders player floating text for lifesteal healing in the shared lifesteal path', async () => {
-    const { applyLifesteal } = await import('../../game/combatStatus');
+    const { applyLifesteal } =
+      await import('@realmfall/core/game/combatStatus');
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-lifesteal-floating-text');
     const app = createMockApp();
@@ -161,7 +162,8 @@ describe('renderScene combat feedback', () => {
   });
 
   it('does not apply lifesteal from the per-hit player on-hit helper', async () => {
-    const { applyPlayerOnHitEffects } = await import('../../game/combatStatus');
+    const { applyPlayerOnHitEffects } =
+      await import('@realmfall/core/game/combatStatus');
     const game = createGame(2, 'render-scene-lifesteal-on-hit-helper');
     const enemyId = 'enemy-1,0-0';
 
@@ -554,7 +556,9 @@ describe('renderScene combat feedback', () => {
 
   it('combines an active combat lunge with a carried movement-transition offset', async () => {
     const { renderScene } = await import('./renderScene');
-    const game = createLungeCombatGame('render-scene-player-lunge-carry-overlap');
+    const game = createLungeCombatGame(
+      'render-scene-player-lunge-carry-overlap',
+    );
     const baselineApp = createMockApp();
     const lungeOnlyApp = createMockApp();
     const transitionOnlyApp = createMockApp();

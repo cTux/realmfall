@@ -1,4 +1,4 @@
-import { hexDistance, type HexCoord } from '../../../../game/hex';
+import { hexDistance, type HexCoord } from '@realmfall/core/game/hex';
 import type { WorldMoveSource } from './worldMoveSource';
 
 type ScheduledRetryHandle = ReturnType<typeof setTimeout>;

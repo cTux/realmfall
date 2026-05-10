@@ -4,14 +4,18 @@ import {
   syncFollowCursorTooltipPosition,
   type TooltipPosition,
 } from '@realmfall/ui-react';
-import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
-import { isPassable } from '../../../game/shared';
+import {
+  hexAtPoint,
+  hexDistance,
+  type HexCoord,
+} from '@realmfall/core/game/hex';
+import { isPassable } from '@realmfall/core/game/shared';
 import {
   getEnemiesAt,
   getResolvedTileAt,
-} from '../../../game/stateWorldQueries';
-import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
-import type { GameState } from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateWorldQueries';
+import { getCurrentWorldRevealRadius } from '@realmfall/core/game/stateOutposts';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import type { TooltipState } from '../types';
 import {

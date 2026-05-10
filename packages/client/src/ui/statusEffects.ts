@@ -1,16 +1,15 @@
 import {
   getStatusEffectDefinition,
   type StatusEffectDefinition,
-} from '../game/content/statusEffects';
-import { StatusEffectTypeId } from '../game/content/ids';
-import { CONTENT_ICON_IDS } from '../game/content/iconIds';
-import type { StatusEffectId } from '../game/stateTypes';
+} from '@realmfall/core/game/content/statusEffects';
+import { StatusEffectTypeId } from '@realmfall/core/game/content/ids';
+import { CONTENT_ICON_IDS } from '@realmfall/core/game/content/iconIds';
+import type { StatusEffectId } from '@realmfall/core/game/stateTypes';
 import { resolveIconAsset } from './iconAssets';
 
 export function statusEffectIcon(effect: StatusEffectId | string) {
   return resolveIconAsset(
-    getEffectDefinition(effect)?.icon ??
-      CONTENT_ICON_IDS.Sparkles,
+    getEffectDefinition(effect)?.icon ?? CONTENT_ICON_IDS.Sparkles,
   );
 }
 

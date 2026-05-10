@@ -1,5 +1,5 @@
 import { GameTag } from './uiTooltipAbilityContentTestkit';
-import { getStatusEffectDefinition } from '../game/content/statusEffects';
+import { getStatusEffectDefinition } from '@realmfall/core/game/content/statusEffects';
 import { resolveIconAsset } from './iconAssets';
 import { abilityTooltipLines, statusEffectTooltipLines } from './tooltips';
 

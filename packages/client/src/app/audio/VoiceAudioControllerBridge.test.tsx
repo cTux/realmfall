@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { createGame } from '../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import { DEFAULT_AUDIO_SETTINGS } from '../audioSettings';
 import { VoiceAudioControllerBridge } from './VoiceAudioControllerBridgeTestkit';
 import { selectVoicePlaybackEventState } from './voiceEvents';

@@ -1,18 +1,21 @@
 import type { ComponentProps } from 'react';
 import type { Meta, StoryObj } from '@storybook/react-vite';
 import { setWorldClockTime } from '../../../app/App/worldClockStore';
-import { createCombatActorState } from '../../../game/combat';
-import { buildItemFromConfig } from '../../../game/content/items';
-import { ItemId } from '../../../game/content/ids';
-import { buildTownStock } from '../../../game/economy';
-import { getItemModificationCost } from '../../../game/itemModifications';
+import { createCombatActorState } from '@realmfall/core/game/combat';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { ItemId } from '@realmfall/core/game/content/ids';
+import { buildTownStock } from '@realmfall/core/game/economy';
+import { getItemModificationCost } from '@realmfall/core/game/itemModifications';
 import {
   describeStructure,
   describeStructureDescription,
   structureActionLabel,
   structureDefinition,
-} from '../../../game/world';
-import type { CombatState, StructureType } from '../../../game/stateTypes';
+} from '@realmfall/core/game/world';
+import type {
+  CombatState,
+  StructureType,
+} from '@realmfall/core/game/stateTypes';
 import { HexInfoWindowContent } from './HexInfoWindowContent';
 import type { HexInfoWindowProps } from './types';
 

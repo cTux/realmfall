@@ -1,1 +1,1 @@
-export * from '../../game/stateTypes';
+export * from '@realmfall/core/game/stateTypes';

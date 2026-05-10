@@ -1,6 +1,6 @@
 import { act } from 'react';
-import { buildItemFromConfig } from '../../../game/content/items/itemBuilders';
-import { createGame } from '../../../game/stateFactory';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items/itemBuilders';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import {
   flushLazyModules,
   loadEncryptedState,
@@ -35,7 +35,7 @@ describe('App queued travel window suppression', () => {
       enemyIds: [],
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 
@@ -96,7 +96,7 @@ describe('App queued travel window suppression', () => {
       JSON.stringify({ autoLoot: true }),
     );
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 
@@ -164,7 +164,7 @@ describe('App queued travel window suppression', () => {
       JSON.stringify({ autoGatherResources: true }),
     );
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 
@@ -205,7 +205,7 @@ describe('App queued travel window suppression', () => {
   }, 10_000);
 
   it('clears queued travel on ambush and does not continue after cooldown expiry', async () => {
-    const { GAME_CONFIG } = await import('../../../game/config');
+    const { GAME_CONFIG } = await import('@realmfall/core/game/config');
     const previousAmbushChance = GAME_CONFIG.worldGeneration.ambush.chance;
     GAME_CONFIG.worldGeneration.ambush.chance = 1;
     const game = createGame(3, 'queued-travel-ambush');
@@ -225,7 +225,7 @@ describe('App queued travel window suppression', () => {
       enemyIds: [],
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 

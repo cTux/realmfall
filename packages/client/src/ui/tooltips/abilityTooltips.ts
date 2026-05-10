@@ -1,12 +1,12 @@
 import {
   getStatusEffectDefinition,
   getStatusEffectTags,
-} from '../../game/content/statusEffects';
+} from '@realmfall/core/game/content/statusEffects';
 import type {
   AbilityDefinition,
   PlayerStatusEffect,
   StatusEffectId,
-} from '../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
 import { t } from '../../i18n';
 import { formatStatusEffectLabel } from '../../i18n/labels';
 import { resolveIconAsset } from '../iconAssets';

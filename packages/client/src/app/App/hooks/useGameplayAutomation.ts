@@ -5,10 +5,10 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import { takeTileItems } from '../../../game/stateInventoryActions';
-import type { GameState, Tile } from '../../../game/stateTypes';
-import { interactWithStructureUntilDepleted } from '../../../game/stateWorldActions';
-import { isGatheringStructure } from '../../../game/world';
+import { takeTileItems } from '@realmfall/core/game/stateInventoryActions';
+import type { GameState, Tile } from '@realmfall/core/game/stateTypes';
+import { interactWithStructureUntilDepleted } from '@realmfall/core/game/stateWorldActions';
+import { isGatheringStructure } from '@realmfall/core/game/world';
 import type { GameplaySettings } from '../../gameplaySettings';
 
 interface UseGameplayAutomationOptions {

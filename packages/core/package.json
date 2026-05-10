@@ -13,7 +13,16 @@
   },
   "exports": {
     ".": "./src/index.ts",
+    "./game.config": "./src/game.config.ts",
     "./game": "./src/game/index.ts",
+    "./game/content/abilities": "./src/game/content/abilities/index.ts",
+    "./game/content/enemies": "./src/game/content/enemies/index.ts",
+    "./game/content/items": "./src/game/content/items/index.ts",
+    "./game/content/items/expansion": "./src/game/content/items/expansion/index.ts",
+    "./game/content/items/meals": "./src/game/content/items/meals/index.ts",
+    "./game/content/items/produce": "./src/game/content/items/produce/index.ts",
+    "./game/content/structures": "./src/game/content/structures/index.ts",
+    "./game/*": "./src/game/*.ts",
     "./i18n": "./src/i18n/index.ts",
     "./core/*": "./src/core/*",
     "./i18n/*": "./src/i18n/*"

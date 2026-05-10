@@ -1,9 +1,9 @@
 import { TextStyle } from 'pixi.js';
 import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
-import { hexKey } from '../../game/hex';
-import type { WorldFloatingTextEvent } from '../../game/stateTypes';
-import type { GameState, HexCoord } from '../../game/stateTypes';
-import { isWorldBossEnemyId } from '../../game/worldBoss';
+import { hexKey } from '@realmfall/core/game/hex';
+import type { WorldFloatingTextEvent } from '@realmfall/core/game/stateTypes';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
+import { isWorldBossEnemyId } from '@realmfall/core/game/worldBoss';
 import { ENTITY_BADGE_RADIUS_SCALE } from './renderSceneEntityBadge';
 import { tileToPoint } from './renderSceneMath';
 import {

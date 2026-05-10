@@ -3,10 +3,14 @@ import {
   normalizePersistedUiState,
   normalizeSavedUiItem,
 } from './normalizeTestkit';
-import { ENEMY_TYPE_IDS } from '../game/content/ids';
-import { createCombatActorState } from '../game/combat';
-import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/stateTypes';
-import { createGame } from '../game/stateFactory';
+import { ENEMY_TYPE_IDS } from '@realmfall/core/game/content/ids';
+import { createCombatActorState } from '@realmfall/core/game/combat';
+import {
+  RARITY_ORDER,
+  STRUCTURE_TYPES,
+  TERRAINS,
+} from '@realmfall/core/game/stateTypes';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import { createDefaultActionBarSlots } from './App/actionBar';
 import {
   DEFAULT_LOG_FILTERS,

@@ -1,5 +1,5 @@
-import { createGame } from '../../../../game/stateFactory';
-import { hydrateResolvedWorldTilePayload } from '../../../../game/worldTileResolutionRuntime';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { hydrateResolvedWorldTilePayload } from '@realmfall/core/game/worldTileResolutionRuntime';
 import {
   mergeResolvedWorldTilePayloads,
   syncTileResolutionCoordinator,

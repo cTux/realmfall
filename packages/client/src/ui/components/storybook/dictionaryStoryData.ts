@@ -1,6 +1,6 @@
-import { ABILITIES } from '../../../game/abilities';
-import { buildItemFromConfig } from '../../../game/content/items';
-import { STATUS_EFFECT_DEFINITIONS } from '../../../game/content/statusEffects';
+import { ABILITIES } from '@realmfall/core/game/abilities';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { STATUS_EFFECT_DEFINITIONS } from '@realmfall/core/game/content/statusEffects';
 import { enemyIconFor, enemyTint, iconForItem } from '../../icons';
 import { resolveIconAsset } from '../../iconAssets';
 import { rarityColor } from '../../rarity';

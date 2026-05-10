@@ -1,4 +1,4 @@
-import type { HexCoord } from '../../../game/stateTypes';
+import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import type { TooltipState } from '../types';
 
 export interface WorldHoverSnapshot {

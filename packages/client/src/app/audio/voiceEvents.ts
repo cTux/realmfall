@@ -1,4 +1,4 @@
-import type { GameState, LogEntry } from '../../game/stateTypes';
+import type { GameState, LogEntry } from '@realmfall/core/game/stateTypes';
 import type { VoiceClipCategory } from './voiceLibrary';
 
 export interface VoicePlaybackEventOptionDefinition {

@@ -38,7 +38,7 @@ import {
   MAX_WORLD_RENDER_FPS,
   MIN_WORLD_RENDER_FPS,
 } from '../../graphicsSettings';
-import type { GameState } from '../../../game/stateTypes';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 
 describe('pixiWorldRenderLoop', () => {
   beforeEach(() => {

@@ -1,1 +1,1 @@
-export * from './progression/overview';
+export * from '@realmfall/core/game/progressionOverview';

@@ -1,4 +1,8 @@
-import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
+import type {
+  GameState,
+  HexCoord,
+  WorldKind,
+} from '@realmfall/core/game/stateTypes';
 
 export interface AppShellVoicePlaybackState {
   combat: GameState['combat'];

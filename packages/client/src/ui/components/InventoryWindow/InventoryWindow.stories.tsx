@@ -3,9 +3,9 @@ import type { ComponentProps } from 'react';
 import {
   buildItemFromConfig,
   getItemConfigByKey,
-} from '../../../game/content/items';
-import { ItemId } from '../../../game/content/ids';
-import { makeRecipePage } from '../../../game/inventory';
+} from '@realmfall/core/game/content/items';
+import { ItemId } from '@realmfall/core/game/content/ids';
+import { makeRecipePage } from '@realmfall/core/game/inventory';
 import {
   createStorybookFixtures,
   noop,

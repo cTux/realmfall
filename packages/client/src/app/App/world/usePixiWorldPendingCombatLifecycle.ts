@@ -6,7 +6,7 @@ import {
   type SetStateAction,
 } from 'react';
 import type { Application } from 'pixi.js';
-import type { GameState, HexCoord } from '../../../game/stateTypes';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 import { createWorkerGameplayTransitionSource } from '../gameplay/createWorkerGameplayTransitionSource';
 import type { GameplayTransitionSource } from '../gameplay/gameplayTransitionSourceTypes';
 import type { WorldMovementTransition } from './movement/worldMovementTransition';

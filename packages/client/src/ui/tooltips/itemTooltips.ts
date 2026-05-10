@@ -1,21 +1,24 @@
-import { getAbilityDefinition } from '../../game/abilities';
-import { getConsumableEffectDescriptors } from '../../game/consumables';
-import { getItemCategory, inferItemTags } from '../../game/content/items';
-import { EquipmentSlotId } from '../../game/content/ids';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
+import { getConsumableEffectDescriptors } from '@realmfall/core/game/consumables';
+import {
+  getItemCategory,
+  inferItemTags,
+} from '@realmfall/core/game/content/items';
+import { EquipmentSlotId } from '@realmfall/core/game/content/ids';
 import {
   canSellItem,
   canWearItem,
   getItemRequiredLevel,
   isRecipePage,
   sellValue,
-} from '../../game/inventory';
-import { getLockpickBreakChance } from '../../game/lockedChests';
+} from '@realmfall/core/game/inventory';
+import { getLockpickBreakChance } from '@realmfall/core/game/lockedChests';
 import {
   getDisplayedItemSecondaryStats,
   getVisibleItemSecondaryEmptySlotCount,
-} from '../../game/itemModifications';
-import type { Item } from '../../game/stateTypes';
-import type { SecondaryStatKey } from '../../game/stateTypes';
+} from '@realmfall/core/game/itemModifications';
+import type { Item } from '@realmfall/core/game/stateTypes';
+import type { SecondaryStatKey } from '@realmfall/core/game/stateTypes';
 import { t } from '../../i18n';
 import {
   formatEquipmentSlotLabel,

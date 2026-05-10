@@ -1,13 +1,13 @@
 import { Button } from '@realmfall/ui-react';
-import { ENEMY_CONFIGS } from '../../../game/content/enemies';
+import { ENEMY_CONFIGS } from '@realmfall/core/game/content/enemies';
 import {
   ITEM_CONFIGS,
   getItemConfigCategory,
   isEquippableItemCategory,
-} from '../../../game/content/items';
-import type { DebugEquipmentType } from '../../../game/stateDebugWindow';
-import { DEBUG_EQUIPMENT_TYPES } from '../../../game/stateDebugWindow';
-import { RARITY_ORDER } from '../../../game/stateTypes';
+} from '@realmfall/core/game/content/items';
+import type { DebugEquipmentType } from '@realmfall/core/game/stateDebugWindow';
+import { DEBUG_EQUIPMENT_TYPES } from '@realmfall/core/game/stateDebugWindow';
+import { RARITY_ORDER } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import type { DebugWindowContentProps } from './types';
 import styles from './styles.module.scss';

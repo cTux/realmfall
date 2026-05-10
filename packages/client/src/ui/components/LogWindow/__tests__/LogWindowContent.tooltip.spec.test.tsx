@@ -1,4 +1,4 @@
-import { GameTag } from '../../../../game/content/tags';
+import { GameTag } from '@realmfall/core/game/content/tags';
 import { LogWindowContentTestkit } from './LogWindowContentTestkit';
 import { createCombatLog } from './utils/fixtures';
 

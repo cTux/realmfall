@@ -1,5 +1,5 @@
 import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
-import type { GameState } from '../../../game/stateTypes';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import type { WindowVisibilityState } from '../../constants';
 
 export function useCombatHexInfoPersistence({

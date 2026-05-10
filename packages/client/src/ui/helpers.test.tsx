@@ -3,9 +3,9 @@ import { createRoot, type Root } from 'react-dom/client';
 import { renderToStaticMarkup } from 'react-dom/server';
 import { vi } from 'vitest';
 import { ItemId } from './helpersTestkit';
-import { buildItemFromConfig } from '../game/content/items';
-import { GameTag } from '../game/content/tags';
-import type { Enemy, Item, Tile } from '../game/stateTypes';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { GameTag } from '@realmfall/core/game/content/tags';
+import type { Enemy, Item, Tile } from '@realmfall/core/game/stateTypes';
 import {
   DockPanel as WindowDock,
   WindowLabel,

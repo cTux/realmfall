@@ -1,4 +1,4 @@
-import type { HexCoord } from '../../../game/stateTypes';
+import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import type { WorldMovementAutoOpenSuppressionState } from './movement/worldMovementController';
 
 export interface WorldMovementController {

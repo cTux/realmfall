@@ -1,6 +1,6 @@
-import { getAbilityDefinition } from '../../../game/abilities';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
 import { useWorldClockTime } from '../../../app/App/worldClockStore';
-import type { PlayerStatusEffect } from '../../../game/stateTypes';
+import type { PlayerStatusEffect } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import { formatStatusEffectLabel } from '../../../i18n/labels';
 import { resolveIconAsset } from '../../iconAssets';
@@ -9,7 +9,7 @@ import { abilityTooltipLines, statusEffectTooltipLines } from '../../tooltips';
 import {
   getPlayerThirstValue,
   PLAYER_SURVIVAL_MAX,
-} from '../../../game/survival';
+} from '@realmfall/core/game/survival';
 import {
   EntityStatusPanel,
   type EntityStatusBar,

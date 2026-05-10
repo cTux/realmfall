@@ -1,4 +1,4 @@
-import { hexKey } from '../../game/hex';
+import { hexKey } from '@realmfall/core/game/hex';
 import type { RenderSceneFrameState } from './renderSceneFrameState';
 import { getLightingState } from './renderSceneAtmosphere';
 import { ZERO_SHADOW_OFFSET } from './renderSceneShared';

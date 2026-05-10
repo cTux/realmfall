@@ -6,9 +6,9 @@ import {
 } from '@realmfall/ui-react';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { getRecipeMaterialItemKey } from '../app/App/utils/getRecipeMaterialItemKey';
-import { GameTag } from '../game/content/tags';
-import { getItemConfigByKey } from '../game/stateSelectors';
-import type { Item } from '../game/stateTypes';
+import { GameTag } from '@realmfall/core/game/content/tags';
+import { getItemConfigByKey } from '@realmfall/core/game/stateSelectors';
+import type { Item } from '@realmfall/core/game/stateTypes';
 import { InventoryWindow } from './components/InventoryWindow';
 import { getRecipeCraftCount } from './components/RecipeBookWindow/RecipeBookWindowContent';
 import { compareRecipeBookEntries } from './components/RecipeBookWindow/utils/recipeBookEntries';

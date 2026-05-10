@@ -1,6 +1,6 @@
 import { act, type ReactElement } from 'react';
 import { vi, expect } from 'vitest';
-import type { LogEntry } from '../../../../game/stateTypes';
+import type { LogEntry } from '@realmfall/core/game/stateTypes';
 import { mountUi, settleUi } from '../../../uiTestHelpers';
 import { LogWindowContent } from '../LogWindowContent';
 import type { LogWindowProps } from '../types';

@@ -1,6 +1,6 @@
-import { getItemConfigByKey } from '../../../game/content/items';
-import { GAME_TAGS } from '../../../game/content/tags';
-import type { Item } from '../../../game/stateTypes';
+import { getItemConfigByKey } from '@realmfall/core/game/content/items';
+import { GAME_TAGS } from '@realmfall/core/game/content/tags';
+import type { Item } from '@realmfall/core/game/stateTypes';
 
 export function getRecipeMaterialItemKey(item: Pick<Item, 'itemKey' | 'tags'>) {
   if (!item.itemKey) return null;

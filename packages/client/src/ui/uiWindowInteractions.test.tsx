@@ -1,7 +1,7 @@
 import React, { act } from 'react';
 import { ContextMenu as ItemContextMenu } from '@realmfall/ui-react';
 import { vi } from 'vitest';
-import type { Item } from '../game/stateTypes';
+import type { Item } from '@realmfall/core/game/stateTypes';
 import { DraggableWindow } from './components/DraggableWindow';
 import { mountUi, setupUiTestEnvironment } from './uiTestkit';
 import type { WindowPosition } from '../app/constants';
@@ -165,7 +165,7 @@ describe('ui window interactions', () => {
   it('commits draggable window movement on pointer release', async () => {
     const moves: Array<{ x: number; y: number }> = [];
     const ui = await mountUi(
-        <DraggableWindow
+      <DraggableWindow
         title="Batched Window"
         position={{ x: 40, y: 50 }}
         onMove={(position: WindowPosition) => moves.push(position)}
@@ -217,11 +217,11 @@ describe('ui window interactions', () => {
   it('skips draggable window movement commit when no drag delta occurred', async () => {
     const moves: Array<{ x: number; y: number }> = [];
     const ui = await mountUi(
-        <DraggableWindow
-          title="Batched Window"
-          position={{ x: 40, y: 50 }}
-          onMove={(position: WindowPosition) => moves.push(position)}
-        >
+      <DraggableWindow
+        title="Batched Window"
+        position={{ x: 40, y: 50 }}
+        onMove={(position: WindowPosition) => moves.push(position)}
+      >
         <div>Body</div>
       </DraggableWindow>,
     );

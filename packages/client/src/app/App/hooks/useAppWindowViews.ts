@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import type { GameState, LogKind } from '../../../game/stateTypes';
+import type { GameState, LogKind } from '@realmfall/core/game/stateTypes';
 import type { AudioSettings } from '../../audioSettings';
 import type { GameplaySettings } from '../../gameplaySettings';
 import type { GraphicsSettings } from '../../graphicsSettings';

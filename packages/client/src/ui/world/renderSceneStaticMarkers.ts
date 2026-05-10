@@ -1,10 +1,10 @@
-import { enemyRarityIndex } from '../../game/stateSelectors';
-import type { GameState } from '../../game/stateTypes';
-import { hexKey } from '../../game/hex';
+import { enemyRarityIndex } from '@realmfall/core/game/stateSelectors';
+import type { GameState } from '@realmfall/core/game/stateTypes';
+import { hexKey } from '@realmfall/core/game/hex';
 import {
   getPlacedWorldBossCenter,
   isWorldBossEnemyId,
-} from '../../game/worldBoss';
+} from '@realmfall/core/game/worldBoss';
 import {
   WorldIcons,
   enemyIconFor,

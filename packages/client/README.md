@@ -1,11 +1,11 @@
 # Realmfall Client
 
-`@realmfall/client-web` is the browser game package. It owns the React app shell, Pixi world rendering, gameplay runtime, persistence, i18n, and build output for the playable client.
+`@realmfall/client-web` is the browser game package. It owns the React app shell, Pixi world rendering, persistence, i18n, and build output for the playable client, while the canonical gameplay runtime lives in `@realmfall/core`.
 
 ## Package Layout
 
 - `src/app`: app orchestration, hydration, persistence wiring, keyboard shortcuts, and top-level hooks.
-- `src/game`: gameplay rules, combat, economy, crafting, progression, world generation, and shared game types.
+- `src/game`: compatibility facades and client-owned gameplay test helpers that forward canonical runtime imports to `@realmfall/core`.
 - `src/ui/components`: client-only React windows and presentational UI.
 - `src/ui/world`: Pixi world rendering helpers, caches, and related tests.
 - `src/persistence`: local save storage helpers.

@@ -1,5 +1,5 @@
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../game/worldCombatPresentation';
-import type { HexCoord } from '../../game/stateTypes';
+import { WORLD_COMBAT_LUNGE_DURATION_MS } from '@realmfall/core/game/worldCombatPresentation';
+import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import { tileToPoint } from './renderSceneMath';
 
 const PLAYER_LUNGE_DISTANCE_RATIO = 0.16;
@@ -44,8 +44,7 @@ export function getWorldCombatLungeOffset({
             (worldTimeMs - startedAtMs) / WORLD_COMBAT_LUNGE_DURATION_MS,
           ),
         );
-  const progress =
-    phase === 'held' ? 1 : Math.sin((rawProgress * Math.PI) / 2);
+  const progress = phase === 'held' ? 1 : Math.sin((rawProgress * Math.PI) / 2);
   const lungeDistance = Math.min(
     distance * PLAYER_LUNGE_DISTANCE_RATIO,
     Math.max(PLAYER_LUNGE_MIN_PX, hexSize * PLAYER_LUNGE_DISTANCE_RATIO),

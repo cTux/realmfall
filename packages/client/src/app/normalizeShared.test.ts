@@ -1,6 +1,10 @@
-import { ENEMY_TYPE_IDS } from '../game/content/ids';
-import { EQUIPMENT_SLOTS, Skill, RARITY_ORDER } from '../game/stateTypes';
-import { STRUCTURE_TYPES, TERRAINS } from '../game/stateTypes';
+import { ENEMY_TYPE_IDS } from '@realmfall/core/game/content/ids';
+import {
+  EQUIPMENT_SLOTS,
+  Skill,
+  RARITY_ORDER,
+} from '@realmfall/core/game/stateTypes';
+import { STRUCTURE_TYPES, TERRAINS } from '@realmfall/core/game/stateTypes';
 import {
   getSkillNames,
   isCooldownMap,

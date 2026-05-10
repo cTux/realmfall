@@ -1,4 +1,4 @@
-import type { SecondaryStatKey } from '../../game/stateTypes';
+import type { SecondaryStatKey } from '@realmfall/core/game/stateTypes';
 import { t } from '../../i18n';
 import { formatSecondaryStatLabel } from '../../i18n/labels';
 import type { TooltipLine } from '../tooltips';

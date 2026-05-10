@@ -2,9 +2,9 @@ import { normalizeTiles } from './normalizeTileState';
 import {
   type DungeonWorldMetadata,
   type GameWorldState,
-} from '../game/dungeons/types';
-import type { GameState } from '../game/stateTypes';
-import { cloneEnemies, cloneTiles } from '../game/stateClone';
+} from '@realmfall/core/game/dungeons/types';
+import type { GameState } from '@realmfall/core/game/stateTypes';
+import { cloneEnemies, cloneTiles } from '@realmfall/core/game/stateClone';
 import {
   isDungeonTemplateId,
   isDungeonThemeId,

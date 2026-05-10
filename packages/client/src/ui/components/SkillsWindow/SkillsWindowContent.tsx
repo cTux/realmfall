@@ -1,5 +1,5 @@
-import { skillLevelThreshold } from '../../../game/progression';
-import type { SkillName } from '../../../game/stateTypes';
+import { skillLevelThreshold } from '@realmfall/core/game/progression';
+import type { SkillName } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import { formatSkillLabel } from '../../../i18n/labels';
 import { skillTooltip } from '../../tooltips';

@@ -1,1 +1,1 @@
-export * from './content/abilities/melee';
+export * from '@realmfall/core/game/abilityCatalogMelee';

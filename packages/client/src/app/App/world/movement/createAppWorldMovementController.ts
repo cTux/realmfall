@@ -1,6 +1,6 @@
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
 import { t } from '../../../../i18n';
-import type { GameState, HexCoord } from '../../../../game/stateTypes';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 import { createWorkerGameplayTransitionSource } from '../../gameplay/createWorkerGameplayTransitionSource';
 import { createLoggedGameTransition } from '../../hooks/useLoggedGameCommand';
 import { createLocalWorldMoveSource } from './createLocalWorldMoveSource';

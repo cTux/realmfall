@@ -1,7 +1,7 @@
-import { WORLD_MOVE_VISUAL_DURATION_MS } from '../../game/config';
-import { getActiveWorld } from '../../game/dungeons/worldState';
-import { hexDistance, type HexCoord } from '../../game/hex';
-import type { Enemy, GameState } from '../../game/stateTypes';
+import { WORLD_MOVE_VISUAL_DURATION_MS } from '@realmfall/core/game/config';
+import { getActiveWorld } from '@realmfall/core/game/dungeons/worldState';
+import { hexDistance, type HexCoord } from '@realmfall/core/game/hex';
+import type { Enemy, GameState } from '@realmfall/core/game/stateTypes';
 import { tileToPoint } from './renderSceneMath';
 import type { SceneCache } from './renderSceneCache';
 import type { AnimatedWorldMarkerMovementTransition } from './renderSceneMarkerAnimations';

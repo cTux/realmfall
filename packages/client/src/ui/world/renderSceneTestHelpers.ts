@@ -1,7 +1,7 @@
 import { afterEach, beforeEach, vi } from 'vitest';
-import { createGame } from '../../game/stateFactory';
-import { hexKey, hexNeighbors } from '../../game/hex';
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { hexKey, hexNeighbors } from '@realmfall/core/game/hex';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
 import gluttonyIcon from '../../assets/icons/gluttony.svg';
 import playerIcon from '../../assets/icons/visored-helm.svg';
 import wolfHeadIcon from '../../assets/icons/wolf-head.svg';

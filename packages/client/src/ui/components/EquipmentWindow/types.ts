@@ -1,5 +1,9 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { Equipment, EquipmentSlot, Item } from '../../../game/stateTypes';
+import type {
+  Equipment,
+  EquipmentSlot,
+  Item,
+} from '@realmfall/core/game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

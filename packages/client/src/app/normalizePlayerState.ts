@@ -1,6 +1,6 @@
-import { syncPlayerBaseStats } from '../game/balance';
-import { cloneEquipment, clonePlayer } from '../game/stateClone';
-import type { GameState, Item } from '../game/stateTypes';
+import { syncPlayerBaseStats } from '@realmfall/core/game/balance';
+import { cloneEquipment, clonePlayer } from '@realmfall/core/game/stateClone';
+import type { GameState, Item } from '@realmfall/core/game/stateTypes';
 import { normalizeStatusEffects } from './normalizeItems';
 import { normalizeItem } from './normalizeItems';
 import {

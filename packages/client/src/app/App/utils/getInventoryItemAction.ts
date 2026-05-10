@@ -1,5 +1,5 @@
-import { canUseItem, isRecipePage } from '../../../game/stateSelectors';
-import type { Item } from '../../../game/stateTypes';
+import { canUseItem, isRecipePage } from '@realmfall/core/game/stateSelectors';
+import type { Item } from '@realmfall/core/game/stateTypes';
 
 export function getInventoryItemAction(
   item: Item | undefined,

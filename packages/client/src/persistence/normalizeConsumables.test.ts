@@ -1,6 +1,9 @@
-import { normalizeLoadedGame, normalizeSavedUiItem } from './normalizeConsumablesTestkit';
-import { buildItemFromConfig } from '../game/content/items';
-import { createGame } from '../game/stateFactory';
+import {
+  normalizeLoadedGame,
+  normalizeSavedUiItem,
+} from './normalizeConsumablesTestkit';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { createGame } from '@realmfall/core/game/stateFactory';
 
 describe('normalize consumables', () => {
   it('re-merges legacy consumable stacks after restoring configured rarity', () => {

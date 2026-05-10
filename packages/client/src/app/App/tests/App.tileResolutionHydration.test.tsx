@@ -1,10 +1,6 @@
 import { act } from 'react';
-import { createGame } from '../../../game/stateFactory';
-import {
-  flushLazyModules,
-  loadEncryptedState,
-  renderApp,
-} from './appTestkit';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { flushLazyModules, loadEncryptedState, renderApp } from './appTestkit';
 
 const createWorkerTileResolutionSource = vi.fn();
 const createLocalTileResolutionSource = vi.fn();

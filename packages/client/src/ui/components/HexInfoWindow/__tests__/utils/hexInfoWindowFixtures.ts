@@ -1,5 +1,5 @@
-import { createCombatActorState } from '../../../../../game/combat';
-import type { CombatState } from '../../../../../game/stateTypes';
+import { createCombatActorState } from '@realmfall/core/game/combat';
+import type { CombatState } from '@realmfall/core/game/stateTypes';
 import type { HexInfoWindowProps } from '../../types';
 
 export function buildHexInfoWindowProps(

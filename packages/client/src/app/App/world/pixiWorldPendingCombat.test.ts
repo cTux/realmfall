@@ -1,8 +1,8 @@
 import { describe, expect, it } from 'vitest';
-import { createPendingCombatEncounter } from '../../../game/stateCombatEngagement';
-import { createGame } from '../../../game/stateFactory';
-import type { GameState } from '../../../game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../../game/worldCombatPresentation';
+import { createPendingCombatEncounter } from '@realmfall/core/game/stateCombatEngagement';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import type { GameState } from '@realmfall/core/game/stateTypes';
+import { WORLD_COMBAT_LUNGE_DURATION_MS } from '@realmfall/core/game/worldCombatPresentation';
 import type { WorldMovementTransition } from './movement/worldMovementTransition';
 import {
   autoStartPendingCombat,

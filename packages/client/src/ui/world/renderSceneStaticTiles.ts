@@ -1,4 +1,4 @@
-import type { GameState } from '../../game/stateTypes';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { configureSprite, takeGraphics, takeSprite } from './renderScenePools';
 import type { SceneCache } from './renderSceneCache';
 import { terrainArtFor } from './worldTerrainArt';
@@ -10,8 +10,8 @@ import {
   WORLD_BOSS_HEX_TINT_COLOR,
 } from './renderSceneShared';
 import { tileStyle } from './renderSceneEnvironment';
-import { getPlacedWorldBossCenter } from '../../game/worldBoss';
-import { hexKey } from '../../game/hex';
+import { getPlacedWorldBossCenter } from '@realmfall/core/game/worldBoss';
+import { hexKey } from '@realmfall/core/game/hex';
 import { renderClaimBorder } from './renderSceneClaimBorders';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import { renderStaticMarkers } from './renderSceneStaticMarkers';

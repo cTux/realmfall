@@ -1,4 +1,4 @@
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,

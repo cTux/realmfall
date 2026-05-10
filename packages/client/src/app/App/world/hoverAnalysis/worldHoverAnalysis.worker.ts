@@ -1,5 +1,5 @@
 import { expose } from 'comlink';
-import type { HexCoord } from '../../../../game/stateTypes';
+import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import {
   analyzeWorldHoverTarget,
   EMPTY_WORLD_HOVER_ANALYSIS_RESULT,

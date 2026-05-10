@@ -1,6 +1,6 @@
-import { WORLD_REVEAL_RADIUS } from '../../../../game/config';
-import { createGame } from '../../../../game/state';
-import type { Enemy } from '../../../../game/stateTypes';
+import { WORLD_REVEAL_RADIUS } from '@realmfall/core/game/config';
+import { createGame } from '@realmfall/core/game/state';
+import type { Enemy } from '@realmfall/core/game/stateTypes';
 import { buildWorldHoverAnalysisState } from './worldHoverAnalysisTypes';
 
 describe('buildWorldHoverAnalysisState', () => {

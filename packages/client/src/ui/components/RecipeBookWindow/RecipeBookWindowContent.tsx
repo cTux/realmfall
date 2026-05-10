@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Button } from '@realmfall/ui-react';
-import { Skill, type EquipmentSlot } from '../../../game/stateTypes';
+import { Skill, type EquipmentSlot } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import { formatEquipmentSlotLabel } from '../../../i18n/labels';
 import { iconForItem } from '../../icons';

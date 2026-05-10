@@ -6,7 +6,7 @@ import {
   type SetStateAction,
   type MutableRefObject,
 } from 'react';
-import { getWorldTimeMinutesFromTimestamp } from '../../game/worldTime';
+import { getWorldTimeMinutesFromTimestamp } from '@realmfall/core/game/worldTime';
 import { setWorldClockTime } from './worldClockStore';
 
 interface UseWorldClockFpsOptions {

@@ -1,17 +1,21 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
-import { hexAtPoint, hexDistance, type HexCoord } from '../../../game/hex';
-import { isPassable } from '../../../game/shared';
-import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
+import {
+  hexAtPoint,
+  hexDistance,
+  type HexCoord,
+} from '@realmfall/core/game/hex';
+import { isPassable } from '@realmfall/core/game/shared';
+import { getCurrentWorldRevealRadius } from '@realmfall/core/game/stateOutposts';
 import {
   getSafePathToHostileStagingTile,
   getSafePathToTile,
-} from '../../../game/statePathfinding';
+} from '@realmfall/core/game/statePathfinding';
 import {
   getHostileEnemyIds,
   getResolvedTileAt,
-} from '../../../game/stateWorldQueries';
-import type { GameState } from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateWorldQueries';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import type { WorldScenePointMapper } from './pixiWorldCamera';
 import {

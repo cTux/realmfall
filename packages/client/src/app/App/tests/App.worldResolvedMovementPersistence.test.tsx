@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { createGame } from '../../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import {
   flushLazyModules,
   loadEncryptedState,
@@ -64,7 +64,7 @@ describe('App resolved movement persistence', () => {
   it('keeps resolved frontier tiles available after the first queued movement step', async () => {
     const game = createGame(3, 'app-resolved-movement-persistence');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 

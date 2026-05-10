@@ -7,7 +7,9 @@ This spec covers the repository layer boundaries, state transition shape, and co
 ## Current Solution
 
 - Client-side `src/*` paths below live under `packages/client/` after the monorepo split.
-- `packages/client/src/game` contains gameplay and simulation rules.
+- Gameplay-module `src/game/*` references below resolve under `packages/core/src/game` unless a bullet explicitly names `packages/client/src/game`.
+- `packages/core/src/game` contains the canonical gameplay and simulation rules.
+- `packages/client/src/game` contains compatibility facades and client-owned gameplay test helpers, while non-game client modules import canonical runtime code directly from `@realmfall/core/game/*`.
 - `packages/client/src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
 - Repeated app-controller command families that only adapt gameplay transitions into UI handlers stay in focused neighbors such as `packages/client/src/app/App/hooks/gameActionHandlers/*` instead of regrowing broad orchestration hooks with hand-wired callback lists.
 - `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui-react`.
@@ -50,12 +52,13 @@ This spec covers the repository layer boundaries, state transition shape, and co
 
 ## Main Implementation Areas
 
+- `packages/core/src/game`
+- `packages/core/src/game/consumables.ts`
+- `packages/core/src/game/stateItemActions.ts`
+- `packages/core/src/game/stateFactory.ts`
+- `packages/core/src/game/stateSelectors.ts`
+- `packages/core/src/game/stateTypes.ts`
 - `packages/client/src/game`
-- `packages/client/src/game/consumables.ts`
-- `packages/client/src/game/stateItemActions.ts`
-- `packages/client/src/game/stateFactory.ts`
-- `packages/client/src/game/stateSelectors.ts`
-- `packages/client/src/game/stateTypes.ts`
 - `packages/client/src/app`
 - `packages/client/src/ui/components`
 - `packages/client/src/ui/world`

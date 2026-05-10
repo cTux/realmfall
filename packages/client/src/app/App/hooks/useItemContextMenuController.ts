@@ -4,15 +4,15 @@ import {
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
 } from 'react';
-import { canSellItem, isEquippableItem } from '../../../game/inventory';
-import { getResolvedCurrentTile } from '../../../game/stateSelectors';
-import type { GameState } from '../../../game/stateTypes';
+import { canSellItem, isEquippableItem } from '@realmfall/core/game/inventory';
+import { getResolvedCurrentTile } from '@realmfall/core/game/stateSelectors';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import {
   canModifyItem,
   formatReforgeableItemSecondaryStatLabel,
   getItemModificationCost,
   getReforgeableItemSecondaryStats,
-} from '../../../game/itemModifications';
+} from '@realmfall/core/game/itemModifications';
 import type { ItemContextMenuState, TooltipItem } from '../types';
 
 export function useItemContextMenuController({

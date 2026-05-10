@@ -1,1 +1,1 @@
-export const WORLD_COMBAT_LUNGE_DURATION_MS = 180;
+export * from '@realmfall/core/game/worldCombatPresentation';

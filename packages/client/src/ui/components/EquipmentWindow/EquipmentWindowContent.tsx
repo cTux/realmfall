@@ -1,8 +1,8 @@
 import { ItemSlot as ItemSlotButton } from '@realmfall/ui-react';
 import type { CSSProperties } from 'react';
 import silhouetteImage from '../../../assets/images/silhouette.png';
-import { EquipmentSlotId } from '../../../game/content/ids';
-import { isOffhandSlotDisabled } from '../../../game/stateSelectors';
+import { EquipmentSlotId } from '@realmfall/core/game/content/ids';
+import { isOffhandSlotDisabled } from '@realmfall/core/game/stateSelectors';
 import { t } from '../../../i18n';
 import { formatEquipmentSlotLabel } from '../../../i18n/labels';
 import type { EquipmentWindowProps } from './types';

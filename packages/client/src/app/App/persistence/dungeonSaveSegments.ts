@@ -1,5 +1,5 @@
-import type { DungeonWorldState } from '../../../game/dungeons/types';
-import type { GameState } from '../../../game/stateTypes';
+import type { DungeonWorldState } from '@realmfall/core/game/dungeons/types';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 
 export function buildPersistedDungeonWorlds(game: GameState) {
   return Object.fromEntries(

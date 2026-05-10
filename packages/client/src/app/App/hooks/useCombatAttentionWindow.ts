@@ -1,6 +1,6 @@
 import { useEffect, useLayoutEffect, useRef } from 'react';
-import { isEnemyInitiatedCombat } from '../../../game/stateCombatEngagement';
-import type { GameState, HexCoord } from '../../../game/stateTypes';
+import { isEnemyInitiatedCombat } from '@realmfall/core/game/stateCombatEngagement';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 
 export function useCombatAttentionWindow({
   combat,

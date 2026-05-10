@@ -1,8 +1,11 @@
 import React from 'react';
 import { Tooltip as GameTooltip } from '@realmfall/ui-react';
 import { t } from '../i18n';
-import { getAbilityDefinition } from '../game/abilities';
-import { getItemConfigByKey, getPlayerOverview } from '../game/stateSelectors';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
+import {
+  getItemConfigByKey,
+  getPlayerOverview,
+} from '@realmfall/core/game/stateSelectors';
 import { DEFAULT_WINDOWS } from '../app/constants';
 import { rarityColor } from './rarity';
 import {

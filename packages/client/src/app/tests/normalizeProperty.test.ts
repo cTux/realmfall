@@ -1,12 +1,15 @@
 import fc from 'fast-check';
-import { normalizeLoadedGame, normalizeSavedUiItem } from './normalizePropertyTestkit';
+import {
+  normalizeLoadedGame,
+  normalizeSavedUiItem,
+} from './normalizePropertyTestkit';
 import {
   buildItemFromConfig,
   getConsumableItemKeys,
   ITEM_CONFIGS,
-} from '../../game/content/items';
-import { createGame } from '../../game/stateFactory';
-import { RARITY_ORDER } from '../../game/stateTypes';
+} from '@realmfall/core/game/content/items';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { RARITY_ORDER } from '@realmfall/core/game/stateTypes';
 
 const ALL_ITEM_KEYS = ITEM_CONFIGS.map((config) => config.key) as [
   string,

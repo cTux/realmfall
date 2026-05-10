@@ -1,6 +1,10 @@
-import { GAME_TAGS } from '../../game/content/tags';
-import type { HexCoord, Tile, WorldKind } from '../../game/stateTypes';
-import { getStructureConfig } from '../../game/stateSelectors';
+import { GAME_TAGS } from '@realmfall/core/game/content/tags';
+import type {
+  HexCoord,
+  Tile,
+  WorldKind,
+} from '@realmfall/core/game/stateTypes';
+import { getStructureConfig } from '@realmfall/core/game/stateSelectors';
 import type { SceneCache } from './renderSceneCache';
 import {
   getCachedValue,

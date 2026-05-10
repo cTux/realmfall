@@ -5,9 +5,9 @@ import {
   formatCompactNumberish,
 } from '@realmfall/ui-react';
 import { getInventoryItemAction } from './uiVisualHelpersTestkit';
-import { GameTag } from '../game/content/tags';
-import { getAbilityDefinition } from '../game/abilities';
-import { getItemConfigByKey } from '../game/stateSelectors';
+import { GameTag } from '@realmfall/core/game/content/tags';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
+import { getItemConfigByKey } from '@realmfall/core/game/stateSelectors';
 import {
   DEFAULT_LOG_FILTERS,
   DEFAULT_WINDOW_VISIBILITY,

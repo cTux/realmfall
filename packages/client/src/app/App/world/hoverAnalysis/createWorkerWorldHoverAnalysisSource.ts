@@ -1,5 +1,5 @@
 import { wrap } from 'comlink';
-import type { HexCoord } from '../../../../game/stateTypes';
+import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import { createLocalWorldHoverAnalysisSource } from './createLocalWorldHoverAnalysisSource';
 import type {
   WorldHoverAnalysisSource,

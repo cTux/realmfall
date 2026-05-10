@@ -1,4 +1,4 @@
-import { Skill } from '../../../game/stateTypes';
+import { Skill } from '@realmfall/core/game/stateTypes';
 import {
   DEFAULT_RECIPE_SKILL_LEVELS,
   createRecipe,

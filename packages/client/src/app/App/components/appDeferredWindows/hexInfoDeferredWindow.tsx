@@ -1,6 +1,6 @@
 import { t } from '../../../../i18n';
-import { itemName } from '../../../../game/content/i18n';
-import { getStructureConfig } from '../../../../game/state';
+import { itemName } from '@realmfall/core/game/content/i18n';
+import { getStructureConfig } from '@realmfall/core/game/state';
 import { createLazyWindowComponent } from '../../../../ui/components/lazyWindowComponent';
 import type { HexViewState } from '../../AppWindows.types';
 import { loadNamedWindowModule } from './lazyDeferredWindowModule';

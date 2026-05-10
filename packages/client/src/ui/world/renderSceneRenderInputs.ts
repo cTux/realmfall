@@ -1,5 +1,5 @@
-import { getEnemiesAt } from '../../game/stateSelectors';
-import type { GameState } from '../../game/stateTypes';
+import { getEnemiesAt } from '@realmfall/core/game/stateSelectors';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import {
   isUnknownVisibleWorldTile,
   type VisibleWorldTile,

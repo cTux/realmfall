@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { createGame } from '../../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import {
   flushLazyModules,
   loadEncryptedState,

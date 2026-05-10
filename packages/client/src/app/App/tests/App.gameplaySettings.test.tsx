@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { moveToTile } from '../../../game/state';
+import { moveToTile } from '@realmfall/core/game/state';
 import {
   renderApp,
   createHydratedAppGame,

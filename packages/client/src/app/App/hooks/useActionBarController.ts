@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useState, type MutableRefObject } from 'react';
 import { t } from '../../../i18n';
-import { useItem as applyItemUse } from '../../../game/stateItemActions';
-import type { GameState, Item } from '../../../game/stateTypes';
+import { useItem as applyItemUse } from '@realmfall/core/game/stateItemActions';
+import type { GameState, Item } from '@realmfall/core/game/stateTypes';
 import {
   createDefaultActionBarSlots,
   findActionBarItem,

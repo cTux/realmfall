@@ -1,4 +1,8 @@
-import type { RecipeBookEntry, Skill, Tile } from '../../../game/stateTypes';
+import type {
+  RecipeBookEntry,
+  Skill,
+  Tile,
+} from '@realmfall/core/game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

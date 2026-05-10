@@ -1,4 +1,5 @@
 import {
+  chunkFilesByArgumentLength,
   FULL_TEST_TRIGGER_FILES,
   getExtension,
   isLintFile,
@@ -11,9 +12,9 @@ import {
 describe('run-staged-quality helpers', () => {
   it('treats runtime JSON sources as related test inputs', () => {
     expect(isVitestRelatedFile('packages/client/game.config.ts')).toBe(true);
-    expect(isVitestRelatedFile('packages/client/src/i18n/locales/en.json')).toBe(
-      true,
-    );
+    expect(
+      isVitestRelatedFile('packages/client/src/i18n/locales/en.json'),
+    ).toBe(true);
   });
 
   it('does not treat unrelated root JSON files as related test inputs', () => {
@@ -32,18 +33,18 @@ describe('run-staged-quality helpers', () => {
 
   it('keeps shared test trigger files explicit', () => {
     expect(FULL_TEST_TRIGGER_FILES.has('package.json')).toBe(false);
-    expect(
-      FULL_TEST_TRIGGER_FILES.has('packages/client/game.config.ts'),
-    ).toBe(false);
+    expect(FULL_TEST_TRIGGER_FILES.has('packages/client/game.config.ts')).toBe(
+      false,
+    );
     expect(FULL_TEST_TRIGGER_FILES.has('packages/client/vite.config.ts')).toBe(
       true,
     );
   });
 
   it('extracts lowercase extensions consistently', () => {
-    expect(
-      getExtension('packages/client/src/i18n/locales/EN.JSON'),
-    ).toBe('.json');
+    expect(getExtension('packages/client/src/i18n/locales/EN.JSON')).toBe(
+      '.json',
+    );
     expect(getExtension('scripts/run-staged-quality')).toBe('');
   });
 
@@ -73,8 +74,23 @@ describe('run-staged-quality helpers', () => {
       false,
     );
     expect(shouldRunFullTestSuite(['package.json'], scriptDiff)).toBe(true);
-    expect(
-      shouldRunFullTestSuite(['packages/client/vite.config.ts'], ''),
-    ).toBe(true);
+    expect(shouldRunFullTestSuite(['packages/client/vite.config.ts'], '')).toBe(
+      true,
+    );
+  });
+
+  it('chunks staged file arguments before Windows process limits are hit', () => {
+    const fixedArgs = ['--filter', '@realmfall/client-web', 'exec', 'prettier'];
+    const fileArgs = [
+      'E:/repo/packages/client/src/game/one.ts',
+      'E:/repo/packages/client/src/game/two.ts',
+      'E:/repo/packages/client/src/game/three.ts',
+    ];
+
+    expect(chunkFilesByArgumentLength(fixedArgs, fileArgs, 130)).toEqual([
+      [fileArgs[0], fileArgs[1]],
+      [fileArgs[2]],
+    ]);
+    expect(chunkFilesByArgumentLength(fixedArgs, [], 130)).toEqual([]);
   });
 });

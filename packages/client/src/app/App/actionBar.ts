@@ -1,5 +1,5 @@
-import { getItemCategory } from '../../game/content/items';
-import type { Item } from '../../game/stateTypes';
+import { getItemCategory } from '@realmfall/core/game/content/items';
+import type { Item } from '@realmfall/core/game/stateTypes';
 
 export const ACTION_BAR_SLOT_COUNT = 9;
 

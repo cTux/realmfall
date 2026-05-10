@@ -7,10 +7,10 @@ import React, {
   useState,
 } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createCombatActorState } from '../../../game/combat';
-import { createDungeonWorldState } from '../../../game/dungeons/worldState';
-import { createGame } from '../../../game/stateFactory';
-import type { GameState } from '../../../game/stateTypes';
+import { createCombatActorState } from '@realmfall/core/game/combat';
+import { createDungeonWorldState } from '@realmfall/core/game/dungeons/worldState';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { createDefaultActionBarSlots } from '../actionBar';
 import {
   DEFAULT_LOG_FILTERS,

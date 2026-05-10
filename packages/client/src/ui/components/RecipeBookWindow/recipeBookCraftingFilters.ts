@@ -1,9 +1,12 @@
-import { EQUIPMENT_SLOTS, type EquipmentSlot } from '../../../game/stateTypes';
+import {
+  EQUIPMENT_SLOTS,
+  type EquipmentSlot,
+} from '@realmfall/core/game/stateTypes';
 import {
   buildItemFromConfig,
   getItemConfigByKey,
   ITEM_CONFIGS,
-} from '../../../game/content/items';
+} from '@realmfall/core/game/content/items';
 
 export const CRAFTING_SLOT_FILTERS = EQUIPMENT_SLOTS;
 

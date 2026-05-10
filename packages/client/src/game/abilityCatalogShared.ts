@@ -1,1 +1,1 @@
-export * from './content/abilities/helpers';
+export * from '@realmfall/core/game/abilityCatalogShared';

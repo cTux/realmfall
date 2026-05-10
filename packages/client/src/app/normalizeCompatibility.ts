@@ -1,5 +1,5 @@
-import { ENEMY_CONFIGS } from '../game/content/enemies';
-import type { Enemy } from '../game/stateTypes';
+import { ENEMY_CONFIGS } from '@realmfall/core/game/content/enemies';
+import type { Enemy } from '@realmfall/core/game/stateTypes';
 
 const LEGACY_ENEMY_TYPE_ID_BY_NAME = Object.fromEntries(
   ENEMY_CONFIGS.map((config) => [config.name, config.id]),

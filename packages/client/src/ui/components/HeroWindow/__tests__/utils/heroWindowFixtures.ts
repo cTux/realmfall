@@ -1,4 +1,4 @@
-import { createSkillRecord } from '../../../../../game/skillRecords';
+import { createSkillRecord } from '@realmfall/core/game/skillRecords';
 import type { HeroOverview, HeroWindowProps } from '../../types';
 
 export const heroWindowHero: HeroOverview = {

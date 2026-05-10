@@ -1,8 +1,8 @@
 import { expose } from 'comlink';
-import { moveToTile } from '../../../game/stateMovement';
-import { progressCombat, startCombat } from '../../../game/stateCombat';
-import type { GameState, HexCoord } from '../../../game/stateTypes';
-import type { MoveToTileOptions } from '../../../game/stateMovement';
+import { moveToTile } from '@realmfall/core/game/stateMovement';
+import { progressCombat, startCombat } from '@realmfall/core/game/stateCombat';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
+import type { MoveToTileOptions } from '@realmfall/core/game/stateMovement';
 import type {
   GameplayTransitionResult,
   GameplayTransitionWorker,
