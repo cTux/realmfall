@@ -8,6 +8,7 @@ import {
   getLabelsLayer,
   getPlayerLayer,
   MockContainer,
+  MockSprite,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestkit';
 
@@ -381,8 +382,11 @@ describe('renderScene combat feedback', () => {
     expect(Math.abs(bossText!.position.y - genericEnemyY)).toBeGreaterThan(12);
   });
 
-  it('keeps the player wrapper centered when combat begins on an adjacent hostile hex', async () => {
+  it('keeps the player wrapper centered when combat begins on an adjacent hostile hex and adds the battle-entity indicator', async () => {
     const { renderScene } = await import('./renderScene');
+    const { getEntityBadgeArcBand } = await import('./renderSceneEntityBadge');
+    const { getPlayerBadgeOuterRadius } =
+      await import('./renderScenePlayerBars');
     const { COMBAT_WORLD_ICON_TINT, WorldIcons } = await import('./worldIcons');
     const game = createGame(2, 'render-scene-player-lunge');
     const baselineApp = createMockApp();
@@ -481,14 +485,44 @@ describe('renderScene combat feedback', () => {
     const combatWrapper = getPlayerLayer(combatApp).children[2] as
       | MockContainer
       | undefined;
-    const baselineSprite = getForegroundPlayerSprite(baselineWrapper);
-    const combatSprite = getForegroundPlayerSprite(combatWrapper);
+    const baselineSprite = getForegroundPlayerSprite(
+      baselineWrapper,
+      WorldIcons.Combat,
+    );
+    const combatSprite = getForegroundPlayerSprite(
+      combatWrapper,
+      WorldIcons.Combat,
+    );
+    const combatIndicatorContainer = getBattleIndicatorContainer(combatWrapper);
+    const combatIndicatorSprite = getContainerSpriteByIcon(
+      combatIndicatorContainer,
+      WorldIcons.Combat,
+    );
+    const combatIndicatorShadowSprites = getVisiblePlayerShadowSprites(
+      combatWrapper,
+      WorldIcons.Combat,
+    );
+    const combatIndicatorCenterX = getEntityBadgeArcBand(
+      getPlayerBadgeOuterRadius(
+        getWorldHexSize(combatApp.screen, game.radius) * 0.95,
+      ),
+    ).outerRadius;
 
     expect(baselineWrapper).toBeDefined();
     expect(combatWrapper).toBeDefined();
     expect(baselineSprite?.icon).not.toBe(WorldIcons.Combat);
-    expect(combatSprite?.icon).toBe(WorldIcons.Combat);
-    expect(combatSprite?.tint).toBe(COMBAT_WORLD_ICON_TINT);
+    expect(combatSprite?.icon).toBe(baselineSprite?.icon);
+    expect(combatSprite?.tint).toBe(baselineSprite?.tint);
+    expect(combatIndicatorSprite).toBeDefined();
+    expect(combatIndicatorContainer).toBeDefined();
+    expect(combatIndicatorSprite?.tint).toBe(COMBAT_WORLD_ICON_TINT);
+    expect(combatIndicatorContainer?.position.x).toBeCloseTo(
+      combatIndicatorCenterX,
+      4,
+    );
+    expect(combatIndicatorContainer?.position.y).toBeCloseTo(0, 4);
+    expect(combatIndicatorSprite?.width).toBeLessThanOrEqual(15);
+    expect(combatIndicatorShadowSprites.length).toBeGreaterThan(0);
     expect(combatWrapper!.position.x).toBeCloseTo(
       baselineWrapper!.position.x,
       4,
@@ -559,9 +593,12 @@ describe('renderScene combat feedback', () => {
     );
   });
 
-  it('crossfades the player icon into the combat emblem during battle start', async () => {
+  it('adds the player battle-entity indicator during battle start without replacing the player icon', async () => {
     const { renderScene } = await import('./renderScene');
-    const { WorldIcons } = await import('./worldIcons');
+    const { getEntityBadgeArcBand } = await import('./renderSceneEntityBadge');
+    const { getPlayerBadgeOuterRadius } =
+      await import('./renderScenePlayerBars');
+    const { COMBAT_WORLD_ICON_TINT, WorldIcons } = await import('./worldIcons');
     const game = createLungeCombatGame('render-scene-player-icon-crossfade');
     const app = createMockApp();
     const visibleTiles = getVisibleTiles(game);
@@ -618,12 +655,34 @@ describe('renderScene combat feedback', () => {
     const midWrapper = getPlayerLayer(app).children[2] as
       | MockContainer
       | undefined;
-    const midIcons = getVisibleForegroundPlayerSprites(midWrapper).map(
-      (sprite) => sprite.icon,
+    const midIndicatorContainer = getBattleIndicatorContainer(midWrapper);
+    const midIndicatorSprite = getContainerSpriteByIcon(
+      midIndicatorContainer,
+      WorldIcons.Combat,
     );
+    const midIndicatorShadowSprites = getVisiblePlayerShadowSprites(
+      midWrapper,
+      WorldIcons.Combat,
+    );
+    const midIndicatorCenterX = getEntityBadgeArcBand(
+      getPlayerBadgeOuterRadius(
+        getWorldHexSize(app.screen, game.radius) * 0.95,
+      ),
+    ).outerRadius;
 
-    expect(midIcons).toContain(WorldIcons.Player);
-    expect(midIcons).toContain(WorldIcons.Combat);
+    expect(getForegroundPlayerSprite(midWrapper, WorldIcons.Combat)?.icon).toBe(
+      WorldIcons.Player,
+    );
+    expect(midIndicatorSprite).toBeDefined();
+    expect(midIndicatorContainer).toBeDefined();
+    expect(midIndicatorSprite?.tint).toBe(COMBAT_WORLD_ICON_TINT);
+    expect(midIndicatorContainer?.position.x).toBeCloseTo(
+      midIndicatorCenterX,
+      4,
+    );
+    expect(midIndicatorContainer?.position.y).toBeCloseTo(0, 4);
+    expect(midIndicatorSprite?.width).toBeLessThanOrEqual(15);
+    expect(midIndicatorShadowSprites.length).toBeGreaterThan(0);
 
     renderScene(
       app as never,
@@ -645,13 +704,16 @@ describe('renderScene combat feedback', () => {
     const settledWrapper = getPlayerLayer(app).children[2] as
       | MockContainer
       | undefined;
-    const settledIcons = new Set(
-      getVisibleForegroundPlayerSprites(settledWrapper).map(
-        (sprite) => sprite.icon,
-      ),
-    );
+    const settledIndicatorContainer =
+      getBattleIndicatorContainer(settledWrapper);
 
-    expect(settledIcons).toEqual(new Set([WorldIcons.Combat]));
+    expect(
+      getForegroundPlayerSprite(settledWrapper, WorldIcons.Combat)?.icon,
+    ).toBe(WorldIcons.Player);
+    expect(settledIndicatorContainer).toBeDefined();
+    expect(
+      getContainerSpriteByIcon(settledIndicatorContainer, WorldIcons.Combat),
+    ).toBeDefined();
   });
 
   it('combines a combat state with a carried movement-transition offset without extra displacement', async () => {
@@ -830,14 +892,26 @@ describe('renderScene combat feedback', () => {
     const pendingWrapper = getPlayerLayer(pendingApp).children[2] as
       | MockContainer
       | undefined;
-    const baselineSprite = getForegroundPlayerSprite(baselineWrapper);
-    const pendingSprite = getForegroundPlayerSprite(pendingWrapper);
+    const baselineSprite = getForegroundPlayerSprite(
+      baselineWrapper,
+      WorldIcons.Combat,
+    );
+    const pendingSprite = getForegroundPlayerSprite(
+      pendingWrapper,
+      WorldIcons.Combat,
+    );
 
     expect(baselineWrapper).toBeDefined();
     expect(pendingWrapper).toBeDefined();
     expect(baselineSprite?.icon).not.toBe(WorldIcons.Combat);
     expect(pendingSprite?.icon).toBe(baselineSprite?.icon);
     expect(pendingSprite?.tint).not.toBe(COMBAT_WORLD_ICON_TINT);
+    expect(
+      getContainerSpriteByIcon(
+        getBattleIndicatorContainer(pendingWrapper),
+        WorldIcons.Combat,
+      ),
+    ).toBeUndefined();
     expect(pendingWrapper!.position.x).toBeCloseTo(
       baselineWrapper!.position.x,
       4,
@@ -1026,11 +1100,14 @@ function createLungeCombatGame(seed: string) {
   return game;
 }
 
-function getForegroundPlayerSprite(wrapper: MockContainer | undefined) {
+function getForegroundPlayerSprite(
+  wrapper: MockContainer | undefined,
+  excludedIcon: string,
+) {
   const sprites = getVisibleForegroundPlayerSprites(wrapper);
   for (let index = sprites.length - 1; index >= 0; index -= 1) {
     const sprite = sprites[index];
-    if (sprite && sprite.tint !== 0x000000) {
+    if (sprite && sprite.tint !== 0x000000 && sprite.icon !== excludedIcon) {
       return sprite;
     }
   }
@@ -1038,27 +1115,75 @@ function getForegroundPlayerSprite(wrapper: MockContainer | undefined) {
   return undefined;
 }
 
+function getContainerSpriteByIcon(
+  wrapper: MockContainer | undefined,
+  icon: string,
+) {
+  return getVisibleForegroundPlayerSprites(wrapper).find(
+    (sprite) => sprite.icon === icon,
+  );
+}
+
 function getVisibleForegroundPlayerSprites(wrapper: MockContainer | undefined) {
   return collectDescendants(wrapper ?? new MockContainer()).filter(
     (
       sprite,
     ): sprite is {
+      alpha: number;
       icon?: string;
+      position: { x: number; y: number };
       tint: number;
       visible: boolean;
+      width: number;
     } => isVisibleSpriteLike(sprite) && sprite.tint !== 0x000000,
   );
 }
 
-function isVisibleSpriteLike(
-  value: unknown,
-): value is { icon?: string; tint: number; visible: boolean } {
+function getVisiblePlayerShadowSprites(
+  wrapper: MockContainer | undefined,
+  icon: string,
+) {
+  return collectDescendants(wrapper ?? new MockContainer()).filter(
+    (sprite): sprite is MockSprite =>
+      isVisibleSpriteLike(sprite) &&
+      sprite.icon === icon &&
+      sprite.tint === 0x000000 &&
+      sprite.alpha > 0,
+  );
+}
+
+function getBattleIndicatorContainer(wrapper: MockContainer | undefined) {
+  const children = wrapper?.children ?? [];
+  const candidate = children[children.length - 1];
+  return isContainerLike(candidate) ? candidate : undefined;
+}
+
+function isContainerLike(value: unknown): value is MockContainer {
   return Boolean(
     value &&
     typeof value === 'object' &&
+    'children' in value &&
+    Array.isArray((value as { children?: unknown }).children),
+  );
+}
+
+function isVisibleSpriteLike(value: unknown): value is {
+  alpha: number;
+  icon?: string;
+  position: { x: number; y: number };
+  tint: number;
+  visible: boolean;
+  width: number;
+} {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    'position' in value &&
     'visible' in value &&
     'tint' in value &&
     'icon' in value &&
+    'width' in value &&
+    'alpha' in value &&
     (value as { visible?: boolean }).visible === true &&
     typeof (value as { tint?: unknown }).tint === 'number',
   );

@@ -15,6 +15,7 @@ import { renderPlayerResourceBars } from './renderScenePlayerBars';
 import { RenderSceneOptions } from './renderSceneFrameState';
 import { getRenderSceneFrameState } from './renderSceneFrameState';
 import { getRenderScenePhasePlan } from './renderScenePhasePlan';
+import { isCombatPresentationActive } from '../../game/combatPresentation';
 import type { VisibleWorldTile } from './visibleWorldTiles';
 
 export function renderScene(
@@ -106,6 +107,7 @@ export function renderScene(
 
   if (phasePlan.shouldRenderInteraction) {
     renderPlayerResourceBars({
+      playerIsBattleEntity: isCombatPresentationActive(frameState.state.combat),
       playerCombatStats: frameState.playerCombatStats,
       playerIconSize: frameState.playerIconSize,
       playerLevel: frameState.state.player.level,

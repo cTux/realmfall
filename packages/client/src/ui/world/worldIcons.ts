@@ -5,7 +5,7 @@ import snowingIcon from '../../assets/icons/snowing.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
 import castleIcon from '../../assets/icons/castle.svg';
 import batIcon from '../../assets/game-icons/delapouite/bat.svg';
-import combatIcon from '../../assets/game-icons/lorc/swords-emblem.svg';
+import combatIcon from '../../assets/game-icons/lorc/crossed-swords.svg';
 import forgottenLootIcon from '../../assets/game-icons/lorc/swap-bag.svg';
 import unknownHexIcon from '../../assets/game-icons/delapouite/perspective-dice-six-faces-random.svg';
 import {

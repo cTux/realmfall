@@ -214,9 +214,7 @@ export function renderStaticMarkers({
       const markerStableKey = isBossCenter
         ? getMarkerIdentityKey('world-boss')
         : `enemy:${leadEnemy.id}`;
-      const markerIcon = showCombatBars
-        ? WorldIcons.Combat
-        : enemyIconFor(leadEnemy);
+      const markerIcon = enemyIconFor(leadEnemy);
       const sprite = takeShadowedSprite(
         scene.worldStaticMarkerSprites,
         markerIcon,
@@ -224,9 +222,7 @@ export function renderStaticMarkers({
           stableKey: markerStableKey,
         },
       );
-      const tint = showCombatBars
-        ? COMBAT_WORLD_ICON_TINT
-        : enemyIconTintFor(highestRarityEnemy);
+      const tint = enemyIconTintFor(highestRarityEnemy);
       const iconTransitionLayers = markerStableKey
         ? getSceneIconTransitionLayers(
             scene.iconTransitionsByKey,
@@ -266,8 +262,16 @@ export function renderStaticMarkers({
       const markerIconSize = isBossCenter
         ? markerSize * WORLD_BOSS_ICON_SCALE
         : markerSize;
+      const markerOuterRadius =
+        markerSize * (isBossCenter ? 0.58 : 0.76) * ENTITY_BADGE_RADIUS_SCALE;
       configureEntityBadgeSprite(sprite, {
         alpha: resolvedMarkerAlpha,
+        battleIndicator: showCombatBars
+          ? {
+              icon: WorldIcons.Combat,
+              tint: COMBAT_WORLD_ICON_TINT,
+            }
+          : undefined,
         backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.enemy,
         borderWidth: showCombatBars ? undefined : 2,
         countLabel: enemies.length >= 2 ? enemies.length.toString() : undefined,
@@ -287,8 +291,7 @@ export function renderStaticMarkers({
               max: leadEnemy.maxMana ?? 0,
             }
           : undefined,
-        outerRadius:
-          markerSize * (isBossCenter ? 0.58 : 0.76) * ENTITY_BADGE_RADIUS_SCALE,
+        outerRadius: markerOuterRadius,
         point: markerPoint,
         shadowOffset,
       });

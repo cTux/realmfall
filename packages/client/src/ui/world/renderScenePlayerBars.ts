@@ -14,6 +14,7 @@ import {
   resetShadowedSpriteBadgeOverlay,
   type ShadowedSpriteEntry,
 } from './renderScenePools';
+import { COMBAT_WORLD_ICON_TINT, WorldIcons } from './worldIcons';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import {
   getVisibleTileRevealState,
@@ -139,11 +140,13 @@ export function renderDungeonEnemyMovementCooldowns({
 }
 
 export function renderPlayerResourceBars({
+  playerIsBattleEntity,
   playerCombatStats,
   playerIconSize,
   playerLevel,
   scene,
 }: {
+  playerIsBattleEntity: boolean;
   playerCombatStats: {
     hp: number;
     mana: number;
@@ -156,6 +159,12 @@ export function renderPlayerResourceBars({
 }) {
   decorateEntityBadge(scene.player, {
     alpha: 1,
+    battleIndicator: playerIsBattleEntity
+      ? {
+          icon: WorldIcons.Combat,
+          tint: COMBAT_WORLD_ICON_TINT,
+        }
+      : undefined,
     backgroundAlpha: PLAYER_BADGE_BACKGROUND_ALPHA,
     backgroundColor: ENTITY_BADGE_BACKGROUND_COLORS.player,
     hp: {

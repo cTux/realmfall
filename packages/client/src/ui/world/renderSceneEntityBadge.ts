@@ -1,6 +1,7 @@
 import { getEnemyLevelLabelStyle } from './renderSceneCache';
 import type { SceneIconTransitionLayer } from './renderSceneIconTransitions';
 import {
+  configureShadowedSpriteBadgeIndicator,
   configureShadowedSprite,
   configureShadowedSpriteIconTransition,
   resetShadowedSpriteBadge,
@@ -22,6 +23,8 @@ const ENTITY_BADGE_PLATE_TEXT_PADDING = 6;
 const ENTITY_BADGE_PLATE_CHAR_WIDTH = 4;
 const ENTITY_BADGE_PLATE_TEXT_SCALE = 0.55;
 const ENTITY_BADGE_BORDER_COLOR = 0x000000;
+const BATTLE_ENTITY_INDICATOR_MAX_SIZE = 15;
+const BATTLE_ENTITY_INDICATOR_SIZE_RATIO = 0.625;
 
 export const ENTITY_BADGE_RADIUS_SCALE = 0.9;
 export const ENTITY_BADGE_STRUCTURE_BACKGROUND_ALPHA = 0.4;
@@ -55,6 +58,10 @@ export interface EntityBadgeArcBand {
 
 interface EntityBadgeOptions {
   alpha: number;
+  battleIndicator?: {
+    icon: string;
+    tint: number;
+  };
   backgroundColor: number;
   backgroundAlpha?: number;
   borderColor?: number;
@@ -79,6 +86,10 @@ interface EntityBadgeOptions {
 
 interface EntityBadgeDecorationOptions {
   alpha: number;
+  battleIndicator?: {
+    icon: string;
+    tint: number;
+  };
   backgroundColor: number;
   backgroundAlpha?: number;
   borderColor?: number;
@@ -100,6 +111,7 @@ export function configureEntityBadgeSprite(
   entry: ShadowedSpriteEntry,
   {
     alpha,
+    battleIndicator,
     backgroundColor,
     backgroundAlpha,
     borderColor,
@@ -139,6 +151,7 @@ export function configureEntityBadgeSprite(
   }
   decorateEntityBadge(entry, {
     alpha,
+    battleIndicator,
     backgroundColor,
     backgroundAlpha,
     borderColor,
@@ -155,6 +168,7 @@ export function decorateEntityBadge(
   entry: ShadowedSpriteEntry,
   {
     alpha,
+    battleIndicator,
     backgroundColor,
     backgroundAlpha,
     borderColor,
@@ -248,6 +262,23 @@ export function decorateEntityBadge(
       outerRadius,
       placement: 'bottom',
       ringInnerRadius: resourceArcBand.innerRadius,
+    });
+  }
+
+  if (battleIndicator) {
+    const indicatorSize = Math.min(
+      outerRadius * BATTLE_ENTITY_INDICATOR_SIZE_RATIO,
+      BATTLE_ENTITY_INDICATOR_MAX_SIZE,
+    );
+    configureShadowedSpriteBadgeIndicator(entry, {
+      alpha,
+      icon: battleIndicator.icon,
+      point: {
+        x: resourceArcBand.outerRadius,
+        y: 0,
+      },
+      size: indicatorSize,
+      tint: battleIndicator.tint,
     });
   }
 }
