@@ -6,7 +6,12 @@ import {
 import { getActiveWorld } from './dungeons/worldState';
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { createRng } from './random';
-import { createPendingCombatEncounter } from './stateCombatEngagement';
+import { createCombatActorState } from './combat';
+import {
+  createPendingCombatEncounter,
+  getCombatEncounterEnemyIds,
+} from './stateCombatEngagement';
+import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
 import { getHostileEnemyIds } from './stateWorldQueries';
 import { isPassable } from './shared';
 import type { Enemy, GameState } from './types';
@@ -16,7 +21,6 @@ export function shouldSyncActiveDungeonEnemyMovement(state: GameState) {
   return (
     activeWorld?.kind === 'dungeon' &&
     !state.gameOver &&
-    state.combat === null &&
     Object.keys(activeWorld.enemies).length > 0
   );
 }
@@ -39,6 +43,9 @@ export function syncActiveDungeonEnemyMovement(state: GameState) {
   }
 
   let changed = false;
+  const involvedCombatEnemyIds = new Set(
+    state.combat ? getCombatEncounterEnemyIds(state.combat) : [],
+  );
   const orderedEnemyIds = Object.keys(activeWorld.enemies).sort(
     (left, right) => {
       const leftEnemy = activeWorld.enemies[left]!;
@@ -53,6 +60,10 @@ export function syncActiveDungeonEnemyMovement(state: GameState) {
 
   for (const enemyId of orderedEnemyIds) {
     if (enemyId === activeWorld.dungeon.finalEliteEnemyId) {
+      continue;
+    }
+
+    if (involvedCombatEnemyIds.has(enemyId)) {
       continue;
     }
 
@@ -270,7 +281,43 @@ function startDungeonEnemyCombat(
   hostileEnemyIds: string[],
   targetCoord: HexCoord | null = coord,
 ) {
-  if (state.combat || hostileEnemyIds.length === 0) {
+  if (hostileEnemyIds.length === 0) {
+    return;
+  }
+
+  if (state.combat) {
+    const existingEnemyIds = new Set([
+      ...state.combat.enemyIds,
+      ...(state.combat.queuedEnemyIds ?? []),
+    ]);
+    const newEnemyIds = hostileEnemyIds.filter(
+      (enemyId) => !existingEnemyIds.has(enemyId),
+    );
+    if (newEnemyIds.length === 0) {
+      return;
+    }
+
+    if (!state.combat.started) {
+      state.combat.enemyIds.push(...newEnemyIds);
+    } else {
+      state.combat.queuedEnemyIds = [
+        ...(state.combat.queuedEnemyIds ?? []),
+        ...newEnemyIds,
+      ];
+    }
+
+    const encounterSeed = state.combat.startedAtMs ?? state.worldTimeMs;
+    newEnemyIds.forEach((enemyId) => {
+      state.combat!.enemies[enemyId] ??= createCombatActorState(
+        state.worldTimeMs,
+        state.enemies[enemyId]?.abilityIds,
+      );
+      state.combat!.enemyStateById[enemyId] ??= createCombatEnemyEncounterState(
+        state,
+        enemyId,
+        encounterSeed,
+      );
+    });
     return;
   }
 

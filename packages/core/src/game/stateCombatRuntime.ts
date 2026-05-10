@@ -21,6 +21,8 @@ export function resolveCombat(state: GameState) {
 
   while (state.combat && keepResolving) {
     keepResolving = false;
+    const promotedQueuedEnemies = promoteQueuedCombatEnemies(state);
+    changed = changed || promotedQueuedEnemies;
     const playerEffectsChanged = processPlayerStatusEffects(state);
     const enemyEffectsChanged = processEnemyStatusEffects(
       state,
@@ -75,4 +77,20 @@ export function resolveCombat(state: GameState) {
   }
 
   return changed;
+}
+
+function promoteQueuedCombatEnemies(state: GameState) {
+  const combat = state.combat;
+  if (!combat || (combat.queuedEnemyIds?.length ?? 0) === 0) {
+    return false;
+  }
+
+  combat.enemyIds = [
+    ...combat.enemyIds,
+    ...combat.queuedEnemyIds!.filter(
+      (enemyId) => !combat.enemyIds.includes(enemyId),
+    ),
+  ];
+  combat.queuedEnemyIds = [];
+  return true;
 }

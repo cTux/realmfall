@@ -4,7 +4,9 @@ import { makeEnemy } from './combat';
 import { createDungeonWorldState } from './dungeons/worldState';
 import { hexKey, type HexCoord } from './hex';
 import { syncCombatEncounterEnemies } from './stateCombatEncounterSync';
+import { createStartedCombatEncounter } from './stateCombatEngagement';
 import { createGame } from './stateFactory';
+import { progressCombat } from './stateCombat';
 import { syncPlayerStatusEffects } from './stateWorldClock';
 import { setActiveWorld } from './dungeons/worldState';
 import type { Enemy, Tile } from './types';
@@ -140,6 +142,64 @@ describe('dungeon enemy world movement', () => {
 
     expect(chaseCombat.combat).toBeNull();
     expect(chaseCombat.player.coord).toEqual(ENTRANCE_COORD);
+  });
+
+  it('queues reinforcing dungeon enemies during active combat and promotes them on the next combat step', () => {
+    const engagedEnemyId = 'engaged-enemy';
+    const reinforcingEnemyId = 'reinforcing-enemy';
+    const game = createDungeonMovementGame({
+      enemies: [
+        makeDungeonEnemy({
+          coord: { q: 1, r: 0 },
+          enemyId: engagedEnemyId,
+        }),
+        makeDungeonEnemy({
+          coord: { q: 0, r: 1 },
+          enemyId: reinforcingEnemyId,
+        }),
+        makeDungeonEnemy({
+          coord: { q: 0, r: 2 },
+          enemyId: 'final-guard',
+          rarity: 'legendary',
+        }),
+      ],
+      passableCoords: [
+        ENTRANCE_COORD,
+        { q: 1, r: 0 },
+        CHEST_COORD,
+        { q: 0, r: 1 },
+        { q: 0, r: 2 },
+      ],
+      playerCoord: ENTRANCE_COORD,
+    });
+
+    game.combat = createStartedCombatEncounter(game, {
+      autoStepOnVictory: false,
+      engageMode: 'enemy-chase',
+      enemyIds: [engagedEnemyId],
+      originCoord: ENTRANCE_COORD,
+      stagingCoord: ENTRANCE_COORD,
+      targetCoord: { q: 1, r: 0 },
+      worldTimeMs: game.worldTimeMs,
+    });
+
+    const queued = syncPlayerStatusEffects(game, WORLD_MOVE_HEX_COOLDOWN_MS);
+
+    expect(queued.combat?.enemyIds).toEqual([engagedEnemyId]);
+    expect(queued.combat?.queuedEnemyIds).toEqual([reinforcingEnemyId]);
+    expect(queued.combat?.enemies[reinforcingEnemyId]).toBeDefined();
+    expect(queued.tiles['0,1']?.enemyIds).toContain(reinforcingEnemyId);
+    expect(queued.tiles['0,0']?.enemyIds ?? []).not.toContain(
+      reinforcingEnemyId,
+    );
+
+    const promoted = progressCombat(queued);
+
+    expect(promoted.combat?.enemyIds).toEqual([
+      engagedEnemyId,
+      reinforcingEnemyId,
+    ]);
+    expect(promoted.combat?.queuedEnemyIds).toEqual([]);
   });
 
   it('uses a passable chase path around walls instead of freezing on a blocked direct line', () => {

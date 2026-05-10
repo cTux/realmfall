@@ -37,6 +37,7 @@ export interface CombatEngagementMetadata {
 export interface CombatState {
   coord: HexCoord;
   enemyIds: string[];
+  queuedEnemyIds?: string[];
   started: boolean;
   startedAtMs?: number;
   engagement?: CombatEngagementMetadata;

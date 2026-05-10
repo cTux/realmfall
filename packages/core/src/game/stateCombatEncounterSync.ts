@@ -5,6 +5,7 @@ import { hexKey } from './hex';
 import { addLog } from './logs';
 import {
   applyCombatVictoryAutoStep,
+  getCombatEncounterEnemyIds,
   getCombatEncounterCoord,
 } from './stateCombatEngagement';
 import { createCombatEnemyEncounterState } from './stateCombatTreasureGoblin';
@@ -14,37 +15,49 @@ import { buildTileForState, normalizeStructureState } from './world';
 export function syncCombatEncounterEnemies(state: GameState) {
   if (!state.combat) return;
 
-  const encounterCoord = getCombatEncounterCoord(state.combat);
-  const tile =
-    state.tiles[hexKey(encounterCoord)] ??
-    buildTileForState(state, encounterCoord);
-  const enemyIds = tile.enemyIds.filter((enemyId) =>
+  const activeEnemyIds = state.combat.enemyIds.filter((enemyId) =>
     Boolean(state.enemies[enemyId]),
   );
+  const queuedEnemyIds = (state.combat.queuedEnemyIds ?? []).filter(
+    (enemyId) =>
+      Boolean(state.enemies[enemyId]) && !activeEnemyIds.includes(enemyId),
+  );
+  const liveCombatEnemyIds = [...activeEnemyIds, ...queuedEnemyIds];
+  const involvedTileKeys = new Set(
+    liveCombatEnemyIds.map((enemyId) => hexKey(state.enemies[enemyId]!.coord)),
+  );
+  involvedTileKeys.add(hexKey(getCombatEncounterCoord(state.combat)));
 
-  state.tiles[hexKey(encounterCoord)] = normalizeStructureState({
-    ...tile,
-    enemyIds,
-  });
+  for (const tileKey of involvedTileKeys) {
+    const tile =
+      state.tiles[tileKey] ?? buildTileForState(state, parseHexKey(tileKey));
+    state.tiles[tileKey] = normalizeStructureState({
+      ...tile,
+      enemyIds: tile.enemyIds.filter((enemyId) =>
+        Boolean(state.enemies[enemyId]),
+      ),
+    });
+  }
 
   const worldTimeMs = state.worldTimeMs;
   const encounterSeed = state.combat.startedAtMs ?? worldTimeMs;
   state.combat.enemies = Object.fromEntries(
-    enemyIds.map((enemyId) => [
+    liveCombatEnemyIds.map((enemyId) => [
       enemyId,
       state.combat?.enemies[enemyId] ?? createCombatActorState(worldTimeMs),
     ]),
   );
   state.combat.enemyStateById = Object.fromEntries(
-    enemyIds.map((enemyId) => [
+    liveCombatEnemyIds.map((enemyId) => [
       enemyId,
       state.combat?.enemyStateById[enemyId] ??
         createCombatEnemyEncounterState(state, enemyId, encounterSeed),
     ]),
   );
-  state.combat.enemyIds = enemyIds;
+  state.combat.enemyIds = activeEnemyIds;
+  state.combat.queuedEnemyIds = queuedEnemyIds;
 
-  if (enemyIds.length === 0) {
+  if (getCombatEncounterEnemyIds(state.combat).length === 0) {
     const moved = applyCombatVictoryAutoStep(state);
     state.combat = null;
     clearConsumableCooldownIfOutOfCombat(state);
@@ -60,4 +73,9 @@ export function syncCombatEncounterEnemies(state: GameState) {
       );
     }
   }
+}
+
+function parseHexKey(key: string) {
+  const [q, r] = key.split(',').map(Number);
+  return { q, r };
 }
