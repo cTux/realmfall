@@ -1,7 +1,13 @@
 import { t } from '../i18n';
 import {
+  BLOOD_MOON_FAR_SPAWN_COUNT_MAX,
+  BLOOD_MOON_MAX_ENEMIES_PER_TILE,
+  BLOOD_MOON_NEAR_DISTANCE_MAX,
+  BLOOD_MOON_NEAR_SPAWN_COUNT_MAX,
   BLOOD_MOON_SPAWN_RADIUS,
   EARTHSHAKE_CHANCE,
+  EARTHSHAKE_DAILY_SEARCH_RADIUS_BONUS,
+  EARTHSHAKE_FORCED_SEARCH_RADIUS_BONUS,
   EARTHSHAKE_SPAWN_RADIUS,
   HARVEST_MOON_SPAWN_RADIUS,
   pickBloodMoonSpawnChance,
@@ -28,7 +34,6 @@ import type { GameState, Tile } from './types';
 
 export function spawnBloodMoonEnemies(state: GameState) {
   let spawned = 0;
-  const maxEnemiesPerTile = 3;
   const center = getSurfaceEventCenter(state);
   const surfaceWorld = getSurfaceWorld(state);
   if (!surfaceWorld) {
@@ -65,13 +70,19 @@ export function spawnBloodMoonEnemies(state: GameState) {
 
       const availableSlots = Math.max(
         0,
-        maxEnemiesPerTile - tile.enemyIds.length,
+        BLOOD_MOON_MAX_ENEMIES_PER_TILE - tile.enemyIds.length,
       );
       if (availableSlots === 0) continue;
 
       const count = Math.min(
         availableSlots,
-        1 + Math.floor(rng() * (distance <= 2 ? 3 : 2)),
+        1 +
+          Math.floor(
+            rng() *
+              (distance <= BLOOD_MOON_NEAR_DISTANCE_MAX
+                ? BLOOD_MOON_NEAR_SPAWN_COUNT_MAX
+                : BLOOD_MOON_FAR_SPAWN_COUNT_MAX),
+          ),
       );
       let nextIndex = nextEnemySpawnIndex(tile.enemyIds);
       for (let index = 0; index < count; index += 1) {
@@ -165,7 +176,9 @@ export function openEarthshakeDungeon(state: GameState, forced: boolean) {
   const coord = findNearbyDungeonSpawn(
     state,
     earthshakeRng,
-    forced ? EARTHSHAKE_SPAWN_RADIUS + 6 : EARTHSHAKE_SPAWN_RADIUS + 3,
+    forced
+      ? EARTHSHAKE_SPAWN_RADIUS + EARTHSHAKE_FORCED_SEARCH_RADIUS_BONUS
+      : EARTHSHAKE_SPAWN_RADIUS + EARTHSHAKE_DAILY_SEARCH_RADIUS_BONUS,
   );
   if (!coord) return false;
 

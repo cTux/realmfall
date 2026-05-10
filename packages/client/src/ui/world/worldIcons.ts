@@ -41,6 +41,7 @@ import {
   type WorldTerrainAtlasFrameId,
 } from './worldTerrainArt';
 import { resolveIconAsset } from '../iconAssets';
+import { WORLD_RENDER_COLORS } from '../../theme.config';
 
 const WORLD_ICON_BACKGROUND_WARMUP_BATCH_SIZE = 4;
 const WORLD_ICON_WARMUP_FALLBACK_SLICE_MS = 8;
@@ -58,7 +59,7 @@ export const WorldIcons = {
   UnknownHex: unknownHexIcon,
 } as const;
 
-export const COMBAT_WORLD_ICON_TINT = 0xef4444;
+export const COMBAT_WORLD_ICON_TINT = WORLD_RENDER_COLORS.combatWorldIcon;
 
 const ENEMY_RARITY_TINTS = Object.fromEntries(
   Object.entries(RARITY_COLOR).map(([rarity, color]) => [

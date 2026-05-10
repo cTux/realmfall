@@ -1,30 +1,41 @@
-import rawGameConfig from '../game.config';
+import rawCoreConfig, {
+  BLOOD_MOON_CONFIG,
+  EARTHSHAKE_CONFIG,
+  HARVEST_MOON_CONFIG,
+  HOME_SCROLL_ITEM_NAME_KEY,
+  OUTPOST_CONFIG,
+  STARTING_RECIPE_IDS,
+  WORLD_DIMENSIONS,
+  WORLD_SEARCH_LIMITS,
+  WORLD_TIME_UNITS,
+  WORLD_TIME_WINDOWS,
+} from '../core.config';
 
 import type { GameConfig } from './gameConfigSchema';
 
-export const GAME_CONFIG: GameConfig = rawGameConfig;
+export const GAME_CONFIG: GameConfig = rawCoreConfig;
 
-export const WORLD_RADIUS = 8;
-export const WORLD_REVEAL_RADIUS = 4;
-export const HEX_SIZE = 34;
+export const WORLD_RADIUS = WORLD_DIMENSIONS.radius;
+export const WORLD_REVEAL_RADIUS = WORLD_DIMENSIONS.revealRadius;
+export const HEX_SIZE = WORLD_DIMENSIONS.hexSize;
 
-export const GAME_DAY_MINUTES = 1440;
+export const GAME_DAY_MINUTES = WORLD_TIME_UNITS.dayMinutes;
+export const WORLD_CALENDAR_DAYS_PER_YEAR =
+  WORLD_TIME_UNITS.calendarDaysPerYear;
 export const GAME_DAY_DURATION_MS = GAME_CONFIG.worldClock.dayDurationMs;
 export const WORLD_MOVE_HEX_COOLDOWN_MS =
   GAME_CONFIG.worldClock.moveHexCooldownMs;
 export const WORLD_MOVE_VISUAL_DURATION_MS =
   GAME_CONFIG.worldClock.moveHexVisualDurationMs;
-export const SUNRISE_START = 300;
-export const DAYLIGHT_START = 420;
-export const MOONRISE_START = 1080;
-export const MOONRISE_END = 1200;
+export const SUNRISE_START = WORLD_TIME_WINDOWS.sunriseStart;
+export const DAYLIGHT_START = WORLD_TIME_WINDOWS.daylightStart;
+export const MOONRISE_START = WORLD_TIME_WINDOWS.moonriseStart;
+export const MOONRISE_END = WORLD_TIME_WINDOWS.moonriseEnd;
 
 export const COMBAT_GLOBAL_COOLDOWN_MS =
   GAME_CONFIG.balance.combat.globalCooldownMs;
 export const MAX_PLAYER_LEVEL = GAME_CONFIG.balance.player.maxLevel;
 export const MAX_ITEM_LEVEL = GAME_CONFIG.balance.items.maxLevel;
-export const STARTING_RECIPE_IDS = ['cook-cooked-fish'] as const;
-export const HOME_SCROLL_ITEM_NAME_KEY = 'game.item.home-scroll.name';
 
 export const PLAYER_BASE_STATS = GAME_CONFIG.balance.player.baseStats;
 export const ENEMY_BASE_STATS = GAME_CONFIG.balance.enemy.baseStats;
@@ -40,17 +51,36 @@ export const SECONDARY_STAT_CAP = GAME_CONFIG.balance.items.secondaryStat.cap;
 export const ITEM_MODIFICATION_BALANCE = GAME_CONFIG.balance.items.modification;
 export const TOWN_BUY_PRICE_BALANCE = GAME_CONFIG.balance.economy.townBuyPrice;
 
-export const TOWN_SEARCH_LIMIT = 24;
+export const TOWN_SEARCH_LIMIT = WORLD_SEARCH_LIMITS.townStructureRadius;
 
-export const BLOOD_MOON_SPAWN_RADIUS = 6;
-export const BLOOD_MOON_STAT_SCALE = 1.1;
-export const BLOOD_MOON_RISE_START = 1080;
-export const BLOOD_MOON_RISE_END = 1200;
-export const BLOOD_MOON_RESET_START = 420;
+export const BLOOD_MOON_SPAWN_RADIUS = BLOOD_MOON_CONFIG.spawnRadius;
+export const BLOOD_MOON_NEAR_DISTANCE_MAX = BLOOD_MOON_CONFIG.nearDistanceMax;
+export const BLOOD_MOON_MID_DISTANCE_MAX = BLOOD_MOON_CONFIG.midDistanceMax;
+export const BLOOD_MOON_MAX_ENEMIES_PER_TILE =
+  BLOOD_MOON_CONFIG.maxEnemiesPerTile;
+export const BLOOD_MOON_NEAR_SPAWN_COUNT_MAX =
+  BLOOD_MOON_CONFIG.nearSpawnCountMax;
+export const BLOOD_MOON_FAR_SPAWN_COUNT_MAX =
+  BLOOD_MOON_CONFIG.farSpawnCountMax;
+export const BLOOD_MOON_STAT_SCALE = BLOOD_MOON_CONFIG.statScale;
+export const BLOOD_MOON_RISE_START = BLOOD_MOON_CONFIG.riseStart;
+export const BLOOD_MOON_RISE_END = BLOOD_MOON_CONFIG.riseEnd;
+export const BLOOD_MOON_RESET_START = BLOOD_MOON_CONFIG.resetStart;
 
-export const HARVEST_MOON_SPAWN_RADIUS = 4;
+export const HARVEST_MOON_SPAWN_RADIUS = HARVEST_MOON_CONFIG.spawnRadius;
+export const HARVEST_MOON_NEAR_DISTANCE_MAX =
+  HARVEST_MOON_CONFIG.nearDistanceMax;
 
-export const EARTHSHAKE_SPAWN_RADIUS = 2;
+export const EARTHSHAKE_SPAWN_RADIUS = EARTHSHAKE_CONFIG.spawnRadius;
+export const EARTHSHAKE_DAILY_SEARCH_RADIUS_BONUS =
+  EARTHSHAKE_CONFIG.dailySearchRadiusBonus;
+export const EARTHSHAKE_FORCED_SEARCH_RADIUS_BONUS =
+  EARTHSHAKE_CONFIG.forcedSearchRadiusBonus;
+
+export const WATCHTOWER_REVEAL_BONUS = OUTPOST_CONFIG.watchtowerRevealBonus;
+export const WATCHTOWER_INFLUENCE_RADIUS =
+  OUTPOST_CONFIG.watchtowerInfluenceRadius;
+export { HOME_SCROLL_ITEM_NAME_KEY, STARTING_RECIPE_IDS };
 
 export const PLAYER_XP_BALANCE = GAME_CONFIG.progression.playerXp;
 export const BASE_ENEMY_XP = PLAYER_XP_BALANCE.enemyBase;
@@ -162,13 +192,15 @@ export function resolveGuardedLootChance(tier: number) {
 }
 
 export function pickBloodMoonSpawnChance(distance: number) {
-  if (distance <= 2) return BLOOD_MOON_ENEMY_SPAWN_CHANCES.near;
-  if (distance <= 4) return BLOOD_MOON_ENEMY_SPAWN_CHANCES.mid;
+  if (distance <= BLOOD_MOON_NEAR_DISTANCE_MAX)
+    return BLOOD_MOON_ENEMY_SPAWN_CHANCES.near;
+  if (distance <= BLOOD_MOON_MID_DISTANCE_MAX)
+    return BLOOD_MOON_ENEMY_SPAWN_CHANCES.mid;
   return BLOOD_MOON_ENEMY_SPAWN_CHANCES.far;
 }
 
 export function pickHarvestMoonSpawnChance(distance: number) {
-  return distance <= 2
+  return distance <= HARVEST_MOON_NEAR_DISTANCE_MAX
     ? HARVEST_MOON_RESOURCE_SPAWN_CHANCES.near
     : HARVEST_MOON_RESOURCE_SPAWN_CHANCES.far;
 }

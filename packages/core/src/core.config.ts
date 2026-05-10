@@ -626,3 +626,93 @@ const gameConfig = defineGameConfig({
 } as const);
 
 export default gameConfig;
+
+export const WORLD_DIMENSIONS: Readonly<{
+  hexSize: number;
+  radius: number;
+  revealRadius: number;
+}> = Object.freeze({
+  hexSize: 34,
+  radius: 8,
+  revealRadius: 4,
+});
+
+export const WORLD_TIME_WINDOWS: Readonly<{
+  daylightStart: number;
+  moonriseEnd: number;
+  moonriseStart: number;
+  sunriseStart: number;
+}> = Object.freeze({
+  daylightStart: 420,
+  moonriseEnd: 1200,
+  moonriseStart: 1080,
+  sunriseStart: 300,
+});
+
+export const WORLD_TIME_UNITS: Readonly<{
+  calendarDaysPerYear: number;
+  dayMinutes: number;
+}> = Object.freeze({
+  calendarDaysPerYear: 365,
+  dayMinutes: 1440,
+});
+
+export const WORLD_SEARCH_LIMITS: Readonly<{
+  townStructureRadius: number;
+}> = Object.freeze({
+  townStructureRadius: 24,
+});
+
+export const BLOOD_MOON_CONFIG: Readonly<{
+  farSpawnCountMax: number;
+  maxEnemiesPerTile: number;
+  midDistanceMax: number;
+  nearDistanceMax: number;
+  nearSpawnCountMax: number;
+  resetStart: number;
+  riseEnd: number;
+  riseStart: number;
+  spawnRadius: number;
+  statScale: number;
+}> = Object.freeze({
+  farSpawnCountMax: 2,
+  maxEnemiesPerTile: 3,
+  midDistanceMax: 4,
+  nearDistanceMax: 2,
+  nearSpawnCountMax: 3,
+  resetStart: 420,
+  riseEnd: 1200,
+  riseStart: 1080,
+  spawnRadius: 6,
+  statScale: 1.1,
+});
+
+export const HARVEST_MOON_CONFIG: Readonly<{
+  nearDistanceMax: number;
+  spawnRadius: number;
+}> = Object.freeze({
+  nearDistanceMax: 2,
+  spawnRadius: 4,
+});
+
+export const EARTHSHAKE_CONFIG: Readonly<{
+  dailySearchRadiusBonus: number;
+  forcedSearchRadiusBonus: number;
+  spawnRadius: number;
+}> = Object.freeze({
+  dailySearchRadiusBonus: 3,
+  forcedSearchRadiusBonus: 6,
+  spawnRadius: 2,
+});
+
+export const OUTPOST_CONFIG: Readonly<{
+  watchtowerInfluenceRadius: number;
+  watchtowerRevealBonus: number;
+}> = Object.freeze({
+  watchtowerInfluenceRadius: 1,
+  watchtowerRevealBonus: 2,
+});
+
+export const STARTING_RECIPE_IDS = ['cook-cooked-fish'] as const;
+
+export const HOME_SCROLL_ITEM_NAME_KEY = 'game.item.home-scroll.name';

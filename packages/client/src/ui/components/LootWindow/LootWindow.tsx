@@ -1,4 +1,5 @@
 import { t } from '../../../i18n';
+import { TOOLTIP_BORDER_COLORS } from '../../../theme.config';
 import { createDeferredWindowComponent } from '../deferredWindowComponent';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
 import type { LootWindowProps } from './types';
@@ -48,7 +49,7 @@ export const LootWindow = createDeferredWindowComponent<
             tooltipLines={[
               { kind: 'text', text: t('ui.tooltip.window.takeAllLoot') },
             ]}
-            tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+            tooltipBorderColor={TOOLTIP_BORDER_COLORS.positive}
             onHoverDetail={onHoverDetail}
             onLeaveDetail={onLeaveDetail}
           >

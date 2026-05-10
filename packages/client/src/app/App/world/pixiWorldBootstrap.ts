@@ -2,6 +2,8 @@ import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui-react';
 import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
+import { CLIENT_WORLD_VIEWPORT } from '../../../client.config';
+import { APP_BACKGROUND_COLORS } from '../../../theme.config';
 import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../../ui/world/worldMapCamera';
 import {
@@ -171,9 +173,9 @@ export async function bootstrapPixiWorldCanvas({
   const app = new pixiModule.Application();
   try {
     await app.init({
-      width: Math.max(window.innerWidth, 640),
-      height: Math.max(window.innerHeight, 480),
-      backgroundColor: 0x0b1020,
+      width: Math.max(window.innerWidth, CLIENT_WORLD_VIEWPORT.minimumWidth),
+      height: Math.max(window.innerHeight, CLIENT_WORLD_VIEWPORT.minimumHeight),
+      backgroundColor: APP_BACKGROUND_COLORS.pixiWorld,
       backgroundAlpha: useContextAlpha ? 0 : 1,
       antialias,
       autoDensity,

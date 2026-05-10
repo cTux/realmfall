@@ -1,5 +1,6 @@
 import { Button } from '@realmfall/ui-react';
 import { formatCompactNumber } from '@realmfall/ui-react';
+import { TOOLTIP_BORDER_COLORS } from '../../../theme.config';
 import type { TooltipLine } from '../../tooltips';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 import styles from './styles.module.scss';
@@ -247,16 +248,16 @@ function iconMaskStyle(icon: string, tint: string) {
 function toneBorderColor(tone: EntityStatusBar['tone']) {
   switch (tone) {
     case 'hp':
-      return 'rgba(248, 113, 113, 0.9)';
+      return TOOLTIP_BORDER_COLORS.danger;
     case 'mana':
     case 'thirst':
-      return 'rgba(103, 232, 249, 0.9)';
+      return TOOLTIP_BORDER_COLORS.mana;
     case 'xp':
-      return 'rgba(167, 139, 250, 0.9)';
+      return TOOLTIP_BORDER_COLORS.xp;
     case 'hunger':
-      return 'rgba(251, 146, 60, 0.9)';
+      return TOOLTIP_BORDER_COLORS.hunger;
     default:
-      return 'rgba(148, 163, 184, 0.9)';
+      return TOOLTIP_BORDER_COLORS.neutral;
   }
 }
 

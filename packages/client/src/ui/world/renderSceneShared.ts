@@ -5,6 +5,8 @@ import type {
   WorldKind,
 } from '@realmfall/core/game/stateTypes';
 import { getStructureConfig } from '@realmfall/core/game/stateSelectors';
+import { CLIENT_WORLD_RENDER_SETTINGS } from '../../client.config';
+import { WORLD_RENDER_COLORS } from '../../theme.config';
 import type { SceneCache } from './renderSceneCache';
 import {
   getCachedValue,
@@ -24,17 +26,23 @@ import { ANIMATED_LAYER_FRAME_MS } from './renderCadence';
 export { WORLD_MAP_CLOUD_PARALLAX_FACTOR } from './worldMapCamera';
 export { ANIMATED_LAYER_FPS, ANIMATED_LAYER_FRAME_MS } from './renderCadence';
 
-export const HOME_HEX_TINT_COLOR = 0xa855f7;
-export const HOME_HEX_TINT_ALPHA = 0.22;
-export const SAFE_PATH_TINT_COLOR = 0x38bdf8;
-export const SAFE_PATH_TINT_ALPHA = 0.34;
-export const QUEUED_PATH_TINT_COLOR = 0x22c55e;
-export const QUEUED_PATH_TINT_ALPHA = 0.24;
-export const SAFE_PATH_HEX_INSET = 2;
-export const HOME_HEX_TINT_INSET = 3;
-export const STRUCTURE_HEX_ICON_TINT = 0xffffff;
-export const WORLD_BOSS_HEX_TINT_COLOR = 0x7f1d1d;
-export const WORLD_BOSS_HEX_TINT_ALPHA = 0.22;
+export const HOME_HEX_TINT_COLOR = WORLD_RENDER_COLORS.homeHexTint;
+export const HOME_HEX_TINT_ALPHA =
+  CLIENT_WORLD_RENDER_SETTINGS.homeHexTintAlpha;
+export const SAFE_PATH_TINT_COLOR = WORLD_RENDER_COLORS.safePathTint;
+export const SAFE_PATH_TINT_ALPHA =
+  CLIENT_WORLD_RENDER_SETTINGS.safePathTintAlpha;
+export const QUEUED_PATH_TINT_COLOR = WORLD_RENDER_COLORS.queuedPathTint;
+export const QUEUED_PATH_TINT_ALPHA =
+  CLIENT_WORLD_RENDER_SETTINGS.queuedPathTintAlpha;
+export const SAFE_PATH_HEX_INSET =
+  CLIENT_WORLD_RENDER_SETTINGS.safePathHexInset;
+export const HOME_HEX_TINT_INSET =
+  CLIENT_WORLD_RENDER_SETTINGS.homeHexTintInset;
+export const STRUCTURE_HEX_ICON_TINT = WORLD_RENDER_COLORS.structureHexIconTint;
+export const WORLD_BOSS_HEX_TINT_COLOR = WORLD_RENDER_COLORS.worldBossHexTint;
+export const WORLD_BOSS_HEX_TINT_ALPHA =
+  CLIENT_WORLD_RENDER_SETTINGS.worldBossHexTintAlpha;
 export const ZERO_SHADOW_OFFSET = { x: 0, y: 0 };
 export const ENEMY_GROUP_BADGE_OFFSET = { x: 13, y: 11 };
 

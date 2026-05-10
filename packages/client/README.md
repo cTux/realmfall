@@ -10,6 +10,8 @@
 
 ## Package Layout
 
+- `src/client.config.ts`: shared client layout, sizing, transparency, and viewport config.
+- `src/theme.config.ts`: shared client color and visual theme values for TS and TSX modules.
 - `src/app`: app orchestration, hydration, persistence wiring, keyboard shortcuts, and top-level hooks.
 - `src/game`: compatibility facades and client-owned gameplay test helpers that forward canonical runtime imports to `@realmfall/core`.
 - `src/ui/components`: client-only React windows and presentational UI.

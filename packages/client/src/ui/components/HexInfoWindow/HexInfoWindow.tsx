@@ -1,6 +1,7 @@
 import { memo, useEffect, useState } from 'react';
 import { useWorldClockTime } from '../../../app/App/worldClockStore';
 import { t } from '../../../i18n';
+import { TOOLTIP_BORDER_COLORS } from '../../../theme.config';
 import type { TooltipLine } from '../../tooltips';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DeferredWindowShell } from '../DeferredWindowShell';
@@ -111,7 +112,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
         tooltipLines={[
           { kind: 'text', text: t('ui.tooltip.window.forfeitCombat') },
         ]}
-        tooltipBorderColor="rgba(248, 113, 113, 0.9)"
+        tooltipBorderColor={TOOLTIP_BORDER_COLORS.danger}
         onHoverDetail={onHoverDetail}
         onLeaveDetail={onLeaveDetail}
       >
@@ -125,7 +126,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
       onClick={onInteract}
       tooltipTitle={headerInteractLabel}
       tooltipLines={[{ kind: 'text', text: t('ui.tooltip.window.interact') }]}
-      tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+      tooltipBorderColor={TOOLTIP_BORDER_COLORS.positive}
       onHoverDetail={onHoverDetail}
       onLeaveDetail={onLeaveDetail}
     >
@@ -144,8 +145,8 @@ export const HexInfoWindow = memo(function HexInfoWindow({
   );
   const territoryActionTooltipBorderColor =
     territoryActionKind === 'unclaim'
-      ? 'rgba(248, 113, 113, 0.9)'
-      : 'rgba(74, 222, 128, 0.9)';
+      ? TOOLTIP_BORDER_COLORS.danger
+      : TOOLTIP_BORDER_COLORS.positive;
   const handleBuildOutpost = (
     outpostType: (typeof outpostBuildOptions)[number]['type'],
   ) => {
@@ -176,7 +177,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               onClick={onHealTerritoryNpc}
               tooltipTitle={t('ui.hexInfo.healAction')}
               tooltipLines={territoryNpcHealTooltipLines}
-              tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+              tooltipBorderColor={TOOLTIP_BORDER_COLORS.positive}
               onHoverDetail={onHoverDetail}
               onLeaveDetail={onLeaveDetail}
             >
@@ -189,7 +190,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               onClick={onSellAll}
               tooltipTitle={t('ui.hexInfo.sellAllAction')}
               tooltipLines={sellAllTooltipLines}
-              tooltipBorderColor="rgba(248, 250, 252, 0.9)"
+              tooltipBorderColor={TOOLTIP_BORDER_COLORS.neutral}
               onHoverDetail={onHoverDetail}
               onLeaveDetail={onLeaveDetail}
             >
@@ -205,7 +206,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               tooltipLines={[
                 { kind: 'text', text: t('ui.tooltip.window.buildOutpost') },
               ]}
-              tooltipBorderColor="rgba(250, 204, 21, 0.9)"
+              tooltipBorderColor={TOOLTIP_BORDER_COLORS.warning}
               onHoverDetail={onHoverDetail}
               onLeaveDetail={onLeaveDetail}
             >
@@ -234,7 +235,7 @@ export const HexInfoWindow = memo(function HexInfoWindow({
               tooltipLines={[
                 { kind: 'text', text: t('ui.tooltip.window.setHome') },
               ]}
-              tooltipBorderColor="rgba(125, 211, 252, 0.9)"
+              tooltipBorderColor={TOOLTIP_BORDER_COLORS.info}
               onHoverDetail={onHoverDetail}
               onLeaveDetail={onLeaveDetail}
             >

@@ -11,6 +11,11 @@ import {
   formatEnemyRarityLabel,
   formatStatusEffectLabel,
 } from '../../../i18n/labels';
+import {
+  ICON_TINT_COLORS,
+  STATUS_ICON_BORDER_COLORS,
+  TOOLTIP_BORDER_COLORS,
+} from '../../../theme.config';
 import { rarityColor } from '../../rarity';
 import { resolveIconAsset } from '../../iconAssets';
 import { statusEffectIcon, statusEffectTint } from '../../statusEffects';
@@ -277,8 +282,8 @@ function buildAbilityIcons(
       id: ability.id,
       label: ability.name,
       icon: resolveIconAsset(ability.icon),
-      tint: '#f8fafc',
-      borderColor: 'rgb(148 163 184 / 35%)',
+      tint: ICON_TINT_COLORS.neutral,
+      borderColor: STATUS_ICON_BORDER_COLORS.neutral,
       tooltipTitle: ability.name,
       tooltipLines: abilityTooltipLines(
         ability,
@@ -286,7 +291,7 @@ function buildAbilityIcons(
         attack,
         showTooltipTags,
       ),
-      tooltipBorderColor: 'rgba(148, 163, 184, 0.9)',
+      tooltipBorderColor: TOOLTIP_BORDER_COLORS.neutral,
       disabled: remainingMs > 0,
     };
   });
@@ -306,8 +311,7 @@ function buildEffectIcons(
     label: formatStatusEffectLabel(item.id),
     icon: statusEffectIcon(item.id),
     tint: statusEffectTint(item.id, tone),
-    borderColor:
-      tone === 'buff' ? 'rgb(34 197 94 / 70%)' : 'rgb(239 68 68 / 70%)',
+    borderColor: STATUS_ICON_BORDER_COLORS[tone],
     tooltipTitle: formatStatusEffectLabel(item.id),
     tooltipLines: statusEffectTooltipLines(
       item.id,
@@ -318,7 +322,9 @@ function buildEffectIcons(
       showTooltipTags,
     ),
     tooltipBorderColor:
-      tone === 'buff' ? 'rgba(34, 197, 94, 0.9)' : 'rgba(239, 68, 68, 0.9)',
+      tone === 'buff'
+        ? TOOLTIP_BORDER_COLORS.positive
+        : TOOLTIP_BORDER_COLORS.danger,
   }));
 }
 

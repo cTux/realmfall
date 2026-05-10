@@ -73,6 +73,7 @@ import {
   RECIPE_PAGE_TINT,
 } from '@realmfall/ui-react';
 import { GameTag } from '@realmfall/core/game/content/tags';
+import { WORLD_RENDER_COLORS } from '../theme.config';
 
 export const Icons = {
   Player: playerIcon,
@@ -140,7 +141,7 @@ export const SkillIcon: Record<SkillName, string> = {
 };
 
 const DEFAULT_ENEMY_ICON = Icons.Enemy;
-const DEFAULT_ENEMY_TINT = 0x60a5fa;
+const DEFAULT_ENEMY_TINT = WORLD_RENDER_COLORS.defaultEnemyIcon;
 const DEFAULT_ITEM_ICON = Icons.Artifact;
 
 export const ItemIcon: Record<EquipmentSlot, string> = {

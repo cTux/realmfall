@@ -10,7 +10,7 @@ import {
   getTimeOfDayLighting,
   getWorldTimeMinutesFromTimestamp,
 } from './timeOfDayTestkit';
-import rawGameConfig from '../../../game.config';
+import rawGameConfig from '@realmfall/core/core.config';
 
 describe('timeOfDay', () => {
   it('uses the configured five-minute day-night cycle duration', () => {

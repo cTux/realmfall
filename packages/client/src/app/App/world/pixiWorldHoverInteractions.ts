@@ -16,6 +16,7 @@ import {
 } from '@realmfall/core/game/stateWorldQueries';
 import { getCurrentWorldRevealRadius } from '@realmfall/core/game/stateOutposts';
 import type { GameState } from '@realmfall/core/game/stateTypes';
+import { TOOLTIP_BORDER_COLORS } from '../../../theme.config';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import type { TooltipState } from '../types';
 import {
@@ -193,7 +194,10 @@ export function createWorldHoverInteractions({
           contentKey: nextTooltipKey,
           x: nextTooltipPosition.x,
           y: nextTooltipPosition.y,
-          borderColor: tile.structure === 'dungeon' ? '#a855f7' : '#ef4444',
+          borderColor:
+            tile.structure === 'dungeon'
+              ? TOOLTIP_BORDER_COLORS.dungeonEnemy
+              : TOOLTIP_BORDER_COLORS.danger,
           followCursor: true,
         };
       } else {
@@ -209,7 +213,7 @@ export function createWorldHoverInteractions({
             contentKey: nextTooltipKey,
             x: nextTooltipPosition.x,
             y: nextTooltipPosition.y,
-            borderColor: '#38bdf8',
+            borderColor: TOOLTIP_BORDER_COLORS.structure,
             followCursor: true,
           };
         }

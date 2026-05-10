@@ -47,6 +47,7 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     }));
 
     vi.doMock('./app/interfaceFonts', () => ({
+      DEFAULT_INTERFACE_FONT_FAMILY: 'pixelifySans',
       applyInterfaceFontFamily,
       loadInterfaceFontFamily,
     }));

@@ -8,6 +8,7 @@ import {
 import { Skill, type RecipeBookEntry } from '@realmfall/core/game/stateTypes';
 import type { Tile } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
+import { ICON_TINT_COLORS } from '../../../theme.config';
 import type { TooltipLine } from '../../tooltips';
 import { resolveIconAsset } from '../../iconAssets';
 import {
@@ -217,9 +218,9 @@ function pixiTintToCss(tint: number) {
 }
 
 function getRecipeSlotTint(recipe: RecipeBookEntry, canCraft: boolean) {
-  if (!recipe.learned) return 'rgba(148, 163, 184, 0.45)';
+  if (!recipe.learned) return ICON_TINT_COLORS.recipeUnavailable;
   if (recipe.skill === Skill.Crafting) {
-    return canCraft ? '#f8fafc' : 'rgba(248, 113, 113, 0.92)';
+    return canCraft ? ICON_TINT_COLORS.neutral : ICON_TINT_COLORS.recipeBlocked;
   }
-  return canCraft ? undefined : 'rgba(248, 113, 113, 0.92)';
+  return canCraft ? undefined : ICON_TINT_COLORS.recipeBlocked;
 }
