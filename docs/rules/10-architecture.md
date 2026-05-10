@@ -3,7 +3,8 @@
 ## Architecture
 
 - Client-side `src/*` paths in this file resolve under `packages/client/` unless a rule explicitly names another package.
-- Keep gameplay and simulation rules in `packages/client/src/game` so they stay testable and mostly UI-independent.
+- Keep client-owned gameplay adapters and any remaining client-only simulation glue in `packages/client/src/game` so they stay testable and mostly UI-independent until they move into `packages/core`.
+- Keep the isomorphic gameplay engine, world state, combat runtime, and future shared client/server simulation logic in `packages/core/src`, and keep that package free of React, Pixi, Vite asset-loader, or browser-only runtime dependencies.
 - Keep React app orchestration in `packages/client/src/app`, client-only presentational UI in `packages/client/src/ui/components`, and shared reusable UI controls in `packages/ui/src/components`.
 - When shared `packages/ui` controls need gameplay-shaped data, define narrow structural contracts under `packages/ui/src/game` and keep client-only state modules out of the shared component import graph.
 - Do not import runtime TypeScript modules from `packages/client/src` into `packages/ui/src`. The only allowed TypeScript exception is the Storybook fixture helper bridge at `packages/ui/src/components/storybook/storybookHelpers.tsx`, while the shared surface-token stylesheet forward stays isolated at `packages/ui/src/styles/_ui.scss`.
@@ -12,6 +13,7 @@
 - Keep Pixi world rendering concerns in `packages/client/src/ui/world` rather than mixing them into gameplay rules.
 - Keep HTTP entrypoints, request handlers, and other server-only runtime code in `packages/server-world/src`, `packages/server-auth/src`, or `packages/server-chat/src`.
 - Keep cross-runtime shared types, schemas, and utilities in `packages/common/src`, and keep that package free of client-only or server-only side effects.
+- Do not import runtime TypeScript modules from `packages/client/src` into `packages/core/src`. When `core` needs logic that currently lives under `client`, move or duplicate the isomorphic implementation into `packages/core` and keep client-only presentation or app wiring behind the client boundary.
 - Prefer colocated structure inside a feature or component directory: place single-use hooks in a local `hooks/` directory, single-use selectors in a local `selectors/` directory, single-use utilities in a local `utils/` directory, and tests in a local `tests/` directory.
 - Place shared hooks in `src/hooks`, shared selectors in `src/selectors`, and shared utilities in `src/utils` when multiple features depend on the same module.
 - When a file grows multiple exports that are not tightly related types or closely related library or entity helpers, decompose it into focused files instead of expanding one broad module.

@@ -1,0 +1,30 @@
+{
+  "name": "@realmfall/core",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "main": "./src/index.ts",
+  "module": "./src/index.ts",
+  "scripts": {
+    "build": "tsc -p ./tsconfig.build.json",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit",
+    "lint": "oxlint -c ../../.oxlintrc.json src",
+    "test": "vitest run"
+  },
+  "exports": {
+    ".": "./src/index.ts",
+    "./game": "./src/game/index.ts",
+    "./i18n": "./src/i18n/index.ts",
+    "./core/*": "./src/core/*",
+    "./i18n/*": "./src/i18n/*"
+  },
+  "dependencies": {
+    "@realmfall/common": "workspace:*",
+    "valibot": "^1.4.0"
+  },
+  "devDependencies": {
+    "oxlint": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

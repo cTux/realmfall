@@ -1,0 +1,222 @@
+import { StatusEffectTypeId } from './content/ids';
+import { clearConsumableCooldownIfOutOfCombat } from './combatActivity';
+import { getActiveWorld, setActiveWorld } from './dungeons/worldState';
+import { mitigateDamageByDefense } from './combatDamage';
+import { addLog } from './logs';
+import { getPlayerCombatStats } from './progression';
+import { getPreferredReturnHex } from './stateOutposts';
+import {
+  getPlayerThirstValue,
+  PLAYER_SURVIVAL_MAX,
+  PLAYER_SURVIVAL_WARNING_THRESHOLD,
+} from './survival';
+import { t } from '../i18n';
+import type { HexCoord } from './hex';
+import type { GameState, Item, PlayerStatusEffect } from './types';
+
+export function teleportHome(state: GameState, itemIndex: number, item: Item) {
+  const returnHex = { ...getPreferredReturnHex(state) };
+  state.player.inventory[itemIndex]!.quantity -= 1;
+  if (state.player.inventory[itemIndex]!.quantity <= 0) {
+    state.player.inventory.splice(itemIndex, 1);
+  }
+  leaveDungeonForSurface(state);
+  state.player.coord = returnHex;
+  state.combat = null;
+  clearConsumableCooldownIfOutOfCombat(state);
+  addLog(state, 'system', t('game.message.home.scroll', { item: item.name }));
+}
+
+export function respawnAtNearestTown(state: GameState, from: HexCoord) {
+  void from;
+  const returnHex = { ...getPreferredReturnHex(state) };
+  leaveDungeonForSurface(state);
+  state.player.coord = returnHex;
+  state.player.hunger = PLAYER_SURVIVAL_MAX;
+  state.player.thirst = PLAYER_SURVIVAL_MAX;
+  upsertPlayerStatusEffect(state.player.statusEffects, {
+    id: StatusEffectTypeId.RecentDeath,
+  });
+  state.player.hp = 1;
+  state.player.mana = 1;
+  state.player.hp = Math.min(
+    state.player.hp,
+    getPlayerCombatStats(state.player).maxHp,
+  );
+  state.combat = null;
+  clearConsumableCooldownIfOutOfCombat(state);
+  addLog(state, 'combat', t('game.message.combat.defeated'));
+  addLog(
+    state,
+    'system',
+    t('game.message.combat.respawn', { q: returnHex.q, r: returnHex.r }),
+  );
+}
+
+function leaveDungeonForSurface(state: GameState) {
+  const activeWorld = getActiveWorld(state);
+  if (activeWorld?.kind !== 'dungeon') {
+    return;
+  }
+
+  setActiveWorld(state, state.surfaceWorldId);
+  state.activeDungeon = null;
+}
+
+export function applySurvivalDecay(state: GameState) {
+  processPlayerStatusEffects(state);
+  state.player.hunger = Math.max(0, state.player.hunger - 1);
+  state.player.thirst = Math.max(
+    0,
+    getPlayerThirstValue(state.player.thirst) - 1,
+  );
+
+  let damage = 0;
+  if (state.player.hunger <= PLAYER_SURVIVAL_WARNING_THRESHOLD) {
+    damage += 1;
+    addLog(state, 'survival', t('game.message.survival.starving'));
+  }
+  if (
+    getPlayerThirstValue(state.player.thirst) <=
+    PLAYER_SURVIVAL_WARNING_THRESHOLD
+  ) {
+    damage += 1;
+    addLog(state, 'survival', t('game.message.survival.dehydrated'));
+  }
+
+  if (damage > 0) {
+    state.player.hp = Math.max(0, state.player.hp - damage);
+  }
+}
+
+export function processPlayerStatusEffects(state: GameState) {
+  let changed = false;
+  const remainingEffects: PlayerStatusEffect[] = [];
+
+  state.player.statusEffects.forEach((effect) => {
+    const lastProcessedAt = effect.lastProcessedAt ?? state.worldTimeMs;
+    const effectEndAt = effect.expiresAt ?? lastProcessedAt;
+    const effectiveNow = Math.min(state.worldTimeMs, effectEndAt);
+    const tickIntervalMs = effect.tickIntervalMs ?? 1_000;
+    const tickCount = Math.floor(
+      Math.max(0, effectiveNow - lastProcessedAt) / tickIntervalMs,
+    );
+
+    if (tickCount > 0) {
+      changed = processTickingPlayerEffect(state, effect, tickCount) || changed;
+    }
+
+    if (effect.expiresAt != null && state.worldTimeMs >= effect.expiresAt) {
+      changed = true;
+      return;
+    }
+
+    const nextLastProcessedAt = lastProcessedAt + tickCount * tickIntervalMs;
+    if (nextLastProcessedAt !== effect.lastProcessedAt) {
+      changed = true;
+    }
+
+    remainingEffects.push({
+      ...effect,
+      lastProcessedAt: nextLastProcessedAt,
+    });
+  });
+
+  if (remainingEffects.length !== state.player.statusEffects.length) {
+    changed = true;
+  }
+
+  state.player.statusEffects = remainingEffects;
+  const maxHp = getPlayerCombatStats(state.player).maxHp;
+  if (state.player.hp > maxHp) {
+    state.player.hp = maxHp;
+    changed = true;
+  }
+
+  return changed;
+}
+
+function processTickingPlayerEffect(
+  state: GameState,
+  effect: PlayerStatusEffect,
+  tickCount: number,
+) {
+  if (tickCount <= 0) return false;
+  const playerStats = getPlayerCombatStats(state.player);
+
+  switch (effect.id) {
+    case StatusEffectTypeId.Restoration: {
+      const restorationPercent = Math.max(1, effect.value ?? 1);
+      state.player.hp = Math.min(
+        playerStats.maxHp,
+        state.player.hp +
+          Math.max(
+            1,
+            Math.floor(playerStats.maxHp * (restorationPercent / 100)),
+          ) *
+            tickCount,
+      );
+      state.player.mana = Math.min(
+        state.player.baseMaxMana,
+        state.player.mana +
+          Math.max(
+            1,
+            Math.floor(state.player.baseMaxMana * (restorationPercent / 100)),
+          ) *
+            tickCount,
+      );
+      return true;
+    }
+    case StatusEffectTypeId.Bleeding: {
+      state.player.hp = Math.max(
+        0,
+        state.player.hp -
+          mitigateDamageByDefense(
+            Math.max(1, Math.floor(effect.value ?? 0)),
+            playerStats.defense,
+          ) *
+            tickCount,
+      );
+      return true;
+    }
+    case StatusEffectTypeId.Poison: {
+      const poisonStacks = Math.max(1, effect.stacks ?? 1);
+      const poisonDamage = mitigateDamageByDefense(
+        Math.max(1, Math.floor(playerStats.maxHp * 0.01 * poisonStacks)),
+        playerStats.defense,
+      );
+      state.player.hp = Math.max(0, state.player.hp - poisonDamage * tickCount);
+      return true;
+    }
+    case StatusEffectTypeId.Burning: {
+      const burningStacks = Math.max(1, effect.stacks ?? 1);
+      state.player.hp = Math.max(
+        0,
+        state.player.hp -
+          mitigateDamageByDefense(
+            Math.max(1, Math.floor(effect.value ?? 0) * burningStacks),
+            playerStats.defense,
+          ) *
+            tickCount,
+      );
+      return true;
+    }
+    default:
+      return false;
+  }
+}
+
+function upsertPlayerStatusEffect(
+  statusEffects: PlayerStatusEffect[],
+  effect: PlayerStatusEffect,
+) {
+  const existingIndex = statusEffects.findIndex(
+    (current) => current.id === effect.id,
+  );
+  if (existingIndex >= 0) {
+    statusEffects[existingIndex] = effect;
+    return;
+  }
+
+  statusEffects.push(effect);
+}

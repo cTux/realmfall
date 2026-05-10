@@ -1,0 +1,429 @@
+import { EquipmentSlotId, ItemId } from './content/ids';
+import {
+  buildItemFromConfig,
+  getItemCategory,
+  getItemConfigByKey,
+  hasItemTag,
+  isEquippableItemCategory,
+} from './content/items';
+import { GAME_TAGS } from './content/tags';
+export { makeRecipePage } from './craftingOutputs';
+import { RARITY_ORDER, type EquipmentSlot, type Item } from './types';
+import { getItemDisplayName } from './itemModifications';
+import { isTerraformingConsumableItemKey } from './content/items/terraformingConsumables';
+
+export const INVENTORY_SORT_MODES = ['type', 'rarity', 'tier', 'name'] as const;
+
+export type InventorySortMode = (typeof INVENTORY_SORT_MODES)[number];
+
+export type InventoryItemGroup =
+  | 'equippable'
+  | 'consumable'
+  | 'material'
+  | 'recipe'
+  | 'currency'
+  | 'resource';
+
+const INVENTORY_ITEM_GROUP_ORDER: Record<InventoryItemGroup, number> = {
+  equippable: 0,
+  consumable: 1,
+  material: 2,
+  recipe: 3,
+  currency: 4,
+  resource: 5,
+};
+
+export function makeStarterWeapon(): Item {
+  return buildItemFromConfig(ItemId.TownKnife, { id: 'starter-knife' });
+}
+
+export function makeStarterArmor(
+  slot: EquipmentSlot,
+  itemKey: string,
+  _tier: number,
+  _defense: number,
+): Item {
+  const configured = getRequiredItemConfig(itemKey);
+  return buildItemFromConfig(configured.key, {
+    id: `${slot}-${configured.key}`,
+  });
+}
+
+export function makeHomeScroll(id: string): Item {
+  return buildItemFromConfig(ItemId.HomeScroll, { id });
+}
+
+export function makeConsumable(
+  id: string,
+  itemKey: string,
+  tier: number,
+  healing: number,
+  hunger: number,
+  quantity = 1,
+): Item {
+  const configured = getRequiredItemConfig(itemKey);
+  return buildItemFromConfig(configured.key, {
+    id,
+    quantity,
+    tier,
+    healing,
+    hunger,
+    thirst: configured.thirst ?? 0,
+  });
+}
+
+export function makeGoldStack(quantity: number): Item {
+  return buildItemFromConfig(ItemId.Gold, { id: 'resource-gold-1', quantity });
+}
+
+export function makeResourceStack(
+  itemKey: string,
+  tier: number,
+  quantity: number,
+): Item {
+  const configured = getRequiredItemConfig(itemKey);
+  return buildItemFromConfig(configured.key, {
+    id: `resource-${configured.key}-${tier}`,
+    quantity,
+    tier,
+  });
+}
+
+export function makeCraftedItem(
+  id: string,
+  slot: EquipmentSlot,
+  itemKey: string,
+  _stats: Pick<Item, 'power' | 'defense' | 'maxHp'>,
+): Item {
+  const configured = getRequiredItemConfig(itemKey);
+  return buildItemFromConfig(configured.key, { id });
+}
+
+export function describeItemStack(item: Item) {
+  const name = getItemDisplayName(item);
+  return item.quantity > 1 ? `${item.quantity}x ${name}` : name;
+}
+
+export function getInventoryItemGroup(item: Item): InventoryItemGroup {
+  if (isRecipePage(item)) return 'recipe';
+
+  const category = getItemCategory(item);
+  if (isEquippableItemCategory(category)) return 'equippable';
+  if (category === 'consumable') return 'consumable';
+  if (hasItemTag(item, GAME_TAGS.item.currency)) return 'currency';
+  if (hasItemTag(item, GAME_TAGS.item.craftingMaterial)) return 'material';
+  return 'resource';
+}
+
+export function compareItems(left: Item, right: Item) {
+  const kindOrder = ['resource', 'consumable', 'artifact', 'armor', 'weapon'];
+  const kindDelta =
+    kindOrder.indexOf(getItemCategory(left)) -
+    kindOrder.indexOf(getItemCategory(right));
+  if (kindDelta !== 0) return kindDelta;
+  const rarityDelta =
+    RARITY_ORDER.indexOf(right.rarity) - RARITY_ORDER.indexOf(left.rarity);
+  if (rarityDelta !== 0) return rarityDelta;
+  if (right.tier !== left.tier) return right.tier - left.tier;
+  return left.name.localeCompare(right.name);
+}
+
+export function compareInventoryItems(
+  left: Item,
+  right: Item,
+  mode: InventorySortMode = 'type',
+) {
+  switch (mode) {
+    case 'rarity': {
+      const rarityDelta = compareItemRarity(left, right);
+      if (rarityDelta !== 0) return rarityDelta;
+      return compareTypeThenTier(left, right);
+    }
+    case 'tier': {
+      const tierDelta = compareItemTier(left, right);
+      if (tierDelta !== 0) return tierDelta;
+      const rarityDelta = compareItemRarity(left, right);
+      if (rarityDelta !== 0) return rarityDelta;
+      return compareTypeThenName(left, right);
+    }
+    case 'name': {
+      const nameDelta = left.name.localeCompare(right.name);
+      if (nameDelta !== 0) return nameDelta;
+      const groupDelta = compareItemGroup(left, right);
+      if (groupDelta !== 0) return groupDelta;
+      const rarityDelta = compareItemRarity(left, right);
+      if (rarityDelta !== 0) return rarityDelta;
+      return compareItemTier(left, right);
+    }
+    case 'type':
+    default:
+      return compareTypeThenTier(left, right);
+  }
+}
+
+export function isEquippableItem(item: Item) {
+  return isEquippableItemCategory(getItemCategory(item));
+}
+
+export function canEquipItem(item: Item) {
+  return isEquippableItem(item);
+}
+
+export function getItemRequiredLevel(item: Item) {
+  return item.requiredLevel ?? item.tier;
+}
+
+export function canWearItem(item: Item, playerLevel: number) {
+  return playerLevel >= getItemRequiredLevel(item);
+}
+
+export function canUseItem(item: Item, learnedRecipeIds: string[] = []) {
+  if (hasItemTag(item, GAME_TAGS.item.consumable)) {
+    return true;
+  }
+
+  const recipeId = item.recipeId;
+  if (!isRecipePage(item) || !recipeId) {
+    return false;
+  }
+
+  return !learnedRecipeIds.includes(recipeId);
+}
+
+export function isRecipePage(item: Item) {
+  return hasItemTag(item, GAME_TAGS.item.resource) && Boolean(item.recipeId);
+}
+
+export function canSellItem(item: Item) {
+  const category = getItemCategory(item);
+  return (
+    isEquippableItem(item) ||
+    isRecipePage(item) ||
+    category === 'consumable' ||
+    hasItemTag(item, GAME_TAGS.item.craftingMaterial)
+  );
+}
+
+export function getGoldAmount(inventory: Item[]) {
+  return inventory.reduce(
+    (sum, item) =>
+      hasItemTag(item, GAME_TAGS.item.resource) &&
+      (item.itemKey === ItemId.Gold ||
+        hasItemTag(item, GAME_TAGS.item.currency))
+        ? sum + item.quantity
+        : sum,
+    0,
+  );
+}
+
+export function spendGold(inventory: Item[], amount: number) {
+  let remaining = amount;
+  for (
+    let index = inventory.length - 1;
+    index >= 0 && remaining > 0;
+    index -= 1
+  ) {
+    const item = inventory[index];
+    if (
+      !hasItemTag(item, GAME_TAGS.item.resource) ||
+      (item.itemKey !== ItemId.Gold &&
+        !hasItemTag(item, GAME_TAGS.item.currency))
+    ) {
+      continue;
+    }
+    const spent = Math.min(item.quantity, remaining);
+    item.quantity -= spent;
+    remaining -= spent;
+    if (item.quantity <= 0) inventory.splice(index, 1);
+  }
+}
+
+function compareItemGroup(left: Item, right: Item) {
+  return (
+    INVENTORY_ITEM_GROUP_ORDER[getInventoryItemGroup(left)] -
+    INVENTORY_ITEM_GROUP_ORDER[getInventoryItemGroup(right)]
+  );
+}
+
+function compareItemRarity(left: Item, right: Item) {
+  return RARITY_ORDER.indexOf(right.rarity) - RARITY_ORDER.indexOf(left.rarity);
+}
+
+function compareItemTier(left: Item, right: Item) {
+  return right.tier - left.tier;
+}
+
+function compareTypeThenTier(left: Item, right: Item) {
+  const groupDelta = compareItemGroup(left, right);
+  if (groupDelta !== 0) return groupDelta;
+  const rarityDelta = compareItemRarity(left, right);
+  if (rarityDelta !== 0) return rarityDelta;
+  const tierDelta = compareItemTier(left, right);
+  if (tierDelta !== 0) return tierDelta;
+  return left.name.localeCompare(right.name);
+}
+
+function compareTypeThenName(left: Item, right: Item) {
+  const groupDelta = compareItemGroup(left, right);
+  if (groupDelta !== 0) return groupDelta;
+  return left.name.localeCompare(right.name);
+}
+
+export function sellValue(item: Item) {
+  const rarityOrder = ['common', 'uncommon', 'rare', 'epic', 'legendary'];
+  const category = getItemCategory(item);
+  const recipePage = isRecipePage(item);
+  if (
+    category === 'consumable' &&
+    isTerraformingConsumableItemKey(item.itemKey)
+  ) {
+    return 100 * item.quantity;
+  }
+  if (category === 'consumable') {
+    return Math.max(1, item.quantity);
+  }
+  if (hasItemTag(item, GAME_TAGS.item.craftingMaterial)) {
+    return Math.max(1, getCraftingMaterialSellUnitValue(item) * item.quantity);
+  }
+  const base = recipePage
+    ? 24
+    : category === 'artifact'
+      ? 16
+      : category === 'weapon'
+        ? 10
+        : category === 'armor'
+          ? 8
+          : category === 'resource'
+            ? 2
+            : 3;
+  return Math.round(
+    (base +
+      item.tier * (recipePage ? 4 : 2) +
+      rarityOrder.indexOf(item.rarity) * (recipePage ? 8 : 6)) *
+      item.quantity,
+  );
+}
+
+const INGOT_ITEM_KEYS = new Set<string>([
+  ItemId.CopperIngot,
+  ItemId.TinIngot,
+  ItemId.IronIngot,
+  ItemId.GoldIngot,
+  ItemId.PlatinumIngot,
+]);
+
+function getCraftingMaterialSellUnitValue(item: Item) {
+  if (item.itemKey && INGOT_ITEM_KEYS.has(item.itemKey)) {
+    return 3;
+  }
+  if (hasItemTag(item, GAME_TAGS.item.ore)) {
+    return 1;
+  }
+
+  return 2;
+}
+
+export function prospectYield(item: Item): Item[] {
+  const quantity = Math.max(1, Math.ceil(item.tier / 2));
+  const category = getItemCategory(item);
+  if (category === 'weapon') {
+    return [
+      makeResourceStack(ItemId.IronOre, item.tier, quantity),
+      makeResourceStack(ItemId.Sticks, item.tier, 1),
+    ];
+  }
+  if (category === 'armor') {
+    return [
+      makeResourceStack(
+        item.slot === EquipmentSlotId.Chest
+          ? ItemId.Cloth
+          : ItemId.LeatherScraps,
+        item.tier,
+        quantity,
+      ),
+      makeResourceStack(ItemId.IronOre, item.tier, 1),
+    ];
+  }
+  return [makeResourceStack(ItemId.ArcaneDust, item.tier, quantity + 1)];
+}
+
+export function consumeInventoryItem(
+  inventory: Item[],
+  itemIndex: number,
+  item: Item,
+) {
+  if (item.quantity > 1) {
+    inventory[itemIndex] = {
+      ...item,
+      quantity: item.quantity - 1,
+    };
+    return;
+  }
+
+  inventory.splice(itemIndex, 1);
+}
+
+export function consolidateInventory(inventory: Item[]) {
+  return inventory.reduce<Item[]>((merged, item) => {
+    addItemToInventory(merged, item);
+    return merged;
+  }, []);
+}
+
+export function addItemToInventory(inventory: Item[], item: Item) {
+  if (!hasItemTag(item, GAME_TAGS.item.stackable)) {
+    inventory.push(ensureUniqueItemId(inventory, item));
+    return;
+  }
+
+  const existing = inventory.find((entry) => isSameStackable(entry, item));
+  if (existing) {
+    existing.quantity += item.quantity;
+    return;
+  }
+
+  inventory.push(ensureUniqueItemId(inventory, item));
+}
+
+function ensureUniqueItemId(collection: Item[], item: Item) {
+  if (!collection.some((entry) => entry.id === item.id)) return item;
+
+  let suffix = 2;
+  let candidateId = `${item.id}-${suffix}`;
+  while (collection.some((entry) => entry.id === candidateId)) {
+    suffix += 1;
+    candidateId = `${item.id}-${suffix}`;
+  }
+
+  return {
+    ...item,
+    id: candidateId,
+  };
+}
+
+function isSameStackable(left: Item, right: Item) {
+  return (
+    hasItemTag(left, GAME_TAGS.item.stackable) &&
+    getItemCategory(left) === getItemCategory(right) &&
+    left.recipeId === right.recipeId &&
+    sameStackIdentity(left, right) &&
+    left.rarity === right.rarity &&
+    left.healing === right.healing &&
+    left.hunger === right.hunger &&
+    (left.thirst ?? 0) === (right.thirst ?? 0)
+  );
+}
+
+function sameStackIdentity(left: Item, right: Item) {
+  if (left.itemKey !== right.itemKey) {
+    return false;
+  }
+
+  return left.recipeId === right.recipeId;
+}
+
+function getRequiredItemConfig(itemKey: string) {
+  const configured = getItemConfigByKey(itemKey);
+  if (configured) return configured;
+  throw new Error(`Missing item config: ${itemKey}`);
+}
