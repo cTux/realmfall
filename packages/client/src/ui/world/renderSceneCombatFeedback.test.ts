@@ -778,7 +778,7 @@ describe('renderScene combat feedback', () => {
     );
   });
 
-  it('keeps the player wrapper centered for pending combat before the encounter starts', async () => {
+  it('keeps the player on the base icon before pending combat intro begins', async () => {
     const { renderScene } = await import('./renderScene');
     const { COMBAT_WORLD_ICON_TINT, WorldIcons } = await import('./worldIcons');
     const game = createLungeCombatGame('render-scene-player-lunge-pending');
@@ -836,8 +836,8 @@ describe('renderScene combat feedback', () => {
     expect(baselineWrapper).toBeDefined();
     expect(pendingWrapper).toBeDefined();
     expect(baselineSprite?.icon).not.toBe(WorldIcons.Combat);
-    expect(pendingSprite?.icon).toBe(WorldIcons.Combat);
-    expect(pendingSprite?.tint).toBe(COMBAT_WORLD_ICON_TINT);
+    expect(pendingSprite?.icon).toBe(baselineSprite?.icon);
+    expect(pendingSprite?.tint).not.toBe(COMBAT_WORLD_ICON_TINT);
     expect(pendingWrapper!.position.x).toBeCloseTo(
       baselineWrapper!.position.x,
       4,

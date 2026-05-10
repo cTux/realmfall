@@ -577,6 +577,67 @@ describe('renderScene enemy markers', () => {
     ).toBe(true);
   });
 
+  it('keeps hostile markers on their normal icons before pending combat intro begins', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { WorldIcons } = await import('./worldIcons');
+    const game = createEnemyMarkerGame(
+      'render-scene-pending-combat-emblem-delay',
+      'common',
+    );
+    const app = createMockApp();
+    const visibleTiles = getVisibleTiles(game);
+
+    game.combat = {
+      coord: { q: 0, r: 0 },
+      enemyIds: ['enemy-1,0-0'],
+      started: false,
+      startedAtMs: undefined,
+      engagement: {
+        autoStepOnVictory: true,
+        engageMode: 'staged-click',
+        originCoord: { q: 0, r: 0 },
+        stagingCoord: { q: 1, r: 0 },
+        targetCoord: { q: 2, r: 0 },
+      },
+      player: {
+        abilityIds: ['slash'],
+        globalCooldownMs: 1500,
+        globalCooldownEndsAt: 0,
+        cooldownEndsAt: {},
+        casting: null,
+      },
+      enemies: {
+        'enemy-1,0-0': {
+          abilityIds: ['kick'],
+          globalCooldownMs: 1500,
+          globalCooldownEndsAt: 0,
+          cooldownEndsAt: {},
+          casting: null,
+        },
+      },
+      enemyStateById: {
+        'enemy-1,0-0': {},
+      },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+    );
+
+    expect(
+      collectDescendants(getMarkerLayer(app)).some(
+        (child) =>
+          child instanceof MockSprite && child.icon === WorldIcons.Combat,
+      ),
+    ).toBe(false);
+  });
+
   it('refreshes visible hostile badge HP and MP arcs during combat without requiring a new enemy map object', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createEnemyMarkerGame(

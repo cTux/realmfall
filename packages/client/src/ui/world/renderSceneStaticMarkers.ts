@@ -5,6 +5,7 @@ import {
   getPlacedWorldBossCenter,
   isWorldBossEnemyId,
 } from '@realmfall/core/game/worldBoss';
+import { getPresentedCombat } from '../../game/combatPresentation';
 import {
   COMBAT_WORLD_ICON_TINT,
   WorldIcons,
@@ -90,8 +91,9 @@ export function renderStaticMarkers({
   const unknownMarkerAlpha = isUnknownVisibleWorldTile(tile)
     ? appearanceAlpha
     : (1 - revealProgress) * appearanceAlpha;
-  const engagedEnemyIdSet = state.combat?.enemyIds
-    ? new Set(state.combat.enemyIds)
+  const presentedCombat = getPresentedCombat(state.combat);
+  const engagedEnemyIdSet = presentedCombat?.enemyIds
+    ? new Set(presentedCombat.enemyIds)
     : null;
   const getMarkerIdentityKey = (markerKind: string) =>
     markerIdentityKeyBase === null

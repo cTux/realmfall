@@ -23,6 +23,7 @@ import { useGameplayAutomation } from './useGameplayAutomation';
 import { useDungeonTransitionController } from './useDungeonTransitionController';
 import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotion';
 import type { AppShellState } from '../AppShell.types';
+import { getPresentedCombat } from '../../../game/combatPresentation';
 
 export function useAppRuntime() {
   const bootstrap = useAppBootstrapState();
@@ -132,8 +133,9 @@ export function useAppRuntime() {
     suppressAutoLoot: pixiWorld.queuedTravelAutoOpenSuppressed,
     worldTimeMsRef: bootstrap.worldTimeMsRef,
   });
+  const presentedCombat = getPresentedCombat(bootstrap.game.combat);
   const windowTransitions = useWindowTransitions({
-    combat: bootstrap.game.combat,
+    combat: presentedCombat,
     combatEnemies: gameView.combatEnemies,
     currentTile: gameView.currentTile,
     suppressLootAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
@@ -163,7 +165,7 @@ export function useAppRuntime() {
     !dungeonTransition.hasTransitionError;
 
   useHexInfoWindowPromotion({
-    combat: bootstrap.game.combat,
+    combat: presentedCombat,
     currentLootAvailable: gameView.currentTile.items.length > 0,
     playerCoord: bootstrap.game.player.coord,
     currentStructure: gameView.currentTile.structure,
@@ -185,7 +187,7 @@ export function useAppRuntime() {
   }, [bootstrap.game.worldTimeMs]);
 
   useCombatAttentionWindow({
-    combat: bootstrap.game.combat,
+    combat: presentedCombat,
     hydrated: persistence.hydrated,
     playerCoord: bootstrap.game.player.coord,
     suppressHexInfoAutoOpen: pixiWorld.queuedTravelAutoOpenSuppressed,
@@ -193,7 +195,7 @@ export function useAppRuntime() {
     windowShownHexInfo: controllerState.windowShown.hexInfo,
   });
   useCombatHexInfoPersistence({
-    combat: bootstrap.game.combat,
+    combat: presentedCombat,
     setWindowShown: controllerMutators.setWindowShown,
     windowShownCombat: controllerState.windowShown.combat,
     windowShownHexInfo: controllerState.windowShown.hexInfo,

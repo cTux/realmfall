@@ -30,6 +30,7 @@ import {
 } from './renderScenePlayerBars';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import type { MovementTransitionRevealState } from './renderSceneVisibility';
+import { isCombatPresentationActive } from '../../game/combatPresentation';
 import { COMBAT_WORLD_ICON_TINT, WorldIcons } from './worldIcons';
 
 interface RenderAnimatedSceneOptions {
@@ -124,7 +125,7 @@ export function renderAnimatedScene({
     x: origin.x + playerLungeOffset.x,
     y: origin.y + playerLungeOffset.y,
   };
-  const playerInCombat = state.combat !== null;
+  const playerInCombat = isCombatPresentationActive(state.combat);
   const playerTint = playerInCombat
     ? COMBAT_WORLD_ICON_TINT
     : scaleColor(

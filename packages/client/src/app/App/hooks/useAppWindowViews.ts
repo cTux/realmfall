@@ -4,6 +4,7 @@ import type { AudioSettings } from '../../audioSettings';
 import type { GameplaySettings } from '../../gameplaySettings';
 import type { GraphicsSettings } from '../../graphicsSettings';
 import type { InterfaceSettings } from '../../interfaceSettings';
+import { getPresentedCombat } from '../../../game/combatPresentation';
 import type { ActionBarSlots } from '../actionBar';
 import type { AppWindowsViewState } from '../AppWindows.types';
 import type { ItemContextMenuState } from '../types';
@@ -95,6 +96,10 @@ export function useAppWindowViews({
   heroOverview,
   townStock,
 }: UseAppWindowViewsArgs): AppWindowsViewState {
+  const presentedCombat = useMemo(
+    () => getPresentedCombat(combatState),
+    [combatState],
+  );
   const hero = useMemo(
     () => ({
       overview: heroOverview,
@@ -134,7 +139,7 @@ export function useAppWindowViews({
       homeHex,
       currentTile,
       currentTileHostileEnemyCount,
-      combat: combatState,
+      combat: presentedCombat,
       interactLabel,
       canBulkProspectEquipment,
       canBulkSellEquipment,
@@ -151,7 +156,7 @@ export function useAppWindowViews({
       canBulkProspectEquipment,
       canBulkSellEquipment,
       claimStatus,
-      combatState,
+      presentedCombat,
       currentTile,
       currentTileHostileEnemyCount,
       gold,

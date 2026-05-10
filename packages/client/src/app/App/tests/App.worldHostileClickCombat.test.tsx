@@ -192,6 +192,7 @@ describe('App world hostile click combat', () => {
           stagingCoord: { q: 1, r: 0 },
           targetCoord: { q: 2, r: 0 },
         });
+        expect(host.textContent).not.toContain('Wolf');
 
         await act(async () => {
           await vi.advanceTimersByTimeAsync(WORLD_MOVE_VISUAL_DURATION_MS - 1);
@@ -201,6 +202,7 @@ describe('App world hostile click combat', () => {
 
         expect(getRenderedGame()?.combat?.started).toBe(false);
         expect(getRenderedGame()?.combat?.startedAtMs).toBeUndefined();
+        expect(host.textContent).not.toContain('Wolf');
 
         await act(async () => {
           await vi.advanceTimersByTimeAsync(1);
@@ -210,6 +212,7 @@ describe('App world hostile click combat', () => {
 
         const stagedCombatGame = getRenderedGame();
         expect(stagedCombatGame?.combat?.started).toBe(true);
+        expect(host.textContent).toContain('Wolf');
 
         await act(async () => {
           await vi.advanceTimersByTimeAsync(WORLD_MOVE_HEX_COOLDOWN_MS);
