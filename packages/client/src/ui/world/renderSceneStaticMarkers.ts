@@ -5,7 +5,9 @@ import {
   getPlacedWorldBossCenter,
   isWorldBossEnemyId,
 } from '@realmfall/core/game/worldBoss';
+import { getPresentedCombat } from '../../game/combatPresentation';
 import {
+  COMBAT_WORLD_ICON_TINT,
   WorldIcons,
   enemyIconFor,
   enemyIconTintFor,
@@ -25,12 +27,17 @@ import {
 } from './renderScenePools';
 import { ENEMY_GROUP_LABEL_STYLE, type SceneCache } from './renderSceneCache';
 import {
+  getSceneIconTransitionLayers,
+  WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX,
+} from './renderSceneIconTransitions';
+import {
   ENEMY_GROUP_BADGE_OFFSET,
   getStructureBadgeBackgroundColor,
   getStructureHexIconTint,
   registerAnimatedWorldMarker,
 } from './renderSceneShared';
 import { getDungeonEnemyAnimatedMovementTransition } from './renderSceneDungeonEnemyTransitions';
+import { tileToPoint } from './renderSceneMath';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import {
   getVisibleWorldTileRevealProgress,
@@ -84,8 +91,9 @@ export function renderStaticMarkers({
   const unknownMarkerAlpha = isUnknownVisibleWorldTile(tile)
     ? appearanceAlpha
     : (1 - revealProgress) * appearanceAlpha;
-  const engagedEnemyIdSet = state.combat?.enemyIds
-    ? new Set(state.combat.enemyIds)
+  const presentedCombat = getPresentedCombat(state.combat);
+  const engagedEnemyIdSet = presentedCombat?.enemyIds
+    ? new Set(presentedCombat.enemyIds)
     : null;
   const getMarkerIdentityKey = (markerKind: string) =>
     markerIdentityKeyBase === null
@@ -203,21 +211,56 @@ export function renderStaticMarkers({
       engagedEnemyIdSet !== null &&
       hostileEnemies.some((enemy) => engagedEnemyIdSet.has(enemy.id));
     if (!worldBossCenter || isBossCenter) {
+      const markerStableKey = isBossCenter
+        ? getMarkerIdentityKey('world-boss')
+        : `enemy:${leadEnemy.id}`;
+      const markerIcon = showCombatBars
+        ? WorldIcons.Combat
+        : enemyIconFor(leadEnemy);
       const sprite = takeShadowedSprite(
         scene.worldStaticMarkerSprites,
-        enemyIconFor(leadEnemy),
+        markerIcon,
         {
-          stableKey: isBossCenter
-            ? getMarkerIdentityKey('world-boss')
-            : `enemy:${leadEnemy.id}`,
+          stableKey: markerStableKey,
         },
       );
-      const tint = enemyIconTintFor(highestRarityEnemy);
+      const tint = showCombatBars
+        ? COMBAT_WORLD_ICON_TINT
+        : enemyIconTintFor(highestRarityEnemy);
+      const iconTransitionLayers = markerStableKey
+        ? getSceneIconTransitionLayers(
+            scene.iconTransitionsByKey,
+            `${WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX}${markerStableKey}`,
+            {
+              icon: markerIcon,
+              tint,
+            },
+            animationMs,
+          )
+        : null;
+      if (markerStableKey) {
+        scene.worldMarkerIconTransitionKeysUsed.add(
+          `${WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX}${markerStableKey}`,
+        );
+      }
+      const leadEnemyTargetCoord = leadEnemy.dungeonMovementTargetCoord;
+      const movementTargetPoint =
+        !isBossCenter && leadEnemyTargetCoord
+          ? tileToPoint(
+              {
+                q: leadEnemyTargetCoord.q - tile.coord.q,
+                r: leadEnemyTargetCoord.r - tile.coord.r,
+              },
+              point.x,
+              point.y,
+              hexSize,
+            )
+          : point;
       const markerPoint = isBossCenter
-        ? point
+        ? movementTargetPoint
         : {
-            x: point.x,
-            y: point.y - 2,
+            x: movementTargetPoint.x,
+            y: movementTargetPoint.y - 2,
           };
       const markerSize = isBossCenter ? worldBossIconSize : enemyIconSize;
       const markerIconSize = isBossCenter
@@ -234,6 +277,7 @@ export function renderStaticMarkers({
               max: leadEnemy.maxHp,
             }
           : undefined,
+        iconTransitionLayers: iconTransitionLayers ?? undefined,
         iconSize: markerIconSize,
         iconTint: tint,
         levelLabel: leadEnemy.tier.toString(),
@@ -251,7 +295,7 @@ export function renderStaticMarkers({
       registerAnimatedWorldMarker(
         scene,
         state.seed,
-        tile.coord,
+        leadEnemyTargetCoord ?? tile.coord,
         sprite,
         markerPoint,
         markerIconSize,

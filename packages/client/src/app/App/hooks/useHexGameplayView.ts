@@ -17,7 +17,7 @@ import {
 } from '@realmfall/core/game/stateSelectors';
 import { getActiveWorld } from '@realmfall/core/game/dungeons/worldState';
 import { getResolvedCurrentHexClaimStatus } from '@realmfall/core/game/stateClaims';
-import { getCombatEncounterCoord } from '@realmfall/core/game/stateCombatEngagement';
+import { getCombatEncounterEnemyIds } from '@realmfall/core/game/stateCombatEngagement';
 import {
   FACTION_NPC_HEAL_COST,
   getCurrentHexFactionNpcHealStatus,
@@ -149,7 +149,11 @@ export function useHexGameplayView({
   const combatEnemies = useMemo(
     () =>
       combat
-        ? getEnemiesAt(enemyLookupInput, getCombatEncounterCoord(combat))
+        ? getCombatEncounterEnemyIds(combat)
+            .map((enemyId) => enemyLookupInput.enemies[enemyId])
+            .filter((enemy): enemy is NonNullable<typeof enemy> =>
+              Boolean(enemy),
+            )
         : [],
     [combat, enemyLookupInput],
   );

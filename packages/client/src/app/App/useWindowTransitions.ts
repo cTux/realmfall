@@ -5,6 +5,7 @@ import type {
   Item,
   Tile,
 } from '@realmfall/core/game/stateTypes';
+import { getPresentedCombat } from '../../game/combatPresentation';
 import { useDeferredWindowLifecycle } from './hooks/useDeferredWindowLifecycle';
 
 interface UseWindowTransitionsOptions {
@@ -20,12 +21,13 @@ export function useWindowTransitions({
   currentTile,
   suppressLootAutoOpen,
 }: UseWindowTransitionsOptions) {
+  const presentedCombat = getPresentedCombat(combat);
   const lootWindowKey = useMemo(() => {
     if (currentTile.items.length === 0) return null;
     return `${currentTile.coord.q},${currentTile.coord.r}:${currentTile.items.map((item) => `${item.id}:${item.quantity}`).join('|')}`;
   }, [currentTile]);
   const showLootWindow = Boolean(
-    !combat && lootWindowKey && !suppressLootAutoOpen,
+    !presentedCombat && lootWindowKey && !suppressLootAutoOpen,
   );
 
   const lootWindow = useDeferredWindowLifecycle<Item[]>({
@@ -36,8 +38,10 @@ export function useWindowTransitions({
     combat: NonNullable<GameState['combat']>;
     enemies: Enemy[];
   } | null>({
-    active: Boolean(combat),
-    snapshot: combat ? { combat, enemies: combatEnemies } : null,
+    active: Boolean(presentedCombat),
+    snapshot: presentedCombat
+      ? { combat: presentedCombat, enemies: combatEnemies }
+      : null,
   });
 
   return {

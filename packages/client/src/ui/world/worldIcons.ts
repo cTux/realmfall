@@ -5,6 +5,7 @@ import snowingIcon from '../../assets/icons/snowing.svg';
 import tearTracksIcon from '../../assets/icons/tear-tracks.svg';
 import castleIcon from '../../assets/icons/castle.svg';
 import batIcon from '../../assets/game-icons/delapouite/bat.svg';
+import combatIcon from '../../assets/game-icons/lorc/swords-emblem.svg';
 import forgottenLootIcon from '../../assets/game-icons/lorc/swap-bag.svg';
 import unknownHexIcon from '../../assets/game-icons/delapouite/perspective-dice-six-faces-random.svg';
 import {
@@ -45,6 +46,7 @@ const WORLD_ICON_BACKGROUND_WARMUP_BATCH_SIZE = 4;
 const WORLD_ICON_WARMUP_FALLBACK_SLICE_MS = 8;
 
 export const WorldIcons = {
+  Combat: combatIcon,
   Player: playerIcon,
   SunCloud: sunCloudIcon,
   Raining: rainingIcon,
@@ -55,6 +57,8 @@ export const WorldIcons = {
   ForgottenLoot: forgottenLootIcon,
   UnknownHex: unknownHexIcon,
 } as const;
+
+export const COMBAT_WORLD_ICON_TINT = 0xef4444;
 
 const ENEMY_RARITY_TINTS = Object.fromEntries(
   Object.entries(RARITY_COLOR).map(([rarity, color]) => [
@@ -81,7 +85,7 @@ export function enemyIconTintFor(
     return ENEMY_RARITY_TINTS[enemy.rarity ?? 'common'];
   }
 
-  return getEnemyConfig(enemy)?.tint ?? 0xef4444;
+  return getEnemyConfig(enemy)?.tint ?? COMBAT_WORLD_ICON_TINT;
 }
 
 export function structureIconFor(structure: StructureType) {

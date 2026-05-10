@@ -55,7 +55,8 @@ describe('renderScene claim markers', () => {
     expect(markerWrappers).toHaveLength(1);
 
     const markerChildren = markerWrappers[0].children.filter(
-      (child): child is MockSprite => child instanceof MockSprite,
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.visible,
     ) as Array<{
       icon: string;
     }>;
@@ -107,7 +108,8 @@ describe('renderScene claim markers', () => {
     expect(markerWrappers).toHaveLength(1);
 
     const markerChildren = markerWrappers[0].children.filter(
-      (child): child is MockSprite => child instanceof MockSprite,
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.visible,
     ) as Array<{
       icon: string;
     }>;

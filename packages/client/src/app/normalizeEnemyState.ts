@@ -64,6 +64,19 @@ export function normalizeEnemy(
             dungeonMovementCooldownEndsAt:
               fallback.dungeonMovementCooldownEndsAt,
           }),
+    ...(normalizeHexCoord(value.dungeonMovementTargetCoord)
+      ? {
+          dungeonMovementTargetCoord: normalizeHexCoord(
+            value.dungeonMovementTargetCoord,
+          )!,
+        }
+      : fallback?.dungeonMovementTargetCoord === undefined
+        ? {}
+        : {
+            dungeonMovementTargetCoord: {
+              ...fallback.dungeonMovementTargetCoord,
+            },
+          }),
     ...(isItemRarity(value.rarity)
       ? { rarity: value.rarity }
       : fallback?.rarity === undefined

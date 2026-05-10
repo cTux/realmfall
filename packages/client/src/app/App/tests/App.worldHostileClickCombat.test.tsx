@@ -10,9 +10,6 @@ import {
 } from '@realmfall/core/game/config';
 import { syncCombatEncounterEnemies } from '@realmfall/core/game/stateCombatEncounterSync';
 import type { GameState } from '@realmfall/core/game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '@realmfall/core/game/worldCombatPresentation';
-import { getWorldCombatLungeOffset } from '../../../ui/world/worldCombatLunge';
-import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import {
   createHydratedAppGame,
   flushLazyModules,
@@ -88,23 +85,13 @@ describe('App world hostile click combat', () => {
 
         const pendingGame = getRenderedGame();
         expect(pendingGame?.player.coord).toEqual({ q: 0, r: 0 });
-        expect(pendingGame?.combat?.started).toBe(false);
         expect(pendingGame?.combat?.engagement).toMatchObject({
           autoStepOnVictory: true,
           engageMode: 'adjacent-click',
           stagingCoord: { q: 0, r: 0 },
           targetCoord: { q: 1, r: 0 },
         });
-        expect(pendingGame?.combat?.startedAtMs).toBeDefined();
-
-        await act(async () => {
-          await vi.advanceTimersByTimeAsync(WORLD_COMBAT_LUNGE_DURATION_MS);
-        });
-        await flushLazyModules();
-        await renderTickerFrame();
-
-        const engagedGame = getRenderedGame();
-        expect(engagedGame?.combat?.started).toBe(true);
+        expect(pendingGame?.combat?.started).toBe(true);
 
         await act(async () => {
           setGameRef.current?.((current) => {
@@ -205,6 +192,7 @@ describe('App world hostile click combat', () => {
           stagingCoord: { q: 1, r: 0 },
           targetCoord: { q: 2, r: 0 },
         });
+        expect(host.textContent).not.toContain('Wolf');
 
         await act(async () => {
           await vi.advanceTimersByTimeAsync(WORLD_MOVE_VISUAL_DURATION_MS - 1);
@@ -214,6 +202,7 @@ describe('App world hostile click combat', () => {
 
         expect(getRenderedGame()?.combat?.started).toBe(false);
         expect(getRenderedGame()?.combat?.startedAtMs).toBeUndefined();
+        expect(host.textContent).not.toContain('Wolf');
 
         await act(async () => {
           await vi.advanceTimersByTimeAsync(1);
@@ -221,17 +210,9 @@ describe('App world hostile click combat', () => {
         await flushLazyModules();
         await renderTickerFrame();
 
-        expect(getRenderedGame()?.combat?.started).toBe(false);
-        expect(getRenderedGame()?.combat?.startedAtMs).toBeDefined();
-
-        await act(async () => {
-          await vi.advanceTimersByTimeAsync(WORLD_COMBAT_LUNGE_DURATION_MS);
-        });
-        await flushLazyModules();
-        await renderTickerFrame();
-
         const stagedCombatGame = getRenderedGame();
         expect(stagedCombatGame?.combat?.started).toBe(true);
+        expect(host.textContent).toContain('Wolf');
 
         await act(async () => {
           await vi.advanceTimersByTimeAsync(WORLD_MOVE_HEX_COOLDOWN_MS);
@@ -259,30 +240,15 @@ describe('App world hostile click combat', () => {
         const postResolutionCall = renderScene.mock.calls
           .slice(renderCallCountBeforeResolution)
           .find((call) => call[8]?.movementCooldown != null);
-        const app = postResolutionCall?.[0];
         const renderOptions = postResolutionCall?.[8];
-        const expectedHeldOffset =
-          app && renderOptions?.movementTransition
-            ? getWorldCombatLungeOffset({
-                hexSize: getWorldHexSize(app.screen, resolvedGame?.radius ?? 0),
-                phase: 'held',
-                stagingCoord: { q: 1, r: 0 },
-                startedAtMs: 0,
-                targetCoord: { q: 2, r: 0 },
-                worldTimeMs: WORLD_COMBAT_LUNGE_DURATION_MS,
-              })
-            : null;
         expect(renderOptions?.movementTransition).toMatchObject({
           durationMs: WORLD_MOVE_VISUAL_DURATION_MS,
           fromCoord: { q: 1, r: 0 },
           toCoord: { q: 2, r: 0 },
         });
         expect(
-          renderOptions?.movementTransition?.playerOffsetAtStart?.x ?? 0,
-        ).toBeCloseTo(expectedHeldOffset?.x ?? 0, 5);
-        expect(
-          renderOptions?.movementTransition?.playerOffsetAtStart?.y ?? 0,
-        ).toBeCloseTo(expectedHeldOffset?.y ?? 0, 5);
+          renderOptions?.movementTransition?.playerOffsetAtStart,
+        ).toBeUndefined();
         expect(renderOptions?.movementCooldown).toMatchObject({
           durationMs: WORLD_MOVE_HEX_COOLDOWN_MS,
         });

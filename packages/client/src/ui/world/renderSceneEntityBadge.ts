@@ -1,6 +1,8 @@
 import { getEnemyLevelLabelStyle } from './renderSceneCache';
+import type { SceneIconTransitionLayer } from './renderSceneIconTransitions';
 import {
   configureShadowedSprite,
+  configureShadowedSpriteIconTransition,
   resetShadowedSpriteBadge,
   setTextPosition,
   setTextScale,
@@ -62,6 +64,7 @@ interface EntityBadgeOptions {
     current: number;
     max: number;
   };
+  iconTransitionLayers?: SceneIconTransitionLayer[];
   iconSize: number;
   iconTint: number;
   levelLabel?: string;
@@ -103,6 +106,7 @@ export function configureEntityBadgeSprite(
     borderWidth,
     countLabel,
     hp,
+    iconTransitionLayers,
     iconSize,
     iconTint,
     levelLabel,
@@ -112,15 +116,27 @@ export function configureEntityBadgeSprite(
     shadowOffset,
   }: EntityBadgeOptions,
 ) {
-  configureShadowedSprite(
-    entry,
-    iconTint,
-    iconSize,
-    iconSize,
-    alpha,
-    shadowOffset,
-    point,
-  );
+  if (iconTransitionLayers) {
+    configureShadowedSpriteIconTransition(
+      entry,
+      iconTransitionLayers,
+      iconSize,
+      iconSize,
+      alpha,
+      shadowOffset,
+      point,
+    );
+  } else {
+    configureShadowedSprite(
+      entry,
+      iconTint,
+      iconSize,
+      iconSize,
+      alpha,
+      shadowOffset,
+      point,
+    );
+  }
   decorateEntityBadge(entry, {
     alpha,
     backgroundColor,

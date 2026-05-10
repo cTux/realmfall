@@ -2,7 +2,6 @@ import { describe, expect, it } from 'vitest';
 import { createPendingCombatEncounter } from '@realmfall/core/game/stateCombatEngagement';
 import { createGame } from '@realmfall/core/game/stateFactory';
 import type { GameState } from '@realmfall/core/game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '@realmfall/core/game/worldCombatPresentation';
 import type { WorldMovementTransition } from './movement/worldMovementTransition';
 import {
   autoStartPendingCombat,
@@ -69,7 +68,7 @@ describe('pixiWorldPendingCombat', () => {
     ).toBe(0);
   });
 
-  it('schedules the combat-intro stamp after the remaining movement transition', () => {
+  it('schedules combat start after the remaining movement transition', () => {
     const game = createPendingCombatGame();
     if (!game.combat) {
       throw new Error('Expected pending combat.');
@@ -94,7 +93,7 @@ describe('pixiWorldPendingCombat', () => {
         worldTimeMs: 9_999,
       }),
     ).toEqual({
-      action: 'stamp',
+      action: 'start',
       delayMs: 650,
     });
   });
@@ -119,7 +118,7 @@ describe('pixiWorldPendingCombat', () => {
     expect(gameRef.current.combat?.startedAtMs).toBe(900);
   });
 
-  it('auto-starts combat after the intro delay completes', () => {
+  it('auto-starts combat immediately once pending combat is ready to resolve', () => {
     const game = createPendingCombatGame();
     if (!game.combat) {
       throw new Error('Expected pending combat.');
@@ -133,7 +132,7 @@ describe('pixiWorldPendingCombat', () => {
         movementNowMs: 5,
         movementTransition: null,
         playerCoord: game.player.coord,
-        worldTimeMs: 100 + WORLD_COMBAT_LUNGE_DURATION_MS,
+        worldTimeMs: 100,
       }),
     ).toEqual({
       action: 'start',
@@ -143,19 +142,19 @@ describe('pixiWorldPendingCombat', () => {
     const started = autoStartPendingCombat({
       current: game,
       gameRef: { current: game },
-      worldTimeMs: 100 + WORLD_COMBAT_LUNGE_DURATION_MS,
+      worldTimeMs: 100,
     });
 
     expect(started.combat?.started).toBe(true);
   });
 
-  it('captures victory carryover offset and cooldown seeding for an auto-step', () => {
+  it('seeds only cooldown for an auto-step when combat ends without a lunge offset', () => {
     const previousGame = createPendingCombatGame();
     if (!previousGame.combat) {
       throw new Error('Expected combat.');
     }
 
-    previousGame.worldTimeMs = WORLD_COMBAT_LUNGE_DURATION_MS;
+    previousGame.worldTimeMs = 180;
     previousGame.combat.started = true;
     previousGame.combat.startedAtMs = 0;
     previousGame.player.coord = { q: 0, r: 0 };
@@ -176,10 +175,7 @@ describe('pixiWorldPendingCombat', () => {
     });
 
     expect(transition?.cooldownEndAtMs).toBe(500 + 1000);
-    expect(transition?.pendingVictoryTransitionOffset).toMatchObject({
-      fromCoord: { q: 0, r: 0 },
-      toCoord: { q: 1, r: 0 },
-    });
+    expect(transition?.pendingVictoryTransitionOffset).toBeNull();
   });
 
   it('returns null when carryover prerequisites are missing', () => {

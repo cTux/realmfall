@@ -20,6 +20,11 @@ import { getCombatFeedbackRenderToken } from './renderSceneCombatFeedback';
 import { getSceneRenderTokens } from './renderSceneTokens';
 import { getWorldHexSize } from './renderSceneMath';
 import { syncDungeonEnemyMovementTransitions } from './renderSceneDungeonEnemyTransitions';
+import {
+  getSceneIconTransitionRenderToken,
+  PLAYER_ICON_TRANSITION_KEY,
+  WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX,
+} from './renderSceneIconTransitions';
 import { getMovementTransitionRevealState } from './renderSceneVisibility';
 import { applyWorldSceneOffset, getSceneCache } from './renderSceneCache';
 import {
@@ -220,7 +225,12 @@ export function getRenderSceneFrameState({
     fullscreenVisualEffects.renderToken,
     worldRenderFrameMs,
   );
-  const animatedRenderToken = [
+  const playerIconTransitionRenderToken = getSceneIconTransitionRenderToken(
+    scene.iconTransitionsByKey,
+    animationMs,
+    PLAYER_ICON_TRANSITION_KEY,
+  );
+  const animatedRenderTokenParts = [
     staticRenderBaseToken,
     getMovementCooldownRenderToken(movementCooldown, worldRenderFrameMs),
     getCombatFeedbackRenderToken({
@@ -230,7 +240,13 @@ export function getRenderSceneFrameState({
     }),
     showClouds ? 'clouds:on' : 'clouds:off',
     `cloudTransparency:${cloudTransparency}`,
-  ].join(':');
+  ];
+  if (playerIconTransitionRenderToken !== null) {
+    animatedRenderTokenParts.push(
+      `player-icons:${playerIconTransitionRenderToken}`,
+    );
+  }
+  const animatedRenderToken = animatedRenderTokenParts.join(':');
   const displayVisibleTiles = movementTransition
     ? (movementTransition.displayTiles ?? [
         ...visibleTiles,
@@ -248,10 +264,22 @@ export function getRenderSceneFrameState({
     state.combat?.enemyIds,
     renderTokens.visibleTileRenderInputs,
   );
-  const staticRenderToken =
+  const worldMarkerIconTransitionRenderToken =
+    getSceneIconTransitionRenderToken(
+      scene.iconTransitionsByKey,
+      animationMs,
+      WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX,
+    );
+  let staticRenderToken =
     movementTransitionRenderToken === -1
       ? renderTokens.static
       : mixRenderToken(renderTokens.static, movementTransitionRenderToken);
+  if (worldMarkerIconTransitionRenderToken !== null) {
+    staticRenderToken = mixRenderToken(
+      staticRenderToken,
+      worldMarkerIconTransitionRenderToken,
+    );
+  }
 
   return {
     app,

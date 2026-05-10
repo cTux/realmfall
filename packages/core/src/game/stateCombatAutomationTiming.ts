@@ -14,7 +14,10 @@ export function getCombatAutomationDelay(
   worldTimeMs: number,
 ) {
   const { combat } = state;
-  if (!combat || combat.enemyIds.length === 0) return null;
+  if (!combat) return null;
+  if (combat.enemyIds.length === 0) {
+    return (combat.queuedEnemyIds?.length ?? 0) > 0 ? 0 : null;
+  }
 
   const eventTimes = [
     combat.player.casting?.endsAt,

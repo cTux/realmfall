@@ -117,4 +117,12 @@ describe('combat automation timing', () => {
 
     expect(getCombatAutomationDelay(game, 2_500)).toBe(0);
   });
+
+  it('schedules an immediate follow-up step when only queued reinforcements remain', () => {
+    const { game, enemyId } = prepareCombatAutomationState();
+    game.combat!.enemyIds = [];
+    game.combat!.queuedEnemyIds = [enemyId];
+
+    expect(getCombatAutomationDelay(game, 0)).toBe(0);
+  });
 });

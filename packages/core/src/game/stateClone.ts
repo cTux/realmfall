@@ -1,6 +1,9 @@
 import { createCombatActorState } from './combat';
 import { syncActiveWorldAliases } from './dungeons/worldState';
-import { getCombatEngagementOrDefault } from './stateCombatEngagement';
+import {
+  getCombatEncounterEnemyIds,
+  getCombatEngagementOrDefault,
+} from './stateCombatEngagement';
 import { cloneWorldFloatingTextAnchor } from './worldFloatingText';
 import type {
   CombatState,
@@ -96,14 +99,15 @@ function copyCombatState(
   }
 
   const combatPlayer = combat.player ?? createCombatActorState(worldTimeMs);
+  const combatEnemyIds = getCombatEncounterEnemyIds(combat);
   const combatEnemies = Object.fromEntries(
-    combat.enemyIds.map((enemyId) => [
+    combatEnemyIds.map((enemyId) => [
       enemyId,
       combat.enemies[enemyId] ?? createCombatActorState(worldTimeMs),
     ]),
   );
   const enemyStateById = Object.fromEntries(
-    combat.enemyIds.map((enemyId) => [
+    combatEnemyIds.map((enemyId) => [
       enemyId,
       combat.enemyStateById[enemyId] ?? {},
     ]),
@@ -113,6 +117,7 @@ function copyCombatState(
     ...combat,
     coord: { ...combat.coord },
     enemyIds: [...combat.enemyIds],
+    queuedEnemyIds: [...(combat.queuedEnemyIds ?? [])],
     engagement: getCombatEngagementOrDefault(combat),
     player: {
       ...combatPlayer,
@@ -217,6 +222,11 @@ export function cloneEnemy(enemy: Enemy): Enemy {
     ...(enemy.dungeonSpawnCoord === undefined
       ? {}
       : { dungeonSpawnCoord: { ...enemy.dungeonSpawnCoord } }),
+    ...(enemy.dungeonMovementTargetCoord === undefined
+      ? {}
+      : {
+          dungeonMovementTargetCoord: { ...enemy.dungeonMovementTargetCoord },
+        }),
     statusEffects: enemy.statusEffects?.map(cloneStatusEffect),
     ...(enemy.abilityIds === undefined
       ? {}

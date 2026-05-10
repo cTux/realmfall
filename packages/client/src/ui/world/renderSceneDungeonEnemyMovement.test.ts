@@ -125,13 +125,17 @@ describe('renderScene dungeon enemy movement', () => {
     const enemyId = 'dungeon-roamer';
     const enemy = game.enemies[enemyId]!;
     const previousCoord = { ...enemy.coord };
-    const nextCoord = { q: 2, r: 0 };
-    game.tiles[hexKey(nextCoord)] = makeDungeonTile(nextCoord);
+    const nextCoord = { ...enemy.dungeonMovementTargetCoord! };
+
+    const visibleTiles = getVisibleTiles(game);
+    const hexSize = getWorldHexSize(app.screen, game.radius);
+    const previousPoint = tileToPoint(previousCoord, 400, 300, hexSize);
+    const nextPoint = tileToPoint(nextCoord, 400, 300, hexSize);
 
     renderScene(
       app as never,
       game,
-      getVisibleTiles(game),
+      visibleTiles,
       game.player.coord,
       null,
       12 * 60,
@@ -141,17 +145,6 @@ describe('renderScene dungeon enemy movement', () => {
         worldTimeMs: 0,
       } as never,
     );
-
-    game.tiles[hexKey(previousCoord)]!.enemyIds = [];
-    game.tiles[hexKey(nextCoord)]!.enemyIds = [enemyId];
-    enemy.coord = { ...nextCoord };
-    enemy.dungeonMovementCooldownEndsAt = WORLD_MOVE_HEX_COOLDOWN_MS;
-
-    const visibleTiles = getVisibleTiles(game);
-    const hexSize = getWorldHexSize(app.screen, game.radius);
-    const previousPoint = tileToPoint(previousCoord, 400, 300, hexSize);
-    const nextPoint = tileToPoint(nextCoord, 400, 300, hexSize);
-
     renderScene(
       app as never,
       game,
@@ -217,10 +210,12 @@ function createDungeonRenderGame() {
   const game = createGame(4, 'render-scene-dungeon-enemy-movement');
   const dungeonId = 'dungeon:render-scene-dungeon-enemy-movement:1,0';
   const enemyCoord = { q: 1, r: 0 };
+  const enemyTargetCoord = { q: 2, r: 0 };
   const tiles = Object.fromEntries(
     [
       { q: 0, r: 0 },
       { q: 1, r: 0 },
+      enemyTargetCoord,
       { q: 0, r: 1 },
       { q: 0, r: 2 },
     ].map((coord) => [hexKey(coord), makeDungeonTile(coord)]),
@@ -242,7 +237,8 @@ function createDungeonRenderGame() {
     },
   );
   enemy.dungeonSpawnCoord = { ...enemyCoord };
-  enemy.dungeonMovementCooldownEndsAt = WORLD_MOVE_HEX_COOLDOWN_MS + 500;
+  enemy.dungeonMovementCooldownEndsAt = WORLD_MOVE_HEX_COOLDOWN_MS;
+  enemy.dungeonMovementTargetCoord = { ...enemyTargetCoord };
   tiles[hexKey(enemyCoord)]!.enemyIds.push(enemy.id);
 
   game.worlds[dungeonId] = createDungeonWorldState({

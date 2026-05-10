@@ -1,6 +1,6 @@
 import { WORLD_MOVE_VISUAL_DURATION_MS } from '@realmfall/core/game/config';
 import { getActiveWorld } from '@realmfall/core/game/dungeons/worldState';
-import { hexDistance, type HexCoord } from '@realmfall/core/game/hex';
+import type { HexCoord } from '@realmfall/core/game/hex';
 import type { Enemy, GameState } from '@realmfall/core/game/stateTypes';
 import { tileToPoint } from './renderSceneMath';
 import type { SceneCache } from './renderSceneCache';
@@ -26,37 +26,28 @@ export function syncDungeonEnemyMovementTransitions(
 
   if (scene.dungeonEnemyTransitionWorldId !== activeWorld.id) {
     scene.dungeonEnemyTransitionWorldId = activeWorld.id;
-    scene.dungeonEnemyLastCoordsById = captureDungeonEnemyCoords(state.enemies);
     scene.dungeonEnemyMovementTransitionsByEnemyId.clear();
-    return;
   }
 
   pruneExpiredDungeonEnemyMovementTransitions(scene, state, animationMs);
 
   Object.values(state.enemies).forEach((enemy) => {
-    const previousCoord = scene.dungeonEnemyLastCoordsById.get(enemy.id);
-    if (!previousCoord || sameCoord(previousCoord, enemy.coord)) {
-      return;
-    }
-
+    const targetCoord = enemy.dungeonMovementTargetCoord;
     if (
-      hexDistance(previousCoord, enemy.coord) !== 1 ||
+      !targetCoord ||
       enemy.dungeonMovementCooldownEndsAt === undefined ||
-      enemy.dungeonMovementCooldownEndsAt <= state.worldTimeMs
+      scene.dungeonEnemyMovementTransitionsByEnemyId.has(enemy.id)
     ) {
-      scene.dungeonEnemyMovementTransitionsByEnemyId.delete(enemy.id);
       return;
     }
 
     scene.dungeonEnemyMovementTransitionsByEnemyId.set(enemy.id, {
       durationMs: WORLD_MOVE_VISUAL_DURATION_MS,
-      fromCoord: { ...previousCoord },
+      fromCoord: { ...enemy.coord },
       startedAtMs: animationMs,
-      toCoord: { ...enemy.coord },
+      toCoord: { ...targetCoord },
     });
   });
-
-  scene.dungeonEnemyLastCoordsById = captureDungeonEnemyCoords(state.enemies);
 }
 
 export function getDungeonEnemyAnimatedMovementTransition({
@@ -68,17 +59,23 @@ export function getDungeonEnemyAnimatedMovementTransition({
   hexSize: number;
   scene: SceneCache;
 }) {
+  const targetCoord = enemy.dungeonMovementTargetCoord;
   const transition = scene.dungeonEnemyMovementTransitionsByEnemyId.get(
     enemy.id,
   );
-  if (!transition || !sameCoord(transition.toCoord, enemy.coord)) {
+  if (
+    !targetCoord ||
+    !transition ||
+    !sameCoord(transition.fromCoord, enemy.coord) ||
+    !sameCoord(transition.toCoord, targetCoord)
+  ) {
     return undefined;
   }
 
   const offsetAtStart = tileToPoint(
     {
-      q: transition.fromCoord.q - transition.toCoord.q,
-      r: transition.fromCoord.r - transition.toCoord.r,
+      q: enemy.coord.q - targetCoord.q,
+      r: enemy.coord.r - targetCoord.r,
     },
     0,
     0,
@@ -94,16 +91,7 @@ export function getDungeonEnemyAnimatedMovementTransition({
 
 function clearDungeonEnemyMovementTransitionState(scene: SceneCache) {
   scene.dungeonEnemyTransitionWorldId = null;
-  scene.dungeonEnemyLastCoordsById.clear();
   scene.dungeonEnemyMovementTransitionsByEnemyId.clear();
-}
-
-function captureDungeonEnemyCoords(enemies: GameState['enemies']) {
-  return new Map(
-    Object.values(enemies).map(
-      (enemy) => [enemy.id, { ...enemy.coord }] as const,
-    ),
-  );
 }
 
 function pruneExpiredDungeonEnemyMovementTransitions(
@@ -116,8 +104,10 @@ function pruneExpiredDungeonEnemyMovementTransitions(
       const enemy = state.enemies[enemyId];
       if (
         !enemy ||
-        !sameCoord(enemy.coord, transition.toCoord) ||
-        animationMs >= transition.startedAtMs + transition.durationMs
+        enemy.dungeonMovementTargetCoord === undefined ||
+        !sameCoord(enemy.coord, transition.fromCoord) ||
+        !sameCoord(enemy.dungeonMovementTargetCoord, transition.toCoord) ||
+        animationMs < transition.startedAtMs
       ) {
         scene.dungeonEnemyMovementTransitionsByEnemyId.delete(enemyId);
       }

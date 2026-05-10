@@ -67,6 +67,7 @@ function createCombatEncounter(
   return {
     coord: { ...engagement.stagingCoord },
     enemyIds: [...enemyIds],
+    queuedEnemyIds: [],
     started,
     ...(started ? { startedAtMs: worldTimeMs } : {}),
     engagement: getCombatEngagementOrDefault({
@@ -116,6 +117,17 @@ export function getCombatEncounterCoord(
   combat: Pick<CombatState, 'coord' | 'engagement'>,
 ) {
   return combat.engagement?.targetCoord ?? combat.coord;
+}
+
+export function getCombatEncounterEnemyIds(
+  combat: Pick<CombatState, 'enemyIds' | 'queuedEnemyIds'>,
+) {
+  return [
+    ...combat.enemyIds,
+    ...(combat.queuedEnemyIds ?? []).filter(
+      (enemyId) => !combat.enemyIds.includes(enemyId),
+    ),
+  ];
 }
 
 export function isEnemyInitiatedCombat(
