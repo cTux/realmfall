@@ -33,6 +33,7 @@
       "env": ["REALMFALL_VITE_BASE"],
       "dependsOn": [
         "^build:common",
+        "^build:core",
         "^build:ui",
         "^build:ui:storybook",
         "^build:client",
@@ -43,6 +44,9 @@
     "build:common": {
       "outputs": ["dist"]
     },
+    "build:core": {
+      "outputs": ["dist"]
+    },
     "build:ui": {
       "outputs": ["dist"]
     },
@@ -50,30 +54,37 @@
       "outputs": ["dist"]
     },
     "build:client": {
-      "dependsOn": ["^build:common", "^build:ui", "^build:client:assets"],
+      "dependsOn": [
+        "^build:common",
+        "^build:core",
+        "^build:ui",
+        "^build:client:assets"
+      ],
       "outputs": ["dist"]
     },
     "build:client:storybook": {
-      "dependsOn": ["^build:common", "^build:ui"],
+      "dependsOn": ["^build:common", "^build:core", "^build:ui"],
       "outputs": ["dist"]
     },
     "build:client:assets": {
       "outputs": ["src/assets/generated"]
     },
     "build:server-world": {
-      "dependsOn": ["^build:common"],
+      "dependsOn": ["^build:common", "^build:core"],
       "outputs": ["dist"]
     },
 
     "typecheck": {
       "dependsOn": [
         "^typecheck:common",
+        "^typecheck:core",
         "^typecheck:ui",
         "^typecheck:client",
         "^typecheck:server-world"
       ]
     },
     "typecheck:common": {},
+    "typecheck:core": {},
     "typecheck:ui": {},
     "typecheck:client": {},
     "typecheck:server-world": {},
@@ -81,12 +92,14 @@
     "lint": {
       "dependsOn": [
         "^lint:common",
+        "^lint:core",
         "^lint:ui",
         "^lint:client",
         "^lint:server-world"
       ]
     },
     "lint:common": {},
+    "lint:core": {},
     "lint:ui": {},
     "lint:client": {},
     "lint:server-world": {},
@@ -94,12 +107,14 @@
     "test": {
       "dependsOn": [
         "^test:common",
+        "^test:core",
         "^test:ui",
         "^test:client",
         "^test:server-world"
       ]
     },
     "test:common": {},
+    "test:core": {},
     "test:ui": {},
     "test:client": {},
     "test:server-world": {}

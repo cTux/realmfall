@@ -1,0 +1,118 @@
+import { GAME_TAGS, uniqueTags } from '../tags';
+import type { AbilityRuntimeDefinition } from '../../types';
+import { attackAbility } from './helpers';
+
+export const FIRE_ABILITY_DEFINITIONS = {
+  emberShot: attackAbility({
+    id: 'emberShot',
+    manaCost: 5,
+    cooldownMs: 2200,
+    castTimeMs: 0,
+    target: 'enemy',
+    school: 'fire',
+    effects: [
+      { kind: 'damage', powerMultiplier: 1.15 },
+      {
+        kind: 'damage',
+        powerMultiplier: 0,
+        statusEffectId: 'burning',
+        statusChance: 28,
+        durationMs: 6_000,
+        tickIntervalMs: 1_000,
+        stacks: 1,
+        valueMultiplier: 0.22,
+      },
+    ],
+    tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
+  }),
+  fireball: attackAbility({
+    id: 'fireball',
+    manaCost: 6,
+    cooldownMs: 4300,
+    castTimeMs: 500,
+    target: 'enemy',
+    school: 'fire',
+    effects: [
+      { kind: 'damage', powerMultiplier: 1.7, flatPower: 1 },
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'burning',
+        value: 2,
+        durationMs: 6_000,
+        tickIntervalMs: 1_000,
+        stacks: 1,
+      },
+    ],
+    tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
+  }),
+  searingNova: attackAbility({
+    id: 'searingNova',
+    manaCost: 5,
+    cooldownMs: 5600,
+    castTimeMs: 450,
+    target: 'allEnemies',
+    school: 'fire',
+    effects: [
+      { kind: 'damage', powerMultiplier: 0.8 },
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'burning',
+        value: 1,
+        durationMs: 5_000,
+        tickIntervalMs: 1_000,
+        stacks: 1,
+      },
+    ],
+    tags: uniqueTags(GAME_TAGS.ability.combat),
+  }),
+  cinderBurst: attackAbility({
+    id: 'cinderBurst',
+    manaCost: 5,
+    cooldownMs: 3400,
+    castTimeMs: 0,
+    target: 'randomEnemy',
+    school: 'fire',
+    effects: [{ kind: 'damage', powerMultiplier: 1.4 }],
+    tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
+  }),
+  magmaStrike: attackAbility({
+    id: 'magmaStrike',
+    manaCost: 5,
+    cooldownMs: 6400,
+    castTimeMs: 650,
+    target: 'enemy',
+    school: 'fire',
+    effects: [
+      { kind: 'damage', powerMultiplier: 2.05, flatPower: 2 },
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'burning',
+        value: 3,
+        durationMs: 7_000,
+        tickIntervalMs: 1_000,
+        stacks: 1,
+      },
+    ],
+    tags: uniqueTags(GAME_TAGS.ability.combat, GAME_TAGS.ability.singleTarget),
+  }),
+  wildfire: attackAbility({
+    id: 'wildfire',
+    manaCost: 6,
+    cooldownMs: 7200,
+    castTimeMs: 700,
+    target: 'allEnemies',
+    school: 'fire',
+    effects: [
+      { kind: 'damage', powerMultiplier: 0.9 },
+      {
+        kind: 'applyStatus',
+        statusEffectId: 'burning',
+        value: 2,
+        durationMs: 7_000,
+        tickIntervalMs: 1_000,
+        stacks: 1,
+      },
+    ],
+    tags: uniqueTags(GAME_TAGS.ability.combat),
+  }),
+} satisfies Record<string, AbilityRuntimeDefinition>;

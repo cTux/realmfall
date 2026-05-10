@@ -1,0 +1,271 @@
+import { Skill, type SkillName } from '../types';
+import { EquipmentSlotId, type EquipmentSlotValue } from './ids';
+
+export enum GameTag {
+  ItemStackable = 'item.stackable',
+  ItemConsumable = 'item.consumable',
+  ItemResource = 'item.resource',
+  ItemEquipment = 'item.equipment',
+  ItemWeapon = 'item.weapon',
+  ItemArmor = 'item.armor',
+  ItemArtifact = 'item.artifact',
+  ItemFood = 'item.food',
+  ItemDrink = 'item.drink',
+  ItemHealing = 'item.healing',
+  ItemRecipe = 'item.recipe',
+  ItemRecipeBook = 'item.recipeBook',
+  ItemCurrency = 'item.currency',
+  ItemProspectable = 'item.prospectable',
+  ItemCraftingMaterial = 'item.craftingMaterial',
+  ItemCrafted = 'item.crafted',
+  ItemGathered = 'item.gathered',
+  ItemAnimalProduct = 'item.animalProduct',
+  ItemOre = 'item.ore',
+  ItemWood = 'item.wood',
+  ItemCloth = 'item.cloth',
+  ItemMana = 'item.mana',
+  ItemHomeward = 'item.homeward',
+  ItemTotem = 'item.totem',
+  ItemChestOpener = 'item.chestOpener',
+  ItemSlotWeapon = 'item.slot.weapon',
+  ItemSlotOffhand = 'item.slot.offhand',
+  ItemSlotHead = 'item.slot.head',
+  ItemSlotShoulders = 'item.slot.shoulders',
+  ItemSlotChest = 'item.slot.chest',
+  ItemSlotBracers = 'item.slot.bracers',
+  ItemSlotHands = 'item.slot.hands',
+  ItemSlotBelt = 'item.slot.belt',
+  ItemSlotLegs = 'item.slot.legs',
+  ItemSlotFeet = 'item.slot.feet',
+  ItemSlotRingLeft = 'item.slot.ringLeft',
+  ItemSlotRingRight = 'item.slot.ringRight',
+  ItemSlotAmulet = 'item.slot.amulet',
+  ItemSlotCloak = 'item.slot.cloak',
+  ItemSlotRelic = 'item.slot.relic',
+  EnemyHostile = 'enemy.hostile',
+  EnemyAnimal = 'enemy.animal',
+  EnemyBeast = 'enemy.beast',
+  EnemyHumanoid = 'enemy.humanoid',
+  EnemyAberration = 'enemy.aberration',
+  EnemyWorldBoss = 'enemy.worldBoss',
+  EnemyElite = 'enemy.elite',
+  EnemyDungeon = 'enemy.dungeon',
+  EnemyTreasureGoblin = 'enemy.treasureGoblin',
+  EnemyMimic = 'enemy.mimic',
+  AbilityCombat = 'ability.combat',
+  AbilityMelee = 'ability.melee',
+  AbilityPhysical = 'ability.physical',
+  AbilityInstant = 'ability.instant',
+  AbilitySingleTarget = 'ability.singleTarget',
+  StatusBuff = 'status.buff',
+  StatusDebuff = 'status.debuff',
+  StatusSurvival = 'status.survival',
+  StatusRestoration = 'status.restoration',
+  StatusDeath = 'status.death',
+  StatusHunger = 'status.hunger',
+  StatusThirst = 'status.thirst',
+  SkillGathering = 'skill.gathering',
+  SkillProfession = 'skill.profession',
+  SkillLogging = 'skill.logging',
+  SkillMining = 'skill.mining',
+  SkillSkinning = 'skill.skinning',
+  SkillFishing = 'skill.fishing',
+  SkillHand = 'skill.hand',
+  SkillCooking = 'skill.cooking',
+  SkillSmelting = 'skill.smelting',
+  SkillCrafting = 'skill.crafting',
+  SkillLockpicking = 'skill.lockpicking',
+  StructureUtility = 'structure.utility',
+  StructureGathering = 'structure.gathering',
+  StructureCrafting = 'structure.crafting',
+  StructureSettlement = 'structure.settlement',
+  StructureCombat = 'structure.combat',
+  StructureCamp = 'structure.camp',
+  StructureTown = 'structure.town',
+  StructureForge = 'structure.forge',
+  StructureFurnace = 'structure.furnace',
+  StructureWorkshop = 'structure.workshop',
+  StructureDungeon = 'structure.dungeon',
+  StructureChest = 'structure.chest',
+  StructureTree = 'structure.tree',
+  StructureHerbs = 'structure.herbs',
+  StructureOre = 'structure.ore',
+  StructureFishing = 'structure.fishing',
+  StructureByproductString = 'structure.byproduct.string',
+}
+
+export const GAME_TAGS = {
+  item: {
+    stackable: GameTag.ItemStackable,
+    consumable: GameTag.ItemConsumable,
+    resource: GameTag.ItemResource,
+    equipment: GameTag.ItemEquipment,
+    weapon: GameTag.ItemWeapon,
+    armor: GameTag.ItemArmor,
+    artifact: GameTag.ItemArtifact,
+    food: GameTag.ItemFood,
+    drink: GameTag.ItemDrink,
+    healing: GameTag.ItemHealing,
+    recipe: GameTag.ItemRecipe,
+    recipeBook: GameTag.ItemRecipeBook,
+    currency: GameTag.ItemCurrency,
+    prospectable: GameTag.ItemProspectable,
+    craftingMaterial: GameTag.ItemCraftingMaterial,
+    crafted: GameTag.ItemCrafted,
+    gathered: GameTag.ItemGathered,
+    animalProduct: GameTag.ItemAnimalProduct,
+    ore: GameTag.ItemOre,
+    wood: GameTag.ItemWood,
+    cloth: GameTag.ItemCloth,
+    mana: GameTag.ItemMana,
+    homeward: GameTag.ItemHomeward,
+    totem: GameTag.ItemTotem,
+    chestOpener: GameTag.ItemChestOpener,
+    slotWeapon: GameTag.ItemSlotWeapon,
+    slotOffhand: GameTag.ItemSlotOffhand,
+    slotHead: GameTag.ItemSlotHead,
+    slotShoulders: GameTag.ItemSlotShoulders,
+    slotChest: GameTag.ItemSlotChest,
+    slotBracers: GameTag.ItemSlotBracers,
+    slotHands: GameTag.ItemSlotHands,
+    slotBelt: GameTag.ItemSlotBelt,
+    slotLegs: GameTag.ItemSlotLegs,
+    slotFeet: GameTag.ItemSlotFeet,
+    slotRingLeft: GameTag.ItemSlotRingLeft,
+    slotRingRight: GameTag.ItemSlotRingRight,
+    slotAmulet: GameTag.ItemSlotAmulet,
+    slotCloak: GameTag.ItemSlotCloak,
+    slotRelic: GameTag.ItemSlotRelic,
+  },
+  enemy: {
+    hostile: GameTag.EnemyHostile,
+    animal: GameTag.EnemyAnimal,
+    beast: GameTag.EnemyBeast,
+    humanoid: GameTag.EnemyHumanoid,
+    aberration: GameTag.EnemyAberration,
+    worldBoss: GameTag.EnemyWorldBoss,
+    elite: GameTag.EnemyElite,
+    dungeon: GameTag.EnemyDungeon,
+    treasureGoblin: GameTag.EnemyTreasureGoblin,
+    mimic: GameTag.EnemyMimic,
+  },
+  ability: {
+    combat: GameTag.AbilityCombat,
+    melee: GameTag.AbilityMelee,
+    physical: GameTag.AbilityPhysical,
+    instant: GameTag.AbilityInstant,
+    singleTarget: GameTag.AbilitySingleTarget,
+  },
+  status: {
+    buff: GameTag.StatusBuff,
+    debuff: GameTag.StatusDebuff,
+    survival: GameTag.StatusSurvival,
+    restoration: GameTag.StatusRestoration,
+    death: GameTag.StatusDeath,
+    hunger: GameTag.StatusHunger,
+    thirst: GameTag.StatusThirst,
+  },
+  skill: {
+    gathering: GameTag.SkillGathering,
+    profession: GameTag.SkillProfession,
+    logging: GameTag.SkillLogging,
+    mining: GameTag.SkillMining,
+    skinning: GameTag.SkillSkinning,
+    fishing: GameTag.SkillFishing,
+    hand: GameTag.SkillHand,
+    cooking: GameTag.SkillCooking,
+    smelting: GameTag.SkillSmelting,
+    crafting: GameTag.SkillCrafting,
+    lockpicking: GameTag.SkillLockpicking,
+  },
+  structure: {
+    utility: GameTag.StructureUtility,
+    gathering: GameTag.StructureGathering,
+    crafting: GameTag.StructureCrafting,
+    settlement: GameTag.StructureSettlement,
+    combat: GameTag.StructureCombat,
+    camp: GameTag.StructureCamp,
+    town: GameTag.StructureTown,
+    forge: GameTag.StructureForge,
+    furnace: GameTag.StructureFurnace,
+    workshop: GameTag.StructureWorkshop,
+    dungeon: GameTag.StructureDungeon,
+    chest: GameTag.StructureChest,
+    tree: GameTag.StructureTree,
+    herbs: GameTag.StructureHerbs,
+    ore: GameTag.StructureOre,
+    fishing: GameTag.StructureFishing,
+    byproductString: GameTag.StructureByproductString,
+  },
+} as const;
+
+export const ALL_GAME_TAGS = Object.freeze(
+  Object.values(GAME_TAGS).flatMap((group) => Object.values(group)),
+);
+
+export function uniqueTags(...tags: Array<GameTag | undefined>) {
+  return [...new Set(tags.filter(Boolean))] as GameTag[];
+}
+
+export function getSkillTags(skill: SkillName) {
+  switch (skill) {
+    case Skill.Gathering:
+      return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.gathering);
+    case Skill.Logging:
+      return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.logging);
+    case Skill.Mining:
+      return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.mining);
+    case Skill.Skinning:
+      return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.skinning);
+    case Skill.Fishing:
+      return uniqueTags(GAME_TAGS.skill.gathering, GAME_TAGS.skill.fishing);
+    case Skill.Hand:
+      return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.hand);
+    case Skill.Cooking:
+      return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.cooking);
+    case Skill.Smelting:
+      return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.smelting);
+    case Skill.Crafting:
+      return uniqueTags(GAME_TAGS.skill.profession, GAME_TAGS.skill.crafting);
+    case Skill.Lockpicking:
+      return uniqueTags(
+        GAME_TAGS.skill.profession,
+        GAME_TAGS.skill.lockpicking,
+      );
+  }
+}
+
+export function getEquipmentSlotTag(slot: EquipmentSlotValue) {
+  switch (slot) {
+    case EquipmentSlotId.Weapon:
+      return GAME_TAGS.item.slotWeapon;
+    case EquipmentSlotId.Offhand:
+      return GAME_TAGS.item.slotOffhand;
+    case EquipmentSlotId.Head:
+      return GAME_TAGS.item.slotHead;
+    case EquipmentSlotId.Shoulders:
+      return GAME_TAGS.item.slotShoulders;
+    case EquipmentSlotId.Chest:
+      return GAME_TAGS.item.slotChest;
+    case EquipmentSlotId.Bracers:
+      return GAME_TAGS.item.slotBracers;
+    case EquipmentSlotId.Hands:
+      return GAME_TAGS.item.slotHands;
+    case EquipmentSlotId.Belt:
+      return GAME_TAGS.item.slotBelt;
+    case EquipmentSlotId.Legs:
+      return GAME_TAGS.item.slotLegs;
+    case EquipmentSlotId.Feet:
+      return GAME_TAGS.item.slotFeet;
+    case EquipmentSlotId.RingLeft:
+      return GAME_TAGS.item.slotRingLeft;
+    case EquipmentSlotId.RingRight:
+      return GAME_TAGS.item.slotRingRight;
+    case EquipmentSlotId.Amulet:
+      return GAME_TAGS.item.slotAmulet;
+    case EquipmentSlotId.Cloak:
+      return GAME_TAGS.item.slotCloak;
+    case EquipmentSlotId.Relic:
+      return GAME_TAGS.item.slotRelic;
+  }
+}
