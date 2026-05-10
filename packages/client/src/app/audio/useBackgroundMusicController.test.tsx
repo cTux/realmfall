@@ -275,6 +275,47 @@ describe('useBackgroundMusicController', () => {
     expect(HowlMock).not.toHaveBeenCalled();
   });
 
+  it('does not create a Howl instance when a pending track load resolves after unmount', async () => {
+    const deferredTrackUrl = createDeferred<string>();
+
+    getNextBackgroundMusicTrackMock.mockImplementationOnce(() => ({
+      id: 'ambient-pending',
+      loadUrl: vi.fn(() => deferredTrackUrl.promise),
+    }));
+
+    await act(async () => {
+      root.render(
+        <BackgroundMusicHarness
+          audioSettings={DEFAULT_AUDIO_SETTINGS}
+          mood="ambient"
+        />,
+      );
+    });
+
+    await act(async () => {
+      document.body.dispatchEvent(
+        new PointerEvent('pointerdown', {
+          bubbles: true,
+          pointerId: 1,
+        }),
+      );
+      await Promise.resolve();
+    });
+
+    expect(HowlMock).not.toHaveBeenCalled();
+
+    await act(async () => {
+      root.unmount();
+    });
+
+    await act(async () => {
+      deferredTrackUrl.resolve('/music/ambient-pending.mp3');
+      await flushPromises();
+    });
+
+    expect(HowlMock).not.toHaveBeenCalled();
+  });
+
   it('stops and unloads both the current and outgoing tracks on unmount', async () => {
     await act(async () => {
       root.render(
@@ -321,6 +362,14 @@ async function flushPromises() {
     await Promise.resolve();
   }
   await new Promise((resolve) => window.setTimeout(resolve, 0));
+}
+
+function createDeferred<T>() {
+  let resolve!: (value: T | PromiseLike<T>) => void;
+  const promise = new Promise<T>((innerResolve) => {
+    resolve = innerResolve;
+  });
+  return { promise, resolve };
 }
 
 function BackgroundMusicHarness({

@@ -90,6 +90,10 @@ export function useBackgroundMusicController({
         token?: number;
       } = {},
     ) => {
+      if (token !== transitionTokenRef.current) {
+        return;
+      }
+
       const retryLimit = BACKGROUND_MUSIC_PLAYLISTS[nextMood].length;
       const nextTrack = getNextBackgroundMusicTrack(
         nextMood,
@@ -213,6 +217,7 @@ export function useBackgroundMusicController({
     return () => {
       document.removeEventListener('pointerdown', activatePlayback, true);
       document.removeEventListener('keydown', activatePlayback, true);
+      transitionTokenRef.current += 1;
       cleanupPlayback(currentPlaybackRef.current);
       cleanupPlayback(outgoingPlaybackRef.current);
       currentPlaybackRef.current = null;
