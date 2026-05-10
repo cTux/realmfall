@@ -1,6 +1,7 @@
 {
   "name": "@realmfall/server-chat",
   "version": "1.0.0",
+  "description": "Realmfall chat history and websocket notification service.",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",

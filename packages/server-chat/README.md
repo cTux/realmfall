@@ -2,6 +2,12 @@
 
 `@realmfall/server-chat` is the standalone Node service package for recent chat history and message-availability notifications. It mirrors the existing server package infra and reuses `server-auth`'s Google player verification helper to identify the user who posts each message.
 
+## Requirements
+
+- Use the repo root workspace install with Node `v25.9.0` and `pnpm@11`.
+- Start this package through its filtered package commands. Root `pnpm dev` and `pnpm serve` do not include it.
+- `POST /api/messages` returns `503` until `REALMFALL_AUTH_GOOGLE_CLIENT_ID` is configured for the shared Google player verification path.
+
 ## Current API
 
 - `GET /api/version`: returns `{ "version": "<root package version with git short SHA when available>" }`
@@ -38,4 +44,5 @@
 
 - Root overview: [`README.md`](../../README.md)
 - Workflow: [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md)
+- Architecture spec: [`docs/specs/reference/technical-solutions/application-architecture/spec.md`](../../docs/specs/reference/technical-solutions/application-architecture/spec.md)
 - Chat service spec: [`docs/specs/reference/technical-solutions/chat-service/spec.md`](../../docs/specs/reference/technical-solutions/chat-service/spec.md)

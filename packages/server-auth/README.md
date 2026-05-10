@@ -2,6 +2,12 @@
 
 `@realmfall/server-auth` is the standalone Node service package for player authentication and realm-directory responses. It mirrors the existing `server-world` package infra so the auth service can evolve without introducing a one-off toolchain.
 
+## Requirements
+
+- Use the repo root workspace install with Node `v25.9.0` and `pnpm@11`.
+- Start this package through its filtered package commands. Root `pnpm dev` and `pnpm serve` do not include it.
+- `POST /api/auth/google/verify` returns `503` until `REALMFALL_AUTH_GOOGLE_CLIENT_ID` is configured.
+
 ## Current API
 
 - `GET /api/version`: returns `{ "version": "<root package version with git short SHA when available>" }`
@@ -37,4 +43,5 @@
 
 - Root overview: [`README.md`](../../README.md)
 - Workflow: [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md)
+- Architecture spec: [`docs/specs/reference/technical-solutions/application-architecture/spec.md`](../../docs/specs/reference/technical-solutions/application-architecture/spec.md)
 - Player auth and realm directory spec: [`docs/specs/reference/technical-solutions/player-auth-and-realm-directory/spec.md`](../../docs/specs/reference/technical-solutions/player-auth-and-realm-directory/spec.md)

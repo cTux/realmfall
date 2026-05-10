@@ -1,6 +1,7 @@
 {
   "name": "@realmfall/core",
   "version": "1.0.0",
+  "description": "Canonical gameplay simulation and shared world model for Realmfall.",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
