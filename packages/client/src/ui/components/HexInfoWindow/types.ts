@@ -1,6 +1,6 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { ItemModificationKind } from '../../../game/itemModifications';
-import type { OutpostBuildableType } from '../../../game/stateOutposts';
+import type { ItemModificationKind } from '@realmfall/core/game/itemModifications';
+import type { OutpostBuildableType } from '@realmfall/core/game/stateOutposts';
 import type {
   CombatState,
   Enemy,
@@ -8,7 +8,7 @@ import type {
   Item,
   TerritoryNpc,
   TownStockEntry,
-} from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
 import type { CombatPartyMember } from '../CombatWindow/types';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';

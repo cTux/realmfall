@@ -1,1 +1,1 @@
-export * from '../../game/stateFactory';
+export * from '@realmfall/core/game/stateFactory';

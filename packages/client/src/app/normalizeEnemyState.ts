@@ -1,13 +1,13 @@
-import type { Enemy, GameState } from '../game/stateTypes';
+import type { Enemy, GameState } from '@realmfall/core/game/stateTypes';
 import {
   isFiniteNumber,
   isItemRarity,
   isRecord,
   isStringArray,
 } from './normalizeShared';
-import { normalizeConfiguredEnemyName } from '../game/configuredEnemyName';
+import { normalizeConfiguredEnemyName } from '@realmfall/core/game/configuredEnemyName';
 import { normalizeEnemyTypeId } from './normalizeShared';
-import { cloneEnemy, cloneEnemies } from '../game/stateClone';
+import { cloneEnemy, cloneEnemies } from '@realmfall/core/game/stateClone';
 import { resolveLegacyEnemyTypeId } from './normalizeCompatibility';
 import { normalizeHexCoord } from './normalizeShared';
 import { normalizeStatusEffects } from './normalizeItems';

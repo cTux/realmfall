@@ -1,7 +1,12 @@
-import { hexDistance, hexKey, hexNeighbors, type HexCoord } from '../../../../game/hex';
-import { isPassable } from '../../../../game/shared';
-import { isFactionNpcEnemyId } from '../../../../game/territories';
-import { getResolvedTileAt } from '../../../../game/stateWorldQueries';
+import {
+  hexDistance,
+  hexKey,
+  hexNeighbors,
+  type HexCoord,
+} from '@realmfall/core/game/hex';
+import { isPassable } from '@realmfall/core/game/shared';
+import { isFactionNpcEnemyId } from '@realmfall/core/game/territories';
+import { getResolvedTileAt } from '@realmfall/core/game/stateWorldQueries';
 import type {
   WorldHoverAnalysisResult,
   WorldHoverAnalysisState,

@@ -1,6 +1,6 @@
 import React from 'react';
-import { createSkillRecord } from '../game/skillRecords';
-import { Skill } from '../game/stateTypes';
+import { createSkillRecord } from '@realmfall/core/game/skillRecords';
+import { Skill } from '@realmfall/core/game/stateTypes';
 import { RecipeBookWindowContent } from './components/RecipeBookWindow/RecipeBookWindowContent';
 import { mountUi } from './uiTestHelpers';
 import recipeStyles from './components/RecipeBookWindow/styles.module.scss';

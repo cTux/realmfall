@@ -1,3 +1,1 @@
-export { applyEnemyAbility } from './stateCombatEnemyAbility';
-export { handleEnemyDefeat } from './stateCombatEnemyDefeat';
-export { applyPlayerAbility } from './stateCombatPlayerAbility';
+export * from '@realmfall/core/game/stateCombatAbilityResolution';

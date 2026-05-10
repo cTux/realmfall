@@ -1,5 +1,5 @@
-import { getTownStock } from '../../../../game/stateInventoryActions';
-import type { EquipmentSlot, GameState } from '../../../../game/stateTypes';
+import { getTownStock } from '@realmfall/core/game/stateInventoryActions';
+import type { EquipmentSlot, GameState } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../../i18n';
 import { createLoggedGameTransition } from '../useLoggedGameCommand';
 

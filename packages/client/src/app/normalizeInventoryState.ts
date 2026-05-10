@@ -1,6 +1,6 @@
-import { consolidateInventory } from '../game/inventory';
-import { cloneItems } from '../game/stateClone';
-import type { Item } from '../game/stateTypes';
+import { consolidateInventory } from '@realmfall/core/game/inventory';
+import { cloneItems } from '@realmfall/core/game/stateClone';
+import type { Item } from '@realmfall/core/game/stateTypes';
 import { normalizeItem } from './normalizeItems';
 import { isRecord } from './normalizeShared';
 

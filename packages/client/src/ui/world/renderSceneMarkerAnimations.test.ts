@@ -1,6 +1,6 @@
 import { createGame } from './renderSceneMarkerAnimationsTestkit';
-import { getVisibleTiles } from '../../game/stateSelectors';
-import { hexKey, hexNeighbors } from '../../game/hex';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
+import { hexKey, hexNeighbors } from '@realmfall/core/game/hex';
 
 function createMutablePoint(initialX = 0, initialY = 0) {
   const point = {

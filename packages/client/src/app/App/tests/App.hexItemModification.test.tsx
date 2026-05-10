@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { getItemModificationCost } from '../../../game/itemModifications';
+import { getItemModificationCost } from '@realmfall/core/game/itemModifications';
 import {
   createHydratedAppGame,
   findItemSlotButtonByIconLabel,

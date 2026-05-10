@@ -5,8 +5,8 @@ import {
   type SetStateAction,
 } from 'react';
 import type { TooltipPosition } from '@realmfall/ui-react';
-import { setHomeHex } from '../../../game/stateWorldActions';
-import type { GameState } from '../../../game/stateTypes';
+import { setHomeHex } from '@realmfall/core/game/stateWorldActions';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { resetTooltipState as resetTooltipStore } from '../tooltipStore';
 
 interface UseAppLifecycleOptions {

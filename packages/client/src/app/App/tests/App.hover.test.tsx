@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { createGame } from '../../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import { PERSISTED_SETTINGS_STORAGE_KEYS } from '../../settingsStorage';
 import {
   flushAnimationFrame,
@@ -64,9 +64,11 @@ describe('App hover behavior', () => {
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const hexModule = await import('../../../game/hex');
-    const pathfindingModule = await import('../../../game/statePathfinding');
-    const worldQueryModule = await import('../../../game/stateWorldQueries');
+    const hexModule = await import('@realmfall/core/game/hex');
+    const pathfindingModule =
+      await import('@realmfall/core/game/statePathfinding');
+    const worldQueryModule =
+      await import('@realmfall/core/game/stateWorldQueries');
     const tooltipModule = await import('../../../ui/world/worldTooltips');
     const getEnemiesAtSpy = vi.spyOn(worldQueryModule, 'getEnemiesAt');
     const getSafePathToTileSpy = vi.spyOn(
@@ -208,9 +210,11 @@ describe('App hover behavior', () => {
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const hexModule = await import('../../../game/hex');
-    const pathfindingModule = await import('../../../game/statePathfinding');
-    const worldQueryModule = await import('../../../game/stateWorldQueries');
+    const hexModule = await import('@realmfall/core/game/hex');
+    const pathfindingModule =
+      await import('@realmfall/core/game/statePathfinding');
+    const worldQueryModule =
+      await import('@realmfall/core/game/stateWorldQueries');
     const tooltipModule = await import('../../../ui/world/worldTooltips');
     const getEnemiesAtSpy = vi.spyOn(worldQueryModule, 'getEnemiesAt');
     const getSafePathToTileSpy = vi.spyOn(
@@ -288,7 +292,7 @@ describe('App hover behavior', () => {
     );
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const tooltipModule = await import('../../../ui/world/worldTooltips');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     const enemyTooltipSpy = vi.spyOn(tooltipModule, 'enemyWorldTooltip');

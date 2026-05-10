@@ -1,8 +1,8 @@
-import type { GameState, LogKind } from '../../../game/stateTypes';
+import type { GameState, LogKind } from '@realmfall/core/game/stateTypes';
 import {
   createSurfaceWorldAliasState,
   getSurfaceWorld,
-} from '../../../game/dungeons/worldState';
+} from '@realmfall/core/game/dungeons/worldState';
 import type { PersistedData } from '../../../persistence/storage';
 import type { WindowPositions, WindowVisibilityState } from '../../constants';
 import type { ActionBarSlots } from '../actionBar';

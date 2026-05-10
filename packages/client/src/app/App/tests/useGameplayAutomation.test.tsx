@@ -1,10 +1,10 @@
 import { act, useState, type Dispatch, type SetStateAction } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { moveToTile } from '../../../game/state';
-import { createPendingCombatEncounter } from '../../../game/stateCombatEngagement';
-import { createGame } from '../../../game/stateFactory';
-import { getResolvedCurrentTile } from '../../../game/stateSelectors';
-import type { GameState } from '../../../game/stateTypes';
+import { moveToTile } from '@realmfall/core/game/state';
+import { createPendingCombatEncounter } from '@realmfall/core/game/stateCombatEngagement';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { getResolvedCurrentTile } from '@realmfall/core/game/stateSelectors';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import type { GameplaySettings } from '../../gameplaySettings';
 import { useGameplayAutomation } from '../hooks/useGameplayAutomation';
 import { createHydratedAppGame } from './appTestkit';

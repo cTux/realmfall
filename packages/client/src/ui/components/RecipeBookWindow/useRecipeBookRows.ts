@@ -1,12 +1,12 @@
 import { useMemo } from 'react';
-import { getItemConfigByKey } from '../../../game/content/items';
-import { getStructureConfig } from '../../../game/content/structures';
+import { getItemConfigByKey } from '@realmfall/core/game/content/items';
+import { getStructureConfig } from '@realmfall/core/game/content/structures';
 import {
   getRecipeOutput,
   getRecipeRequiredStructure,
-} from '../../../game/crafting';
-import { Skill, type RecipeBookEntry } from '../../../game/stateTypes';
-import type { Tile } from '../../../game/stateTypes';
+} from '@realmfall/core/game/crafting';
+import { Skill, type RecipeBookEntry } from '@realmfall/core/game/stateTypes';
+import type { Tile } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import type { TooltipLine } from '../../tooltips';
 import { resolveIconAsset } from '../../iconAssets';

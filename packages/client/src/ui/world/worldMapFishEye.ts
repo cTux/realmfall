@@ -1,5 +1,5 @@
 import { Filter, GlProgram, UniformGroup } from 'pixi.js';
-import { WORLD_RADIUS } from '../../game/config';
+import { WORLD_RADIUS } from '@realmfall/core/game/config';
 import { getWorldHexSize } from './renderSceneMath';
 
 // Keep the fisheye implementation available, but disabled for now.

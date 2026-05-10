@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import type { GameState } from '../../../game/stateTypes';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import type { MutableRefObject } from 'react';
 import {
   type WorldMovementController,

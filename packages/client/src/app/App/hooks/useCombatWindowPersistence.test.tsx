@@ -1,6 +1,6 @@
 import { act } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { moveToTile, type GameState } from '../../../game/state';
+import { moveToTile, type GameState } from '@realmfall/core/game/state';
 import {
   createHydratedAppGame,
   flushLazyModules,

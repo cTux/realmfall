@@ -1,4 +1,4 @@
-import { Skill } from '../../../game/stateTypes';
+import { Skill } from '@realmfall/core/game/stateTypes';
 import { formatSkillLabel } from '../../../i18n/labels';
 
 export const RECIPE_BOOK_TAB_ORDER: readonly Skill[] = [

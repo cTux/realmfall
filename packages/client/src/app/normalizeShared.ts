@@ -4,16 +4,20 @@ import {
   DUNGEON_TEMPLATE_IDS,
   DUNGEON_THEME_IDS,
   WORLD_KINDS,
-} from '../game/dungeons/types';
-import { ENEMY_TYPE_IDS } from '../game/content/ids';
+} from '@realmfall/core/game/dungeons/types';
+import { ENEMY_TYPE_IDS } from '@realmfall/core/game/content/ids';
 import {
   EQUIPMENT_SLOTS,
   Skill,
   type Enemy,
   type GameState,
   type Item,
-} from '../game/stateTypes';
-import { RARITY_ORDER, STRUCTURE_TYPES, TERRAINS } from '../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
+import {
+  RARITY_ORDER,
+  STRUCTURE_TYPES,
+  TERRAINS,
+} from '@realmfall/core/game/stateTypes';
 
 const SKILL_NAMES = Object.values(Skill);
 const ENEMY_TYPE_ID_SET = new Set<string>(ENEMY_TYPE_IDS);

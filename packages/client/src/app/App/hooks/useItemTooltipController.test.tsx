@@ -1,8 +1,8 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { GameState, Item } from '../../../game/stateTypes';
-import { createGame } from '../../../game/stateFactory';
+import type { GameState, Item } from '@realmfall/core/game/stateTypes';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import { settleUi, setupUiTestEnvironment } from '../../../ui/uiTestHelpers';
 import { getTooltipState, resetTooltipState } from '../tooltipStore';
 import { useItemTooltipController } from './useItemTooltipControllerTestkit';

@@ -7,10 +7,10 @@ import {
 import {
   WORLD_MOVE_HEX_COOLDOWN_MS,
   WORLD_MOVE_VISUAL_DURATION_MS,
-} from '../../../game/config';
-import { syncCombatEncounterEnemies } from '../../../game/stateCombatEncounterSync';
-import type { GameState } from '../../../game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../../game/worldCombatPresentation';
+} from '@realmfall/core/game/config';
+import { syncCombatEncounterEnemies } from '@realmfall/core/game/stateCombatEncounterSync';
+import type { GameState } from '@realmfall/core/game/stateTypes';
+import { WORLD_COMBAT_LUNGE_DURATION_MS } from '@realmfall/core/game/worldCombatPresentation';
 import { getWorldCombatLungeOffset } from '../../../ui/world/worldCombatLunge';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import {
@@ -73,7 +73,7 @@ describe('App world hostile click combat', () => {
         maxHp: 999,
       };
       loadEncryptedState.mockResolvedValue({ game, ui: {} });
-      const hexModule = await import('../../../game/hex');
+      const hexModule = await import('@realmfall/core/game/hex');
       const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
       hexAtPointSpy.mockReturnValue({ q: 1, r: 0 });
 
@@ -181,7 +181,7 @@ describe('App world hostile click combat', () => {
         elite: false,
       };
       loadEncryptedState.mockResolvedValue({ game, ui: {} });
-      const hexModule = await import('../../../game/hex');
+      const hexModule = await import('@realmfall/core/game/hex');
       const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
       hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 

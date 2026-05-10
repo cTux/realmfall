@@ -1,5 +1,5 @@
 import type { WorldMoveSource } from './worldMoveSource';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../../game/config';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
 
 export function createLocalWorldMoveSource({
   cooldownMs = WORLD_MOVE_HEX_COOLDOWN_MS,

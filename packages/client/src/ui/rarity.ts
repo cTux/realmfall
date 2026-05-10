@@ -1,4 +1,4 @@
-import type { ItemRarity } from '../game/stateTypes';
+import type { ItemRarity } from '@realmfall/core/game/stateTypes';
 
 export const RARITY_COLOR: Record<ItemRarity, string> = {
   common: '#f8fafc',

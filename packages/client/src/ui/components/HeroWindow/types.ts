@@ -3,8 +3,8 @@ import type {
   PlayerStatusEffect,
   SkillName,
   StatusEffectId,
-} from '../../../game/stateTypes';
-import type { SecondaryStatKey } from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
+import type { SecondaryStatKey } from '@realmfall/core/game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

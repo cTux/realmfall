@@ -1,10 +1,10 @@
 import { getInventoryItemAction } from '../app/App/utils/getInventoryItemAction';
-import { buildItemFromConfig } from '../game/content/items';
-import { EquipmentSlotId, ItemId } from '../game/content/ids';
-import { GameTag } from '../game/content/tags';
-import { getAbilityDefinition } from '../game/abilities';
-import type { Item } from '../game/stateTypes';
-import { sellValue } from '../game/inventory';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { EquipmentSlotId, ItemId } from '@realmfall/core/game/content/ids';
+import { GameTag } from '@realmfall/core/game/content/tags';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
+import type { Item } from '@realmfall/core/game/stateTypes';
+import { sellValue } from '@realmfall/core/game/inventory';
 import { resolveIconAsset } from './iconAssets';
 import { comparisonLines, itemTooltipLines } from './tooltips';
 import { Icons } from './icons';

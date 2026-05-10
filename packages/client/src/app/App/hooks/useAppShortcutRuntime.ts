@@ -1,4 +1,4 @@
-import type { HexCoord, TileClaim } from '../../../game/stateTypes';
+import type { HexCoord, TileClaim } from '@realmfall/core/game/stateTypes';
 import { canSetHomeAction } from './homeActionAvailability';
 import { useAppShortcutBindings } from './useAppShortcutBindings';
 

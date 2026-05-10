@@ -5,18 +5,18 @@ import type { GameplaySettings } from '../gameplaySettings';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { InterfaceSettings } from '../interfaceSettings';
 import type { ResettableSaveAreaId } from '../../persistence/saveAreas';
-import type { InventorySortMode } from '../../game/inventory';
-import type { OutpostBuildableType } from '../../game/stateOutposts';
+import type { InventorySortMode } from '@realmfall/core/game/inventory';
+import type { OutpostBuildableType } from '@realmfall/core/game/stateOutposts';
 import type {
   EquipmentSlot,
   Item,
   ItemRarity,
   LogKind,
-} from '../../game/stateTypes';
-import type { EnemyRarity } from '../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
+import type { EnemyRarity } from '@realmfall/core/game/stateTypes';
 import type { TooltipItem } from './types';
-import type { DebugEquipmentType } from '../../game/stateDebugWindow';
-import type { EnemyTypeKey, ItemKey } from '../../game/content/ids';
+import type { DebugEquipmentType } from '@realmfall/core/game/stateDebugWindow';
+import type { EnemyTypeKey, ItemKey } from '@realmfall/core/game/content/ids';
 
 export interface WindowActions {
   onMoveWindow: (

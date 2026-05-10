@@ -1,9 +1,9 @@
-import { ABILITY_ICON_IDS } from '../game/content/iconIds';
+import { ABILITY_ICON_IDS } from '@realmfall/core/game/content/iconIds';
 import {
   CONTENT_ICON_IDS,
   STATUS_EFFECT_ICON_IDS,
   type GameplayIconId,
-} from '../game/content/iconIds';
+} from '@realmfall/core/game/content/iconIds';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import weaponIcon from '../assets/icons/plain-dagger.svg';
@@ -239,10 +239,7 @@ const STATUS_EFFECT_ICON_ASSETS_BY_KEY = {
   guard: guardIcon,
   weakened: weakenedIcon,
   shocked: shockedIcon,
-} as const satisfies Record<
-  keyof typeof STATUS_EFFECT_ICON_IDS,
-  string
->;
+} as const satisfies Record<keyof typeof STATUS_EFFECT_ICON_IDS, string>;
 
 const CONTENT_ICON_ASSET_IDS = mapIconAssetsById(
   CONTENT_ICON_IDS,
@@ -263,25 +260,18 @@ export const GAMEPLAY_ICON_ASSET_IDS: Record<GameplayIconId, string> = {
   ...STATUS_EFFECT_ICON_ASSET_IDS,
 };
 
-export function resolveGameplayIconAsset(
-  icon: string,
-): string | undefined {
+export function resolveGameplayIconAsset(icon: string): string | undefined {
   return GAMEPLAY_ICON_ASSET_IDS[icon as GameplayIconId];
 }
 
-function mapIconAssetsById<
-  IconIdsByKey extends Record<string, string>,
->(
+function mapIconAssetsById<IconIdsByKey extends Record<string, string>>(
   iconIds: IconIdsByKey,
   iconAssetByKey: Record<keyof IconIdsByKey & string, string>,
 ) {
   const entries = Object.entries(iconIds) as Array<
     [keyof IconIdsByKey & string, IconIdsByKey[keyof IconIdsByKey]]
   >;
-  const iconAssetsById = {} as Record<
-    IconIdsByKey[keyof IconIdsByKey],
-    string
-  >;
+  const iconAssetsById = {} as Record<IconIdsByKey[keyof IconIdsByKey], string>;
   for (const [iconKey, iconId] of entries) {
     iconAssetsById[iconId] = iconAssetByKey[iconKey];
   }

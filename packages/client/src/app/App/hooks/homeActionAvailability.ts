@@ -1,4 +1,4 @@
-import type { HexCoord, TileClaim } from '../../../game/stateTypes';
+import type { HexCoord, TileClaim } from '@realmfall/core/game/stateTypes';
 
 interface CanSetHomeActionArgs {
   currentTileClaim: TileClaim | null | undefined;

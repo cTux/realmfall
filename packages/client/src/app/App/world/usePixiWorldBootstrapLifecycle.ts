@@ -7,7 +7,7 @@ import {
   type SetStateAction,
 } from 'react';
 import type { Application } from 'pixi.js';
-import type { HexCoord, GameState } from '../../../game/stateTypes';
+import type { HexCoord, GameState } from '@realmfall/core/game/stateTypes';
 import type { TooltipPosition } from '@realmfall/ui-react';
 import { type PixiWorldInitGraphicsSettings } from './pixiWorldBootstrap';
 import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';

@@ -1,5 +1,5 @@
 import { CancelablePromise } from 'easy-cancelable-promise';
-import { resolveWorldTiles } from '../../../../game/worldTileResolutionPayloads';
+import { resolveWorldTiles } from '@realmfall/core/game/worldTileResolutionPayloads';
 import type { TileResolutionSource } from './TileResolutionSource';
 
 export function createLocalTileResolutionSource(): TileResolutionSource {

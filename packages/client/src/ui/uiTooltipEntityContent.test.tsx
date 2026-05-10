@@ -1,6 +1,6 @@
 import { GameTag } from './uiTooltipEntityContentTestkit';
-import { getAbilityDefinition } from '../game/abilities';
-import { Skill } from '../game/stateTypes';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
+import { Skill } from '@realmfall/core/game/stateTypes';
 import {
   abilityTooltipLines,
   enemyTooltip,

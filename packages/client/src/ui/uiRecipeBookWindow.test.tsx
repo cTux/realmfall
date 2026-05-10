@@ -1,6 +1,6 @@
 import { act } from 'react';
 import { vi } from 'vitest';
-import { Skill } from '../game/stateTypes';
+import { Skill } from '@realmfall/core/game/stateTypes';
 import { createRecipe, mountRecipeBook } from './uiRecipeBookTestkit';
 import { settleUi, setupUiTestEnvironment } from './uiTestkit';
 

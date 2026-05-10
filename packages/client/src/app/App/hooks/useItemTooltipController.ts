@@ -5,13 +5,13 @@ import {
   type MutableRefObject,
 } from 'react';
 import type { TooltipLine, TooltipPosition } from '@realmfall/ui-react';
-import { itemOccupiesOffhand } from '../../../game/content/items';
-import { isRecipePage } from '../../../game/inventory';
+import { itemOccupiesOffhand } from '@realmfall/core/game/content/items';
+import { isRecipePage } from '@realmfall/core/game/inventory';
 import {
   CORRUPTED_ITEM_COLOR,
   getItemDisplayName,
-} from '../../../game/itemModifications';
-import type { GameState } from '../../../game/stateTypes';
+} from '@realmfall/core/game/itemModifications';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { rarityColor } from '../../../ui/rarity';
 import { getTooltipPlacementForRect } from '@realmfall/ui-react';
 import type { TooltipItem, TooltipState } from '../types';

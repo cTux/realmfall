@@ -7,7 +7,7 @@ import {
   type MutableRefObject,
 } from 'react';
 import { Button, LoadingSpinner } from '@realmfall/ui-react';
-import type { HexCoord } from '../../../game/stateTypes';
+import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import { recordStartupMark } from '../../../performance/performanceHarness';
 import type { BackgroundMusicMood } from '../../audio/backgroundMusic';

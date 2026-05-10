@@ -1,5 +1,5 @@
-import type { CombatState, Tile } from '../../game/stateTypes';
-import type { WorldKind } from '../../game/stateTypes';
+import type { CombatState, Tile } from '@realmfall/core/game/stateTypes';
+import type { WorldKind } from '@realmfall/core/game/stateTypes';
 
 export type BackgroundMusicMood = 'ambient' | 'combat' | 'dungeon' | 'town';
 

@@ -1,16 +1,16 @@
 import { act, useState, type Dispatch, type SetStateAction } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { getCombatAutomationDelay } from '../../../game/stateCombat';
-import type { GameState } from '../../../game/stateTypes';
+import { getCombatAutomationDelay } from '@realmfall/core/game/stateCombat';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { useCombatAutomation } from './useCombatAutomationTestkit';
 
 const progressCombatTransition = vi.fn();
 const disposeTransitionSource = vi.fn(async () => undefined);
 
-vi.mock('../../../game/stateCombat', async () => {
+vi.mock('@realmfall/core/game/stateCombat', async () => {
   const actual = await vi.importActual<
-    typeof import('../../../game/stateCombat')
-  >('../../../game/stateCombat');
+    typeof import('@realmfall/core/game/stateCombat')
+  >('@realmfall/core/game/stateCombat');
 
   return {
     ...actual,

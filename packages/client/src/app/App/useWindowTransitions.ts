@@ -1,5 +1,10 @@
 import { useMemo } from 'react';
-import type { Enemy, GameState, Item, Tile } from '../../game/stateTypes';
+import type {
+  Enemy,
+  GameState,
+  Item,
+  Tile,
+} from '@realmfall/core/game/stateTypes';
 import { useDeferredWindowLifecycle } from './hooks/useDeferredWindowLifecycle';
 
 interface UseWindowTransitionsOptions {

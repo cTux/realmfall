@@ -1,1 +1,1 @@
-export * from '../game/content/ids';
+export * from '@realmfall/core/game/content/ids';

@@ -1,9 +1,9 @@
 import { renderToStaticMarkup } from 'react-dom/server';
 import { ItemSlot as SharedItemSlotButton } from '@realmfall/ui-react';
 import { buildItemFromConfig } from './uiItemSlotColorsTestkit';
-import { ItemId } from '../game/content/ids';
-import { GameTag } from '../game/content/tags';
-import type { Item } from '../game/stateTypes';
+import { ItemId } from '@realmfall/core/game/content/ids';
+import { GameTag } from '@realmfall/core/game/content/tags';
+import type { Item } from '@realmfall/core/game/stateTypes';
 
 describe('ui item slot colors', () => {
   it('keeps rarity borders while splitting equippable tint within the same themed set', () => {

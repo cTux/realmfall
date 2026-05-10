@@ -1,1 +1,1 @@
-export * from '../../../game/stateCombatEngagement';
+export * from '@realmfall/core/game/stateCombatEngagement';

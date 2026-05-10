@@ -3,8 +3,8 @@ import type {
   ResolveWorldTilesRequest,
 } from '@realmfall/common';
 import type { CancelablePromise } from 'easy-cancelable-promise';
-import { hexKey, hexesInRange, type HexCoord } from '../../../../game/hex';
-import type { GameState } from '../../../../game/stateTypes';
+import { hexKey, hexesInRange, type HexCoord } from '@realmfall/core/game/hex';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import type { TileResolutionSource } from './TileResolutionSource';
 
 export type WorldTileResolutionOverlayEntry =

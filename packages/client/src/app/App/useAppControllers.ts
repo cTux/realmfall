@@ -7,7 +7,7 @@ import {
   type SetStateAction,
 } from 'react';
 import type { TooltipPosition } from '@realmfall/ui-react';
-import type { GameState, Item } from '../../game/stateTypes';
+import type { GameState, Item } from '@realmfall/core/game/stateTypes';
 import type { AudioSettings } from '../audioSettings';
 import type { GameplaySettings } from '../gameplaySettings';
 import type { GraphicsSettings } from '../graphicsSettings';

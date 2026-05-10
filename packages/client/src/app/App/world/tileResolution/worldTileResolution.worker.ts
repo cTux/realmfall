@@ -3,7 +3,7 @@ import type {
   ResolveWorldTilesRequest,
   ResolveWorldTilesResponse,
 } from '@realmfall/common';
-import { resolveWorldTiles } from '../../../../game/worldTileResolutionPayloads';
+import { resolveWorldTiles } from '@realmfall/core/game/worldTileResolutionPayloads';
 
 createStaticEasyWebWorker<ResolveWorldTilesRequest, ResolveWorldTilesResponse>(
   (message) => {

@@ -1,5 +1,5 @@
-import { cloneTile, cloneTiles } from '../game/stateClone';
-import type { GameState } from '../game/stateTypes';
+import { cloneTile, cloneTiles } from '@realmfall/core/game/stateClone';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import {
   isFiniteNumber,
   isRecord,

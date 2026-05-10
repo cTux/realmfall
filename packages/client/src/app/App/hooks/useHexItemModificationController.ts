@@ -1,10 +1,14 @@
 import { useCallback, useEffect, useState } from 'react';
-import { isEquippableItem } from '../../../game/inventory';
+import { isEquippableItem } from '@realmfall/core/game/inventory';
 import {
   getItemModificationKindForStructure,
   getReforgeableItemSecondaryStats,
-} from '../../../game/itemModifications';
-import type { Equipment, Item, StructureType } from '../../../game/stateTypes';
+} from '@realmfall/core/game/itemModifications';
+import type {
+  Equipment,
+  Item,
+  StructureType,
+} from '@realmfall/core/game/stateTypes';
 
 interface UseHexItemModificationControllerOptions {
   currentStructure?: StructureType;

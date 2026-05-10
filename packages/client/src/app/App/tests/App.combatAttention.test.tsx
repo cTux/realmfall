@@ -1,7 +1,7 @@
 import { act } from 'react';
 import type { Dispatch, MutableRefObject, SetStateAction } from 'react';
-import { moveToTile, type GameState } from '../../../game/state';
-import { createCombatState } from '../../../game/stateCombatState';
+import { moveToTile, type GameState } from '@realmfall/core/game/state';
+import { createCombatState } from '@realmfall/core/game/stateCombatState';
 import { t } from '../../../i18n';
 import {
   renderWindowHotkeyLabelText,

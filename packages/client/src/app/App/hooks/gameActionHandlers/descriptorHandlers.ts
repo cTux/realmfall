@@ -1,10 +1,10 @@
 import { t } from '../../../../i18n';
-import { toggleFavoriteRecipe } from '../../../../game/crafting';
-import type { InventorySortMode } from '../../../../game/inventory';
-import { craftRecipe } from '../../../../game/stateCrafting';
-import { forfeitCombat } from '../../../../game/stateCombat';
-import type { EnemyTypeKey, ItemKey } from '../../../../game/content/ids';
-import type { DebugEquipmentType } from '../../../../game/stateDebugWindow';
+import { toggleFavoriteRecipe } from '@realmfall/core/game/crafting';
+import type { InventorySortMode } from '@realmfall/core/game/inventory';
+import { craftRecipe } from '@realmfall/core/game/stateCrafting';
+import { forfeitCombat } from '@realmfall/core/game/stateCombat';
+import type { EnemyTypeKey, ItemKey } from '@realmfall/core/game/content/ids';
+import type { DebugEquipmentType } from '@realmfall/core/game/stateDebugWindow';
 import {
   buyTownItem,
   dropEquippedItem,
@@ -17,31 +17,31 @@ import {
   sortInventory,
   takeAllTileItems,
   takeTileItem,
-} from '../../../../game/stateInventoryActions';
+} from '@realmfall/core/game/stateInventoryActions';
 import {
   corruptInventoryItem,
   enchantInventoryItem,
   reforgeInventoryItem,
-} from '../../../../game/stateItemModificationActions';
+} from '@realmfall/core/game/stateItemModificationActions';
 import {
   activateInventoryItem,
   equipItem,
   unequipItem,
   useItem as applyItemUse,
-} from '../../../../game/stateItemActions';
+} from '@realmfall/core/game/stateItemActions';
 import type {
   EquipmentSlot,
   GameState,
   ItemRarity,
-} from '../../../../game/stateTypes';
-import type { EnemyRarity } from '../../../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
+import type { EnemyRarity } from '@realmfall/core/game/stateTypes';
 import {
   buildOutpostAtCurrentHex,
   claimCurrentHex,
   healAtFactionNpc,
   interactWithStructure,
-} from '../../../../game/stateWorldActions';
-import type { OutpostBuildableType } from '../../../../game/stateOutposts';
+} from '@realmfall/core/game/stateWorldActions';
+import type { OutpostBuildableType } from '@realmfall/core/game/stateOutposts';
 import { createLoggedGameTransition } from '../useLoggedGameCommand';
 import {
   createEquipmentSlotLoggedTransition,
@@ -54,7 +54,7 @@ type ApplyGameTransition = (
   transition: (state: GameState) => GameState,
 ) => void;
 type CommandArgs = readonly unknown[];
-type DebugStateModule = typeof import('../../../../game/stateDebug');
+type DebugStateModule = typeof import('@realmfall/core/game/stateDebug');
 
 interface InventoryItemCommandHandlers {
   handleActivateInventoryItem: (itemId: string) => void;
@@ -343,7 +343,9 @@ function buildCommandHandlersFromDescriptors<
 
   for (const name in descriptors) {
     const key = name as unknown as keyof Handlers;
-    const descriptor = descriptors[key as keyof Descriptors] as Descriptors[keyof Handlers];
+    const descriptor = descriptors[
+      key as keyof Descriptors
+    ] as Descriptors[keyof Handlers];
     handlers[key as keyof Handlers] = createHandler(
       applyGameTransition,
       descriptor,
@@ -393,14 +395,11 @@ export function buildStaticCommandHandlers(
   return buildCommandHandlersFromDescriptors<
     StaticCommandHandlers,
     typeof staticCommandDescriptors
-  >(
-    applyGameTransition,
-    staticCommandDescriptors,
-    (transition, descriptor) =>
-      createStaticCommandHandler(
-        transition,
-        descriptor as StaticCommandDescriptor<CommandArgs>,
-      ),
+  >(applyGameTransition, staticCommandDescriptors, (transition, descriptor) =>
+    createStaticCommandHandler(
+      transition,
+      descriptor as StaticCommandDescriptor<CommandArgs>,
+    ),
   );
 }
 
@@ -428,15 +427,12 @@ export function buildDebugCommandHandlers(
   return buildCommandHandlersFromDescriptors<
     DebugCommandHandlers,
     typeof debugCommandDescriptors
-  >(
-    applyGameTransition,
-    debugCommandDescriptors,
-    (transition, descriptor) =>
-      createDebugCommandHandler(
-        transition,
-        descriptor as DebugCommandDescriptor<CommandArgs>,
-        loadStateDebugModule,
-      ),
+  >(applyGameTransition, debugCommandDescriptors, (transition, descriptor) =>
+    createDebugCommandHandler(
+      transition,
+      descriptor as DebugCommandDescriptor<CommandArgs>,
+      loadStateDebugModule,
+    ),
   );
 }
 
@@ -546,5 +542,5 @@ function getDebugEquipmentTypeLabel(type: DebugEquipmentType) {
 }
 
 function loadDefaultStateDebugModule(): Promise<DebugStateModule> {
-  return import('../../../../game/stateDebug');
+  return import('@realmfall/core/game/stateDebug');
 }

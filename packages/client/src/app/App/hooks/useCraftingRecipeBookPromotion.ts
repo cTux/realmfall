@@ -1,7 +1,7 @@
 import { useEffect, useRef, type Dispatch, type SetStateAction } from 'react';
-import { getRecipeSkillForStructure } from '../../../game/crafting';
-import { hexKey } from '../../../game/hex';
-import type { GameState, Skill, Tile } from '../../../game/stateTypes';
+import { getRecipeSkillForStructure } from '@realmfall/core/game/crafting';
+import { hexKey } from '@realmfall/core/game/hex';
+import type { GameState, Skill, Tile } from '@realmfall/core/game/stateTypes';
 import type { WindowVisibilityState } from '../../constants';
 
 interface UseCraftingRecipeBookPromotionArgs {

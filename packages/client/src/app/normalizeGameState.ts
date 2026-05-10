@@ -1,6 +1,6 @@
-import { syncActiveWorldAliases } from '../game/dungeons/worldState';
-import { createGame } from '../game/stateFactory';
-import type { GameState } from '../game/stateTypes';
+import { syncActiveWorldAliases } from '@realmfall/core/game/dungeons/worldState';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { normalizeCombatState } from './normalizeCombat';
 import {
   isDayPhase,

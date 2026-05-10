@@ -9,8 +9,8 @@ import {
 } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui-react';
-import { WORLD_MOVE_VISUAL_DURATION_MS } from '../../game/config';
-import type { GameState, HexCoord } from '../../game/stateTypes';
+import { WORLD_MOVE_VISUAL_DURATION_MS } from '@realmfall/core/game/config';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 import type { WorldMapCameraState } from '../../ui/world/worldMapCamera';
 import {
   normalizeCloudTransparency,

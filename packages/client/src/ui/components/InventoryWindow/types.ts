@@ -1,6 +1,6 @@
 import type { MouseEvent as ReactMouseEvent } from 'react';
-import type { InventorySortMode } from '../../../game/inventory';
-import type { Equipment, Item } from '../../../game/stateTypes';
+import type { InventorySortMode } from '@realmfall/core/game/inventory';
+import type { Equipment, Item } from '@realmfall/core/game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 

@@ -1,7 +1,7 @@
-import { getCurrentWorldRevealRadius } from '../../../../game/stateOutposts';
-import { getTileAt } from '../../../../game/stateWorldQueries';
-import { hexesInRange, hexKey, type HexCoord } from '../../../../game/hex';
-import type { Enemy, GameState, Tile } from '../../../../game/stateTypes';
+import { getCurrentWorldRevealRadius } from '@realmfall/core/game/stateOutposts';
+import { getTileAt } from '@realmfall/core/game/stateWorldQueries';
+import { hexesInRange, hexKey, type HexCoord } from '@realmfall/core/game/hex';
+import type { Enemy, GameState, Tile } from '@realmfall/core/game/stateTypes';
 
 export interface WorldHoverAnalysisState {
   combat: GameState['combat'];

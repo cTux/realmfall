@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { createGame } from '../../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import {
   flushAnimationFrame,
   flushLazyModules,
@@ -61,7 +61,7 @@ describe('App hover refresh after tile resolution', () => {
   it('recomputes hover interaction when the hovered hex resolves without pointer movement', async () => {
     const game = createGame(2, 'app-hover-resolution-refresh');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 
@@ -129,7 +129,7 @@ describe('App hover refresh after tile resolution', () => {
   it('keeps current hover feedback visible while another tile resolves in the background', async () => {
     const game = createGame(2, 'app-hover-resolution-stability');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 1, r: 0 });
 
@@ -198,7 +198,7 @@ describe('App hover refresh after tile resolution', () => {
   it('keeps the hovered move highlight on the next render tick while background resolution refreshes hover analysis', async () => {
     const game = createGame(2, 'app-hover-resolution-highlight');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 1, r: 0 });
 

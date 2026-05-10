@@ -3,17 +3,17 @@ import {
   getPlayerOverview,
   getRecipeBookEntries,
   getRecipeBookRecipes,
-} from '../../../game/stateSelectors';
-import { createGame } from '../../../game/stateFactory';
-import { EquipmentSlotId } from '../../../game/content/ids';
-import { addLog } from '../../../game/logs';
+} from '@realmfall/core/game/stateSelectors';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { EquipmentSlotId } from '@realmfall/core/game/content/ids';
+import { addLog } from '@realmfall/core/game/logs';
 import {
   buildItemFromConfig,
   getItemConfigCategory,
   ITEM_CONFIGS,
-} from '../../../game/content/items';
-import { ENEMY_CONFIGS } from '../../../game/content/enemies';
-import { STRUCTURE_CONFIGS } from '../../../game/content/structures';
+} from '@realmfall/core/game/content/items';
+import { ENEMY_CONFIGS } from '@realmfall/core/game/content/enemies';
+import { STRUCTURE_CONFIGS } from '@realmfall/core/game/content/structures';
 import {
   createWindowVisibilityState,
   DEFAULT_LOG_FILTERS,
@@ -27,9 +27,9 @@ import type {
   LogKind,
   RecipeBookEntry,
   SkillName,
-} from '../../../game/stateTypes';
-import { createSkillRecord } from '../../../game/skillRecords';
-import { Skill } from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
+import { createSkillRecord } from '@realmfall/core/game/skillRecords';
+import { Skill } from '@realmfall/core/game/stateTypes';
 
 export const STORYBOOK_WINDOW_POSITION = { x: 64, y: 48 };
 

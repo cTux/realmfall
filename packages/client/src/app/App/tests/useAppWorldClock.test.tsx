@@ -6,7 +6,7 @@ import React, {
   useState,
 } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
-import { createGame } from '../../../game/state';
+import { createGame } from '@realmfall/core/game/state';
 import { useAppWorldClock } from './useAppWorldClockTestkit';
 
 interface ClockHarnessHandle {

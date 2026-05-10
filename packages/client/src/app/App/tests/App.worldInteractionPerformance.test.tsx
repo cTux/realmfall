@@ -1,5 +1,5 @@
 import { act } from 'react';
-import { createGame } from '../../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import { WORLD_REVEAL_RADIUS } from '../../constants';
 import {
   flushAnimationFrame,
@@ -13,9 +13,11 @@ describe('App world interaction performance', () => {
     const game = createGame(3, 'app-hidden-hover-seed');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const worldQueryModule = await import('../../../game/stateWorldQueries');
-    const pathfindingModule = await import('../../../game/statePathfinding');
-    const hexModule = await import('../../../game/hex');
+    const worldQueryModule =
+      await import('@realmfall/core/game/stateWorldQueries');
+    const pathfindingModule =
+      await import('@realmfall/core/game/statePathfinding');
+    const hexModule = await import('@realmfall/core/game/hex');
     const getTileAtSpy = vi.spyOn(worldQueryModule, 'getTileAt');
     const getSafePathToTileSpy = vi.spyOn(
       pathfindingModule,
@@ -61,9 +63,11 @@ describe('App world interaction performance', () => {
     const game = createGame(3, 'app-hidden-click-seed');
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
 
-    const worldQueryModule = await import('../../../game/stateWorldQueries');
-    const pathfindingModule = await import('../../../game/statePathfinding');
-    const hexModule = await import('../../../game/hex');
+    const worldQueryModule =
+      await import('@realmfall/core/game/stateWorldQueries');
+    const pathfindingModule =
+      await import('@realmfall/core/game/statePathfinding');
+    const hexModule = await import('@realmfall/core/game/hex');
     const getTileAtSpy = vi.spyOn(worldQueryModule, 'getTileAt');
     const getSafePathToTileSpy = vi.spyOn(
       pathfindingModule,

@@ -7,14 +7,24 @@ import castleIcon from '../../assets/icons/castle.svg';
 import batIcon from '../../assets/game-icons/delapouite/bat.svg';
 import forgottenLootIcon from '../../assets/game-icons/lorc/swap-bag.svg';
 import unknownHexIcon from '../../assets/game-icons/delapouite/perspective-dice-six-faces-random.svg';
-import { ENEMY_CONFIGS, getEnemyConfig } from '../../game/content/enemies';
+import {
+  ENEMY_CONFIGS,
+  getEnemyConfig,
+} from '@realmfall/core/game/content/enemies';
 import {
   STRUCTURE_CONFIGS,
   getStructureConfig,
-} from '../../game/content/structures';
-import { hexDistance, hexesInRange } from '../../game/hex';
-import { getEnemiesAt, getTileAt } from '../../game/stateWorldQueries';
-import type { Enemy, GameState, StructureType } from '../../game/stateTypes';
+} from '@realmfall/core/game/content/structures';
+import { hexDistance, hexesInRange } from '@realmfall/core/game/hex';
+import {
+  getEnemiesAt,
+  getTileAt,
+} from '@realmfall/core/game/stateWorldQueries';
+import type {
+  Enemy,
+  GameState,
+  StructureType,
+} from '@realmfall/core/game/stateTypes';
 import { ImageSource, Rectangle, Texture } from 'pixi.js';
 import { RARITY_COLOR } from '../rarity';
 import {
@@ -308,9 +318,7 @@ function collectWorldIconAssetIdsForTiles({
 }
 
 function resolveWorldIconAssetId(icon: string) {
-  return isWorldTerrainFrameId(icon)
-    ? icon
-    : resolveIconAsset(icon) ?? icon;
+  return isWorldTerrainFrameId(icon) ? icon : (resolveIconAsset(icon) ?? icon);
 }
 
 function loadStandaloneWorldIconTexture(icon: string) {

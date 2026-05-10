@@ -21,6 +21,7 @@
   },
   "dependencies": {
     "@realmfall/common": "workspace:*",
+    "@realmfall/core": "workspace:*",
     "@realmfall/ui-react": "workspace:*",
     "@rexa-developer/tiks": "^0.1.9",
     "@tanstack/react-virtual": "^3.13.24",

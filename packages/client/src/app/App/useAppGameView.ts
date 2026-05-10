@@ -1,11 +1,11 @@
 import { useMemo } from 'react';
-import { createSkillRecord } from '../../game/skillRecords';
+import { createSkillRecord } from '@realmfall/core/game/skillRecords';
 import {
   getPlayerClaimedTiles,
   getPlayerOverview,
   getRecipeBookEntries,
-} from '../../game/stateSelectors';
-import type { GameState, Item, LogKind } from '../../game/stateTypes';
+} from '@realmfall/core/game/stateSelectors';
+import type { GameState, Item, LogKind } from '@realmfall/core/game/stateTypes';
 import { t } from '../../i18n';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
 import type { HexInteractAction } from './AppWindows.viewTypes';

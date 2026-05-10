@@ -1,11 +1,11 @@
 import type { Meta, StoryObj } from '@storybook/react-vite';
-import { getAbilityDefinition } from '../../../game/abilities';
-import { createCombatActorState } from '../../../game/combat';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
+import { createCombatActorState } from '@realmfall/core/game/combat';
 import type {
   CombatActorState,
   CombatState,
   Enemy,
-} from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
 import { CombatWindow } from './CombatWindow';
 import type { CombatPartyMember, CombatWindowProps } from './types';
 

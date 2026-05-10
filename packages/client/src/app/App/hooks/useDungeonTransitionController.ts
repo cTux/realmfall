@@ -9,10 +9,10 @@ import {
 import {
   activateDungeonWorld,
   leaveDungeonWorld,
-} from '../../../game/stateDungeonActions';
-import { hexKey } from '../../../game/hex';
-import type { DungeonWorldState } from '../../../game/dungeons/types';
-import type { GameState } from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateDungeonActions';
+import { hexKey } from '@realmfall/core/game/hex';
+import type { DungeonWorldState } from '@realmfall/core/game/dungeons/types';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { loadEncryptedDungeonState } from '../../../persistence/storage';
 import type { HexInteractAction } from '../AppWindows.viewTypes';
 

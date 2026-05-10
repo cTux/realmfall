@@ -1,5 +1,5 @@
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../game/config';
-import type { HexCoord, WorldKind } from '../../game/stateTypes';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
+import type { HexCoord, WorldKind } from '@realmfall/core/game/stateTypes';
 import type { SceneCache } from './renderSceneCache';
 import {
   decorateEntityBadge,

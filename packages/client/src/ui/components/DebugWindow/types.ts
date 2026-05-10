@@ -1,7 +1,7 @@
-import type { EnemyTypeKey, ItemKey } from '../../../game/content/ids';
-import type { DebugEquipmentType } from '../../../game/stateDebugWindow';
-import type { ItemRarity } from '../../../game/stateTypes';
-import type { EnemyRarity } from '../../../game/stateTypes';
+import type { EnemyTypeKey, ItemKey } from '@realmfall/core/game/content/ids';
+import type { DebugEquipmentType } from '@realmfall/core/game/stateDebugWindow';
+import type { ItemRarity } from '@realmfall/core/game/stateTypes';
+import type { EnemyRarity } from '@realmfall/core/game/stateTypes';
 import type { ManagedWindowShellProps } from '../managedWindowProps';
 
 export interface DebugWindowProps extends ManagedWindowShellProps {

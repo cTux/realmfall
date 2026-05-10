@@ -1,24 +1,24 @@
-import { getPlayerOverview } from '../../game/progression';
-import { getCurrentHexClaimStatus } from '../../game/stateClaims';
-import { getRecipeBookEntries } from '../../game/stateCrafting';
-import { getTownStockForDay } from '../../game/stateInventoryActions';
-import { getCurrentHexFactionNpcHealStatus } from '../../game/stateFactionNpc';
-import { getResolvedCurrentHexOutpostBuildStatus } from '../../game/stateOutposts';
-import { getEnemiesAt } from '../../game/stateWorldQueries';
+import { getPlayerOverview } from '@realmfall/core/game/progression';
+import { getCurrentHexClaimStatus } from '@realmfall/core/game/stateClaims';
+import { getRecipeBookEntries } from '@realmfall/core/game/stateCrafting';
+import { getTownStockForDay } from '@realmfall/core/game/stateInventoryActions';
+import { getCurrentHexFactionNpcHealStatus } from '@realmfall/core/game/stateFactionNpc';
+import { getResolvedCurrentHexOutpostBuildStatus } from '@realmfall/core/game/stateOutposts';
+import { getEnemiesAt } from '@realmfall/core/game/stateWorldQueries';
 import type {
   GameState,
   Item,
   LogKind,
   Skill,
   Tile,
-} from '../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
 import type { AudioSettings } from '../audioSettings';
 import type { GameplaySettings } from '../gameplaySettings';
 import type { GraphicsSettings } from '../graphicsSettings';
 import type { InterfaceSettings } from '../interfaceSettings';
 import type { ActionBarSlots } from './actionBar';
 import type { ItemContextMenuState } from './types';
-import type { ItemModificationKind } from '../../game/itemModifications';
+import type { ItemModificationKind } from '@realmfall/core/game/itemModifications';
 
 export type HexInteractAction =
   | 'gather'

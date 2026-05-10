@@ -1,5 +1,5 @@
 import { act } from 'react';
-import type { GameState } from '../../../game/stateTypes';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { renderScene, tickerCallbacks } from './appTestHarness';
 
 export function getRenderedGame() {

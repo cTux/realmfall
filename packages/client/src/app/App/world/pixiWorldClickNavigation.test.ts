@@ -2,7 +2,7 @@ import {
   getWorldHexSize,
   tileToPoint,
 } from '../../../ui/world/renderSceneMath';
-import { createGame } from '../../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import { createWorldClickHandler } from './pixiWorldClickNavigationTestkit';
 
 function createMovementController() {
@@ -422,7 +422,8 @@ describe('createWorldClickHandler', () => {
   });
 
   it('ignores unrevealed distant clicks before pathfinding', async () => {
-    const pathfindingModule = await import('../../../game/statePathfinding');
+    const pathfindingModule =
+      await import('@realmfall/core/game/statePathfinding');
     const getSafePathToTileSpy = vi.spyOn(
       pathfindingModule,
       'getSafePathToTile',

@@ -3,7 +3,7 @@ import {
   WINDOW_DOCK_KEYS,
   WINDOW_REGISTRY,
 } from './appUtilsTestkit';
-import { GameTag } from '../../../game/content/tags';
+import { GameTag } from '@realmfall/core/game/content/tags';
 import { getDockEntries } from '../utils/getDockEntries';
 import { getInventoryItemAction } from '../utils/getInventoryItemAction';
 import {

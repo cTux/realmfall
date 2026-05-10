@@ -4,10 +4,10 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
-import { syncCombatEncounterEnemies } from '../../../game/stateCombatEncounterSync';
-import { createGame } from '../../../game/stateFactory';
-import type { GameState } from '../../../game/stateTypes';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
+import { syncCombatEncounterEnemies } from '@realmfall/core/game/stateCombatEncounterSync';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import {
   createHydratedAppGame,
   flushLazyModules,
@@ -52,7 +52,7 @@ describe('App world movement cooldown', () => {
       enemyIds: [],
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 
@@ -118,7 +118,7 @@ describe('App world movement cooldown', () => {
       enemyIds: [],
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy
       .mockReturnValueOnce({ q: 2, r: 0 })
@@ -180,7 +180,7 @@ describe('App world movement cooldown', () => {
       enemyIds: [],
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 2, r: 0 });
 
@@ -220,7 +220,7 @@ describe('App world movement cooldown', () => {
       maxHp: 999,
     };
     loadEncryptedState.mockResolvedValue({ game, ui: {} });
-    const hexModule = await import('../../../game/hex');
+    const hexModule = await import('@realmfall/core/game/hex');
     const hexAtPointSpy = vi.spyOn(hexModule, 'hexAtPoint');
     hexAtPointSpy.mockReturnValue({ q: 1, r: 0 });
 

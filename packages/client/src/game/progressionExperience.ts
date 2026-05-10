@@ -1,1 +1,1 @@
-export * from './progression/experience';
+export * from '@realmfall/core/game/progressionExperience';

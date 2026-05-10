@@ -1,13 +1,13 @@
 import type { Dispatch, SetStateAction } from 'react';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { recipeUsesItemKey } from '../../../game/crafting';
-import { getItemConfigByKey } from '../../../game/content/items';
+import { recipeUsesItemKey } from '@realmfall/core/game/crafting';
+import { getItemConfigByKey } from '@realmfall/core/game/content/items';
 import {
   Skill,
   type EquipmentSlot,
   type RecipeBookEntry,
   type Tile,
-} from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
 import { compareRecipeBookEntries } from './utils/recipeBookEntries';
 import { CRAFTING_SLOT_FILTERS } from './recipeBookCraftingFilters';
 import { getDefaultRecipeSkill, RECIPE_BOOK_TAB_ORDER } from './recipeBookTabs';

@@ -1,6 +1,6 @@
 import type { WorldMoveResponse } from '@realmfall/common';
 import { describe, expect, it, vi } from 'vitest';
-import type { HexCoord } from '../../../../game/hex';
+import type { HexCoord } from '@realmfall/core/game/hex';
 import { createWorldMovementController } from './worldMovementControllerTestkit';
 import type { WorldMoveSource } from './worldMoveSource';
 

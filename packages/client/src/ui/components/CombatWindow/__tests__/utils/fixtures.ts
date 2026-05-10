@@ -1,9 +1,9 @@
-import { createCombatActorState } from '../../../../../game/combat';
+import { createCombatActorState } from '@realmfall/core/game/combat';
 import type {
   CombatState,
   Enemy,
   PlayerStatusEffect,
-} from '../../../../../game/stateTypes';
+} from '@realmfall/core/game/stateTypes';
 import type { CombatPartyMember } from '../../types';
 
 export const WORLD_TIME_MS = 12_000;

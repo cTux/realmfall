@@ -1,5 +1,5 @@
-import type { MoveToTileOptions } from '../../../game/stateMovement';
-import type { GameState, HexCoord } from '../../../game/stateTypes';
+import type { MoveToTileOptions } from '@realmfall/core/game/stateMovement';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 
 export interface GameplayTransitionResult {
   changed: boolean;

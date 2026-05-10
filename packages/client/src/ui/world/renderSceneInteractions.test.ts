@@ -1,5 +1,5 @@
-import { createGame } from '../../game/stateFactory';
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,

@@ -1,6 +1,6 @@
-import { EquipmentSlotId } from '../game/content/ids';
-import { GameTag } from '../game/content/tags';
-import type { Item } from '../game/stateTypes';
+import { EquipmentSlotId } from '@realmfall/core/game/content/ids';
+import { GameTag } from '@realmfall/core/game/content/tags';
+import type { Item } from '@realmfall/core/game/stateTypes';
 
 export const equippedTooltipItem: Item = {
   id: 'weapon-equipped',

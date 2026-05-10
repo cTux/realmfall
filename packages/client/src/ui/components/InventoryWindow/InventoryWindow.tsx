@@ -3,7 +3,7 @@ import { memo, useEffect, useState } from 'react';
 import {
   INVENTORY_SORT_MODES,
   type InventorySortMode,
-} from '../../../game/inventory';
+} from '@realmfall/core/game/inventory';
 import { t } from '../../../i18n';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DeferredWindowShell } from '../DeferredWindowShell';

@@ -1,6 +1,6 @@
 import worldTerrainAtlasManifest from '../../assets/generated/world-terrain-atlas.json';
 import worldTerrainAtlasImage from '../../assets/generated/world-terrain-atlas.png';
-import type { Terrain } from '../../game/stateTypes';
+import type { Terrain } from '@realmfall/core/game/stateTypes';
 
 export type WorldTerrainAtlasFrameId = `world-terrain-atlas:${Terrain}`;
 

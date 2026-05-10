@@ -6,9 +6,10 @@ const createGameMock = vi.hoisted(() => vi.fn());
 const loadAudioSettingsMock = vi.hoisted(() => vi.fn());
 const loadGraphicsSettingsMock = vi.hoisted(() => vi.fn());
 
-vi.mock('../../../game/stateFactory', async (importOriginal) => {
-  const actual =
-    await importOriginal<typeof import('../../../game/stateFactory')>();
+vi.mock('@realmfall/core/game/stateFactory', async () => {
+  const actual = await vi.importActual<
+    typeof import('@realmfall/core/game/stateFactory')
+  >('@realmfall/core/game/stateFactory');
 
   return {
     ...actual,

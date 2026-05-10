@@ -1,9 +1,9 @@
 import { act } from 'react';
 import { expect, vi } from 'vitest';
 import { t } from '../../../../i18n';
-import { buildItemFromConfig } from '../../../../game/content/items';
-import { ItemId } from '../../../../game/content/ids';
-import { INVENTORY_SORT_MODES } from '../../../../game/inventory';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { ItemId } from '@realmfall/core/game/content/ids';
+import { INVENTORY_SORT_MODES } from '@realmfall/core/game/inventory';
 import { mountUi, settleUi } from '../../../uiTestHelpers';
 import type { InventoryWindowProps } from '../types';
 import { InventoryWindow } from '../InventoryWindow';

@@ -7,8 +7,8 @@ import {
 import {
   syncBloodMoon,
   syncPlayerStatusEffects,
-} from '../../../game/stateWorldClock';
-import type { GameState } from '../../../game/stateTypes';
+} from '@realmfall/core/game/stateWorldClock';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import { useWorldClockFps } from '../useWorldClockFps';
 
 export function useAppWorldClock({

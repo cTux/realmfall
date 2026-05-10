@@ -1,5 +1,5 @@
-import { getRecipeRequiredStructure } from '../../../../game/crafting';
-import type { RecipeBookEntry } from '../../../../game/stateTypes';
+import { getRecipeRequiredStructure } from '@realmfall/core/game/crafting';
+import type { RecipeBookEntry } from '@realmfall/core/game/stateTypes';
 
 interface RecipeBookEntryContext {
   currentStructure?: string;

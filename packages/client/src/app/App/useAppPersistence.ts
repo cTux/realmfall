@@ -6,9 +6,9 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import { createFreshLogsAtTime } from '../../game/logs';
-import { syncActiveWorldAliases } from '../../game/dungeons/worldState';
-import type { GameState, LogKind } from '../../game/stateTypes';
+import { createFreshLogsAtTime } from '@realmfall/core/game/logs';
+import { syncActiveWorldAliases } from '@realmfall/core/game/dungeons/worldState';
+import type { GameState, LogKind } from '@realmfall/core/game/stateTypes';
 import {
   loadEncryptedDungeonState,
   loadEncryptedState,

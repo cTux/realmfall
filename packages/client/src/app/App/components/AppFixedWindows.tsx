@@ -1,12 +1,12 @@
 import { memo } from 'react';
 import { t } from '../../../i18n';
-import { ITEM_MODIFICATION_BALANCE } from '../../../game/config';
+import { ITEM_MODIFICATION_BALANCE } from '@realmfall/core/game/config';
 import {
   canWearItem,
   canEquipItem,
   canUseItem,
   isEquippableItem,
-} from '../../../game/inventory';
+} from '@realmfall/core/game/inventory';
 import {
   ActionBar,
   ContextMenu as ItemContextMenu,

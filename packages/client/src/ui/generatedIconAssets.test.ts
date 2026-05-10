@@ -3,7 +3,7 @@ import {
   GENERATED_ICON_POOL_SIZES,
   GENERATED_ICON_POOLS,
   type GeneratedIconPoolKey,
-} from '../game/content/generatedIconPools';
+} from '@realmfall/core/game/content/generatedIconPools';
 import {
   GENERATED_ICON_ASSET_POOLS,
   resolveGeneratedIconAsset,

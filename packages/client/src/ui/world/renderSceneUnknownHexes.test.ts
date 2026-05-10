@@ -1,5 +1,5 @@
-import { createGame } from '../../game/stateFactory';
-import { hexKey } from '../../game/hex';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { hexKey } from '@realmfall/core/game/hex';
 import {
   collectDescendants,
   createMockApp,

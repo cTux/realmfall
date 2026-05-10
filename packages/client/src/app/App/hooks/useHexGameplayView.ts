@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { isEquippableItem } from '../../../game/inventory';
+import { isEquippableItem } from '@realmfall/core/game/inventory';
 import {
   canModifyItem,
   formatReforgeableItemSecondaryStatLabel,
@@ -7,25 +7,25 @@ import {
   getItemModificationKindForStructure,
   getItemModificationStructureHint,
   getReforgeableItemSecondaryStats,
-} from '../../../game/itemModifications';
+} from '@realmfall/core/game/itemModifications';
 import {
   getCurrentHexClaimStatus,
   getEnemiesAt,
   getGoldAmount,
   getHostileEnemyIds,
   getTownStockForDay,
-} from '../../../game/stateSelectors';
-import { getActiveWorld } from '../../../game/dungeons/worldState';
-import { getResolvedCurrentHexClaimStatus } from '../../../game/stateClaims';
-import { getCombatEncounterCoord } from '../../../game/stateCombatEngagement';
+} from '@realmfall/core/game/stateSelectors';
+import { getActiveWorld } from '@realmfall/core/game/dungeons/worldState';
+import { getResolvedCurrentHexClaimStatus } from '@realmfall/core/game/stateClaims';
+import { getCombatEncounterCoord } from '@realmfall/core/game/stateCombatEngagement';
 import {
   FACTION_NPC_HEAL_COST,
   getCurrentHexFactionNpcHealStatus,
-} from '../../../game/stateFactionNpc';
-import { getResolvedCurrentHexOutpostBuildStatus } from '../../../game/stateOutposts';
-import { getResolvedTileAt } from '../../../game/stateWorldQueries';
-import type { GameState, Item } from '../../../game/stateTypes';
-import { isGatheringStructure } from '../../../game/world';
+} from '@realmfall/core/game/stateFactionNpc';
+import { getResolvedCurrentHexOutpostBuildStatus } from '@realmfall/core/game/stateOutposts';
+import { getResolvedTileAt } from '@realmfall/core/game/stateWorldQueries';
+import type { GameState, Item } from '@realmfall/core/game/stateTypes';
+import { isGatheringStructure } from '@realmfall/core/game/world';
 import { t } from '../../../i18n';
 import type { HexInteractAction } from '../AppWindows.viewTypes';
 

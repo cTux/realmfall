@@ -1,8 +1,8 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { getActiveWorld } from '../../../game/dungeons/worldState';
-import { getWorldDayIndex } from '../../../game/logs';
-import { getResolvedCurrentTile } from '../../../game/stateSelectors';
-import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
+import { getActiveWorld } from '@realmfall/core/game/dungeons/worldState';
+import { getWorldDayIndex } from '@realmfall/core/game/logs';
+import { getResolvedCurrentTile } from '@realmfall/core/game/stateSelectors';
+import { getCurrentWorldRevealRadius } from '@realmfall/core/game/stateOutposts';
 import { useAppControllers } from '../useAppControllers';
 import { getHexInteractActionLabel, useAppGameView } from '../useAppGameView';
 import { useAppPersistence } from '../useAppPersistence';

@@ -5,7 +5,7 @@ import {
   type MutableRefObject,
   type SetStateAction,
 } from 'react';
-import type { GameState } from '../../../game/stateTypes';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import {
   buildDebugCommandHandlers,
   buildEquipmentSlotCommandHandlers,

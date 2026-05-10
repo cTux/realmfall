@@ -1,6 +1,6 @@
-import { createGame } from '../../game/stateFactory';
-import { hexKey, hexesInRange } from '../../game/hex';
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { hexKey, hexesInRange } from '@realmfall/core/game/hex';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,

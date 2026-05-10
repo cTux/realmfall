@@ -1,4 +1,4 @@
-import { createGame, startCombat } from '../../game/state';
+import { createGame, startCombat } from '@realmfall/core/game/state';
 import { detectVoicePlaybackEvent } from './voiceEventsTestkit';
 
 describe('detectVoicePlaybackEvent', () => {

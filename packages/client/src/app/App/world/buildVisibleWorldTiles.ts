@@ -1,5 +1,5 @@
-import { hexKey, hexesInRange, type HexCoord } from '../../../game/hex';
-import type { GameState } from '../../../game/stateTypes';
+import { hexKey, hexesInRange, type HexCoord } from '@realmfall/core/game/hex';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import {
   createUnknownVisibleWorldTile,
   type VisibleWorldTile,

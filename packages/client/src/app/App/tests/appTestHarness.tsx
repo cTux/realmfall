@@ -1,7 +1,10 @@
 import React, { act } from 'react';
 import { createRoot } from 'react-dom/client';
-import { createGame } from '../../../game/stateFactory';
-import { GAME_DAY_DURATION_MS, GAME_DAY_MINUTES } from '../../../game/config';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import {
+  GAME_DAY_DURATION_MS,
+  GAME_DAY_MINUTES,
+} from '@realmfall/core/game/config';
 
 export const renderScene = vi.fn();
 export const loadEncryptedDungeonState = vi.fn();

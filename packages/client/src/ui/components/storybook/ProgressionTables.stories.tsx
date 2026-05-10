@@ -7,11 +7,11 @@ import {
   MAX_PLAYER_LEVEL,
   PLAYER_FIRST_LEVEL_XP_REQUIREMENT,
   PLAYER_LAST_LEVEL_XP_REQUIREMENT,
-} from '../../../game/config';
+} from '@realmfall/core/game/config';
 import {
   levelThreshold,
   masteryLevelThreshold,
-} from '../../../game/progression';
+} from '@realmfall/core/game/progression';
 import { storySurfaceDecorator } from './storybookHelpers';
 
 const NUMBER_FORMATTER = new Intl.NumberFormat('en-US');

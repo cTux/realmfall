@@ -3,7 +3,8 @@
 ## Architecture
 
 - Client-side `src/*` paths in this file resolve under `packages/client/` unless a rule explicitly names another package.
-- Keep client-owned gameplay adapters and any remaining client-only simulation glue in `packages/client/src/game` so they stay testable and mostly UI-independent until they move into `packages/core`.
+- Gameplay-module `src/game/*` paths below resolve under `packages/core/src/game` unless a rule explicitly names `packages/client/src/game`.
+- Keep `packages/client/src/game` limited to compatibility facades and client-only gameplay test helpers. Keep canonical gameplay, world, and simulation logic in `packages/core/src/game`, and have non-game client modules import it from `@realmfall/core/game/*`.
 - Keep the isomorphic gameplay engine, world state, combat runtime, and future shared client/server simulation logic in `packages/core/src`, and keep that package free of React, Pixi, Vite asset-loader, or browser-only runtime dependencies.
 - Keep React app orchestration in `packages/client/src/app`, client-only presentational UI in `packages/client/src/ui/components`, and shared reusable UI controls in `packages/ui/src/components`.
 - When shared `packages/ui` controls need gameplay-shaped data, define narrow structural contracts under `packages/ui/src/game` and keep client-only state modules out of the shared component import graph.
@@ -23,8 +24,8 @@
 - Keep `src/app/normalizeShared.ts` focused on canonical validators and shared guards. Put legacy backfills or compatibility bridges in a dedicated helper such as `src/app/normalizeCompatibility.ts` instead of mixing fallback migrations into the shared validator surface.
 - Keep `src/game/state.ts` focused on mutation-oriented gameplay entrypoints. Put read-only game builders in `src/game/stateFactory.ts`, read-only view helpers in `src/game/stateSelectors.ts`, and shared gameplay types or registries in `src/game/stateTypes.ts`.
 - Keep movement traversal entrypoints in `src/game/stateMovement.ts` and world-clock transitions in `src/game/stateWorldClock.ts` so `src/game/state.ts` stays a thin public surface instead of regrowing another mixed-responsibility block.
-- When UI, renderer, Storybook, or test code only needs builders, selectors, or types, import those narrower `src/game/state*.ts` modules instead of routing through `src/game/state.ts`.
-- In `src/app` and `src/ui`, import `src/game/state.ts` only when the code needs mutation-oriented entrypoints that do not yet live in a narrower gameplay module. Route types, selectors, builders, and other read-only helpers through `src/game/stateTypes.ts`, `src/game/stateSelectors.ts`, `src/game/stateFactory.ts`, or the owning focused module.
+- When UI, renderer, Storybook, or test code only needs builders, selectors, or types, import the narrower `@realmfall/core/game/state*.ts` modules instead of routing through `@realmfall/core/game/state`.
+- In `packages/client/src/app`, `packages/client/src/ui`, and other non-game client modules, import `@realmfall/core/game/state` only when the code needs mutation-oriented entrypoints that do not yet live in a narrower gameplay module. Route types, selectors, builders, and other read-only helpers through `@realmfall/core/game/stateTypes`, `@realmfall/core/game/stateSelectors`, `@realmfall/core/game/stateFactory`, or the owning focused module.
 - Keep `src/game/stateRewards.ts` as the stable reward facade and move gathering plus enemy-loot internals into focused neighboring `src/game/stateRewards/*` helpers instead of regrowing one mixed reward module or extending `src/game/state.ts` with more domain-specific internals.
 - Keep structure-specific render flags, item-modification capabilities, and gather-behavior taxonomy in `StructureConfig` metadata or canonical structure tags. Do not rebuild parallel structure-name allowlists in renderer, reward, or UI modules.
 - Keep recipe requirement identity canonical and item-key based. Build recipe ingredient and fuel tables from shared requirement helpers, localize requirement names at the read layer, and do not preserve runtime display-name matching fallbacks.

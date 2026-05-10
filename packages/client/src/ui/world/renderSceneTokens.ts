@@ -1,5 +1,5 @@
-import { hexKey } from '../../game/hex';
-import type { GameState, HexCoord } from '../../game/stateTypes';
+import { hexKey } from '@realmfall/core/game/hex';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 import { getAppliedInterfaceFontStack } from '../../app/interfaceFonts';
 import type { SceneCache } from './renderSceneCache';
 import {

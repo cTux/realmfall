@@ -1,6 +1,6 @@
-import { hexKey } from '../../game/hex';
-import { createRng } from '../../game/random';
-import type { HexCoord } from '../../game/stateTypes';
+import { hexKey } from '@realmfall/core/game/hex';
+import { createRng } from '@realmfall/core/game/random';
+import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import { scaleColor } from './timeOfDay';
 import type { ShadowedSpriteEntry } from './renderScenePools';
 
@@ -70,7 +70,9 @@ export function createAnimatedWorldMarker({
   width,
 }: AnimatedWorldMarkerOptions): AnimatedWorldMarker {
   const rng = createRng(
-    animationKey ? `${seed}:${kind}:${animationKey}` : `${seed}:${hexKey(coord)}:${kind}`,
+    animationKey
+      ? `${seed}:${kind}:${animationKey}`
+      : `${seed}:${hexKey(coord)}:${kind}`,
   );
   return {
     baseAlpha: alpha,
@@ -218,10 +220,7 @@ function getAnimatedMarkerMovementOffset(
 
   const progress = Math.max(
     0,
-    Math.min(
-      1,
-      (animationMs - transition.startedAtMs) / transition.durationMs,
-    ),
+    Math.min(1, (animationMs - transition.startedAtMs) / transition.durationMs),
   );
   const remainingProgress = 1 - progress;
   return {

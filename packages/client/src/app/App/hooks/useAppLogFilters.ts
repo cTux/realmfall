@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import type { LogKind } from '../../../game/stateTypes';
+import type { LogKind } from '@realmfall/core/game/stateTypes';
 import { DEFAULT_LOG_FILTERS } from '../../constants';
 
 export function useAppLogFilters() {

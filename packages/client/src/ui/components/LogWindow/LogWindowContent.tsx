@@ -1,9 +1,9 @@
 import type { CSSProperties, MouseEvent as ReactMouseEvent } from 'react';
 import { memo, useEffect, useMemo, useRef } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { getAbilityDefinition } from '../../../game/abilities';
-import { getStatusEffectDefinition } from '../../../game/content/statusEffects';
-import type { LogEntry, LogRichSegment } from '../../../game/stateTypes';
+import { getAbilityDefinition } from '@realmfall/core/game/abilities';
+import { getStatusEffectDefinition } from '@realmfall/core/game/content/statusEffects';
+import type { LogEntry, LogRichSegment } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import { parseWorldCalendarDateTime } from '../../world/timeOfDay';
 import { rarityColor } from '../../rarity';
@@ -377,8 +377,8 @@ function sourceIconStyle(
 
   return maskStyle(
     statusEffectIcon(segment.source.effectId),
-      statusEffectTint(
-        segment.source.effectId,
+    statusEffectTint(
+      segment.source.effectId,
       segment.source.tone ??
         (getStatusEffectDefinition(segment.source.effectId)?.tone === 'buff'
           ? 'buff'
@@ -464,9 +464,7 @@ function getSecondaryStatIcon(
       return resolveIconAsset(getAbilityDefinition('kick').icon);
     case 'suppressDamageChance':
     case 'suppressDamageReduction':
-      return resolveIconAsset(
-        getStatusEffectDefinition('guard')?.icon ?? '',
-      );
+      return resolveIconAsset(getStatusEffectDefinition('guard')?.icon ?? '');
     default:
       return resolveIconAsset(getStatusEffectDefinition('power')?.icon ?? '');
   }

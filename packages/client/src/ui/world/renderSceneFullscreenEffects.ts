@@ -1,5 +1,5 @@
-import { getPlayerCombatStats } from '../../game/stateSelectors';
-import type { GameState } from '../../game/stateTypes';
+import { getPlayerCombatStats } from '@realmfall/core/game/stateSelectors';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 
 export interface FullscreenVisualOverlay {
   color: number;

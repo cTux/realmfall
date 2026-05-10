@@ -1,10 +1,6 @@
 import { act } from 'react';
-import { createGame } from '../../../game/stateFactory';
-import {
-  flushLazyModules,
-  loadEncryptedState,
-  renderApp,
-} from './appTestkit';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { flushLazyModules, loadEncryptedState, renderApp } from './appTestkit';
 
 describe('App unknown hex bootstrap', () => {
   it('preloads the first world frame with unknown placeholders for missing visible tiles', async () => {

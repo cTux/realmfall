@@ -5,11 +5,11 @@ import {
   MOONRISE_END,
   MOONRISE_START,
   SUNRISE_START,
-} from '../../game/config';
+} from '@realmfall/core/game/config';
 import {
   getWorldDayFromTimestamp,
   getWorldTimeMinutesFromTimestamp,
-} from '../../game/worldTime';
+} from '@realmfall/core/game/worldTime';
 import { t } from '../../i18n';
 
 export {

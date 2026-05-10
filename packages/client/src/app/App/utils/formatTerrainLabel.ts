@@ -1,4 +1,4 @@
-import type { Terrain } from '../../../game/stateTypes';
+import type { Terrain } from '@realmfall/core/game/stateTypes';
 import {
   formatTerrainDescription as formatLocalizedTerrainDescription,
   formatTerrainLabel as formatLocalizedTerrainLabel,

@@ -1,5 +1,5 @@
-import { createGame } from '../../game/stateFactory';
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
 import {
   countDrawnPolygons,
   createMockApp,
@@ -44,7 +44,7 @@ describe('renderScene reuse', () => {
   });
 
   it('caches deterministic cloud and terrain presentation inputs', async () => {
-    const randomModule = await import('../../game/random');
+    const randomModule = await import('@realmfall/core/game/random');
     const createRngSpy = vi.spyOn(randomModule, 'createRng');
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-deterministic-cache');
@@ -132,7 +132,7 @@ describe('renderScene reuse', () => {
   });
 
   it('skips enemy lookups on pure animation-only frames once static layers are cached', async () => {
-    const stateModule = await import('../../game/stateSelectors');
+    const stateModule = await import('@realmfall/core/game/stateSelectors');
     const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-animation-only-skip');
@@ -174,7 +174,7 @@ describe('renderScene reuse', () => {
   });
 
   it('looks up visible tile enemies once for static token and marker rendering', async () => {
-    const stateModule = await import('../../game/stateSelectors');
+    const stateModule = await import('@realmfall/core/game/stateSelectors');
     const getEnemiesAtSpy = vi.spyOn(stateModule, 'getEnemiesAt');
     const { renderScene } = await import('./renderScene');
     const game = createGame(2, 'render-scene-visible-input-cache');

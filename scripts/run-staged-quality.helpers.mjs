@@ -16,6 +16,7 @@ const VITEST_RELATED_EXTENSIONS = new Set([...LINT_EXTENSIONS, '.json']);
 const PACKAGE_JSON_PATH = 'package.json';
 const CLIENT_SRC_DIR = 'packages/client/src';
 const CLIENT_GAME_CONFIG_PATH = 'packages/client/game.config.ts';
+const DEFAULT_MAX_ARGUMENT_CHARS = 6_000;
 const PACKAGE_JSON_VERSION_DIFF_LINE_PATTERN =
   /^[-+]\s*"version":\s*"[^"]+",\s*$/u;
 
@@ -90,4 +91,39 @@ export function shouldRunFullTestSuite(stagedFiles, packageJsonDiffText = '') {
 
     return FULL_TEST_TRIGGER_FILES.has(file);
   });
+}
+
+export function chunkFilesByArgumentLength(
+  fixedArgs,
+  fileArgs,
+  maxArgumentChars = DEFAULT_MAX_ARGUMENT_CHARS,
+) {
+  if (fileArgs.length === 0) {
+    return [];
+  }
+
+  const chunks = [];
+  const baseLength = fixedArgs.reduce((total, arg) => total + arg.length, 0);
+  let currentChunk = [];
+  let currentLength = baseLength;
+
+  for (const fileArg of fileArgs) {
+    const nextLength = currentLength + fileArg.length;
+
+    if (currentChunk.length > 0 && nextLength > maxArgumentChars) {
+      chunks.push(currentChunk);
+      currentChunk = [fileArg];
+      currentLength = baseLength + fileArg.length;
+      continue;
+    }
+
+    currentChunk.push(fileArg);
+    currentLength = nextLength;
+  }
+
+  if (currentChunk.length > 0) {
+    chunks.push(currentChunk);
+  }
+
+  return chunks;
 }

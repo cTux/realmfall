@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useState } from 'react';
-import type { Tile } from '../../../game/stateTypes';
+import type { Tile } from '@realmfall/core/game/stateTypes';
 import { createWindowVisibilityState } from '../../constants';
 import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotionTestkit';
 

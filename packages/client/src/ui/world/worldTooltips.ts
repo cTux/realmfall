@@ -1,4 +1,8 @@
-import type { Enemy, StructureType, Tile } from '../../game/stateTypes';
+import type {
+  Enemy,
+  StructureType,
+  Tile,
+} from '@realmfall/core/game/stateTypes';
 import { buildEnemyTooltip, buildStructureTooltip } from '../tooltipContent';
 import type { TooltipLine } from '@realmfall/ui-react';
 import { tagTooltipLines } from '@realmfall/ui-react';

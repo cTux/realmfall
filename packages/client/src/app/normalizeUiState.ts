@@ -1,4 +1,8 @@
-import { LOG_KINDS, type Item, type LogKind } from '../game/stateTypes';
+import {
+  LOG_KINDS,
+  type Item,
+  type LogKind,
+} from '@realmfall/core/game/stateTypes';
 import {
   createDefaultWindowPositions,
   DEFAULT_LOG_FILTERS,

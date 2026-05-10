@@ -1,6 +1,6 @@
 import { memo, useEffect, useMemo, useState, type RefObject } from 'react';
-import { hexDistance, type HexCoord } from '../../game/hex';
-import type { WorldKind } from '../../game/stateTypes';
+import { hexDistance, type HexCoord } from '@realmfall/core/game/hex';
+import type { WorldKind } from '@realmfall/core/game/stateTypes';
 import { t } from '../../i18n';
 import { getWorldHexSize, tileToPoint } from '../../ui/world/renderSceneMath';
 import { WORLD_REVEAL_RADIUS } from '../constants';

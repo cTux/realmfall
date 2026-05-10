@@ -1,6 +1,10 @@
-import { isPassable } from '../../game/shared';
-import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
-import { hexKey } from '../../game/hex';
+import { isPassable } from '@realmfall/core/game/shared';
+import type {
+  GameState,
+  HexCoord,
+  WorldKind,
+} from '@realmfall/core/game/stateTypes';
+import { hexKey } from '@realmfall/core/game/hex';
 import { tileStyle } from './renderSceneEnvironment';
 import { makeHex, tileToPoint } from './renderSceneMath';
 import { type SceneCache } from './renderSceneCache';

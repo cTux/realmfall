@@ -1,9 +1,9 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
-import { startCombat } from '../../../game/stateCombat';
-import type { GameState, HexCoord } from '../../../game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '../../../game/worldCombatPresentation';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
+import { startCombat } from '@realmfall/core/game/stateCombat';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
+import { WORLD_COMBAT_LUNGE_DURATION_MS } from '@realmfall/core/game/worldCombatPresentation';
 import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
 import { getWorldCombatLungeOffset } from '../../../ui/world/worldCombatLunge';
 import { sameCoord } from '../usePixiWorldHover';

@@ -1,5 +1,5 @@
-import { addCommandLog } from '../../../game/logs';
-import type { GameState } from '../../../game/stateTypes';
+import { addCommandLog } from '@realmfall/core/game/logs';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 
 interface LoggedGameTransitionOptions {
   describe: (previous: GameState, next: GameState) => string;

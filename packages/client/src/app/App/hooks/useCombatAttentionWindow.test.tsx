@@ -1,8 +1,8 @@
 import { act } from 'react';
 import { createRoot } from 'react-dom/client';
 import { useState } from 'react';
-import { createStartedCombatEncounter } from '../../../game/stateCombatEngagement';
-import type { GameState, HexCoord } from '../../../game/stateTypes';
+import { createStartedCombatEncounter } from '@realmfall/core/game/stateCombatEngagement';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 import { createWindowVisibilityState } from '../../constants';
 import { createHydratedAppGame } from '../tests/appTestkit';
 import { useCombatAttentionWindow } from './useCombatAttentionWindow';

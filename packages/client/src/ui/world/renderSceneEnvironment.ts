@@ -1,6 +1,10 @@
 import { HEX_SIZE } from '../../app/constants';
-import { createRng } from '../../game/random';
-import type { HexCoord, Terrain, WorldKind } from '../../game/stateTypes';
+import { createRng } from '@realmfall/core/game/random';
+import type {
+  HexCoord,
+  Terrain,
+  WorldKind,
+} from '@realmfall/core/game/stateTypes';
 import { scaleColor, type getTimeOfDayLighting } from './timeOfDay';
 import { normalizeVector } from './renderSceneMath';
 import { WorldIcons } from './worldIcons';

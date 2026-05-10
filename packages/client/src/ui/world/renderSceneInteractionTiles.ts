@@ -1,4 +1,4 @@
-import type { HexCoord, Tile } from '../../game/stateTypes';
+import type { HexCoord, Tile } from '@realmfall/core/game/stateTypes';
 import type { SceneCache } from './renderSceneCache';
 import { takeGraphics } from './renderScenePools';
 import {

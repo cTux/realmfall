@@ -1,4 +1,4 @@
-import { createGame } from '../../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 import { createLoggedGameTransition } from './useLoggedGameCommandTestkit';
 
 describe('createLoggedGameTransition', () => {

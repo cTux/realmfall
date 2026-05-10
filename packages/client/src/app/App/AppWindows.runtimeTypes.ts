@@ -1,4 +1,4 @@
-import type { GameState } from '../../game/stateTypes';
+import type { GameState } from '@realmfall/core/game/stateTypes';
 import type { AppWindowsProps } from './AppWindows.types';
 import type { AppControllers } from './useAppControllers';
 

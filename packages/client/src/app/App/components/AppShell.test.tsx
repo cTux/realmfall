@@ -3,9 +3,9 @@ import { createRoot, type Root } from 'react-dom/client';
 import { DEFAULT_AUDIO_SETTINGS } from '../../audioSettings';
 import { DEFAULT_UI_AUDIO_CONTROLLER } from '../../audio/UiAudioContext';
 import type { AppWindowsProps } from '../AppWindows.types';
-import { createGame } from '../../../game/stateFactory';
-import { getCurrentWorldRevealRadius } from '../../../game/stateOutposts';
-import { getActiveWorld } from '../../../game/dungeons/worldState';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { getCurrentWorldRevealRadius } from '@realmfall/core/game/stateOutposts';
+import { getActiveWorld } from '@realmfall/core/game/dungeons/worldState';
 import type { AppShellState } from '../AppShell.types';
 import { AppShell } from './AppShellTestkit';
 
@@ -76,7 +76,9 @@ describe('AppShell', () => {
       homeIndicator: {
         currentWorldKind: activeWorld?.kind ?? 'surface',
         dungeonExitHex:
-          activeWorld?.kind === 'dungeon' ? activeWorld.dungeon.entranceCoord : null,
+          activeWorld?.kind === 'dungeon'
+            ? activeWorld.dungeon.entranceCoord
+            : null,
         homeHex: game.homeHex,
         playerCoord: game.player.coord,
         radius: game.radius,

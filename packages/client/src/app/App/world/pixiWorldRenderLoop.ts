@@ -1,9 +1,9 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
-import { WORLD_MOVE_HEX_COOLDOWN_MS } from '../../../game/config';
-import { hexDistance } from '../../../game/hex';
-import type { GameState, HexCoord } from '../../../game/stateTypes';
-import { getWorldTimeMinutesFromTimestamp } from '../../../game/worldTime';
+import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
+import { hexDistance } from '@realmfall/core/game/hex';
+import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
+import { getWorldTimeMinutesFromTimestamp } from '@realmfall/core/game/worldTime';
 import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
 import {
   getReachableWorldIconAssetIds,

@@ -1,5 +1,5 @@
-import { buildItemFromConfig } from '../../../../game/content/items';
-import { ItemId } from '../../../../game/content/ids';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { ItemId } from '@realmfall/core/game/content/ids';
 import { HexInfoWindowContentTestkit } from './HexInfoWindowContentTestkit';
 
 describe('HexInfoWindowContent actions', () => {

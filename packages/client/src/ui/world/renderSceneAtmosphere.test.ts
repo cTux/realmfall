@@ -1,5 +1,5 @@
-import { createGame } from '../../game/stateFactory';
-import { getVisibleTiles } from '../../game/stateSelectors';
+import { createGame } from '@realmfall/core/game/stateFactory';
+import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
 import {
   collectDescendants,
   createMockApp,
@@ -328,7 +328,7 @@ describe('renderScene atmosphere', () => {
     const { renderScene } = await import('./renderScene');
     const { WorldIcons } = await import('./worldIcons');
     const { createDungeonWorldState, setActiveWorld } =
-      await import('../../game/dungeons/worldState');
+      await import('@realmfall/core/game/dungeons/worldState');
 
     const game = createGame(2, 'render-scene-dungeon-atmosphere');
     const dungeonId = 'dungeon:render-scene-dungeon-atmosphere:1,0';

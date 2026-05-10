@@ -1,5 +1,9 @@
 import { type Application } from 'pixi.js';
-import type { GameState, HexCoord, WorldKind } from '../../game/stateTypes';
+import type {
+  GameState,
+  HexCoord,
+  WorldKind,
+} from '@realmfall/core/game/stateTypes';
 import { scaleColor } from './timeOfDay';
 import { animateWorldMarkers } from './renderSceneMarkerAnimations';
 import {

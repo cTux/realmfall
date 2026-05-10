@@ -1,4 +1,4 @@
-import { canSellItem } from '../../../../game/inventory';
+import { canSellItem } from '@realmfall/core/game/inventory';
 import { createLazyWindowComponent } from '../../../../ui/components/lazyWindowComponent';
 import { loadNamedWindowModule } from './lazyDeferredWindowModule';
 import type { AppDeferredWindowDescriptor } from './types';

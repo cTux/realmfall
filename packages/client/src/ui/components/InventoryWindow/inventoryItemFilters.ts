@@ -1,11 +1,11 @@
-import { buildItemFromConfig } from '../../../game/content/items';
-import { ItemId } from '../../../game/content/ids';
-import { GAME_TAGS } from '../../../game/content/tags';
+import { buildItemFromConfig } from '@realmfall/core/game/content/items';
+import { ItemId } from '@realmfall/core/game/content/ids';
+import { GAME_TAGS } from '@realmfall/core/game/content/tags';
 import {
   getInventoryItemGroup,
   type InventoryItemGroup,
-} from '../../../game/inventory';
-import type { Item } from '../../../game/stateTypes';
+} from '@realmfall/core/game/inventory';
+import type { Item } from '@realmfall/core/game/stateTypes';
 
 export type InventoryItemFilterId = InventoryItemGroup;
 

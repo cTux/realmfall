@@ -1,4 +1,8 @@
-import type { EquipmentSlot, Item, LogKind } from '../../game/stateTypes';
+import type {
+  EquipmentSlot,
+  Item,
+  LogKind,
+} from '@realmfall/core/game/stateTypes';
 import type { WindowVisibilityState } from '../constants';
 import type { TooltipLine } from '../../ui/tooltips';
 import type { TooltipPlacement } from '../../ui/tooltipPlacement';

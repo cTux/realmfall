@@ -1,9 +1,9 @@
-import { clampItemLevel } from '../game/balance';
+import { clampItemLevel } from '@realmfall/core/game/balance';
 import {
   getItemConfigByKey,
   getItemConfigCategory,
-} from '../game/content/items';
-import type { Enemy, Item } from '../game/stateTypes';
+} from '@realmfall/core/game/content/items';
+import type { Enemy, Item } from '@realmfall/core/game/stateTypes';
 import {
   isEquipmentSlot,
   isFiniteNumber,

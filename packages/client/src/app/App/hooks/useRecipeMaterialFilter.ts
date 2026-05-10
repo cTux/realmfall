@@ -4,7 +4,7 @@ import {
   type Dispatch,
   type SetStateAction,
 } from 'react';
-import type { Skill } from '../../../game/stateTypes';
+import type { Skill } from '@realmfall/core/game/stateTypes';
 import type { WindowVisibilityState } from '../../constants';
 
 type SetWindowShown = Dispatch<SetStateAction<WindowVisibilityState>>;

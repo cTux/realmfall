@@ -1,7 +1,7 @@
 import { act } from 'react';
 import { createRoot, type Root } from 'react-dom/client';
 import { createStartedCombatEncounter } from './useHexGameplayViewTestkit';
-import { createGame } from '../../../game/stateFactory';
+import { createGame } from '@realmfall/core/game/stateFactory';
 
 describe('useHexGameplayView', () => {
   afterEach(() => {
@@ -19,7 +19,7 @@ describe('useHexGameplayView', () => {
     });
     vi.doMock('../../../game/world', async (importOriginal) => {
       const actual =
-        await importOriginal<typeof import('../../../game/world')>();
+        await importOriginal<typeof import('@realmfall/core/game/world')>();
       return {
         ...actual,
         buildTile: buildTileSpy,
