@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 
-import rawGameConfig from '../../game.config';
+import rawGameConfig from '@realmfall/core/core.config';
 import { GAME_CONFIG } from './config';
 import { defineGameConfig } from './gameConfigSchemaTestkit';
 

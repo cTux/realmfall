@@ -2,6 +2,8 @@ import { useMemo, useState } from 'react';
 import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui-react';
 import { canSellItem } from '@realmfall/core/game/inventory';
 import { t } from '../../../i18n';
+import { CLIENT_INVENTORY_UI } from '../../../client.config';
+import { ICON_TINT_COLORS } from '../../../theme.config';
 import { iconForItem, Icons } from '../../icons';
 import { iconMaskStyle } from '../../iconMaskStyle';
 import type { InventoryWindowProps } from './types';
@@ -102,7 +104,11 @@ export function InventoryWindowContent({
               aria-pressed={isFilterEnabled}
               className={styles.filterIconButton}
               onClick={() => toggleFilter(filter.id)}
-              style={{ opacity: isFilterEnabled ? 1 : 0.5 }}
+              style={{
+                opacity: isFilterEnabled
+                  ? 1
+                  : CLIENT_INVENTORY_UI.disabledFilterOpacity,
+              }}
             >
               <span
                 className={styles.filterIcon}
@@ -125,7 +131,7 @@ export function InventoryWindowContent({
                 item.locked
                   ? {
                       icon: Icons.Padlock,
-                      color: '#ef4444',
+                      color: ICON_TINT_COLORS.locked,
                       label: t('ui.inventory.lockedLabel'),
                     }
                   : undefined

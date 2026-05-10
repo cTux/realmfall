@@ -16,6 +16,7 @@
 
 ## Package Layout
 
+- `src/core.config.ts`: canonical balance and world-tuning config for the shared runtime.
 - `src/core`: runtime-agnostic shared helpers and low-level support modules.
 - `src/game`: canonical gameplay systems, state transitions, world generation, content registries, and testkits.
 - `src/i18n`: shared translation-facing runtime helpers and contracts.

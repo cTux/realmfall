@@ -29,6 +29,7 @@
 - Do not reject a delegated implementation for violating constraints that were never stated in the handoff contract.
 - Use `gpt-5.3-codex-spark` for plan-driven implementation delegation only when the task is bounded and mechanical and the handoff contract is complete. When a task touches shared rendering, cross-cutting UI behavior, or other regression-sensitive code, tighten the contract first or keep the implementation on the main thread or a stronger implementation model.
 - Favor existing project patterns over introducing new abstractions, state layers, or architectural styles without a clear need.
+- Do not introduce unnamed magic numbers or color literals in runtime code when the value is configurable, reused, or domain-significant. Give the value a descriptive name and place it in the owning config surface instead of open-coding the literal at the use site.
 - Keep documentation grounded in the current shipped behavior and known constraints, not aspirational plans.
 - Keep browser security headers aligned across Vite dev, Vite preview, and static serving paths when the same runtime behavior is expected in each environment.
 - Prefer explicit browser-isolation headers and targeted CSP allowances over broad `unsafe-inline` policy relaxations when the app only needs a narrower exception such as inline style attributes.

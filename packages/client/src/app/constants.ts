@@ -1,20 +1,14 @@
-import playerIcon from '../assets/icons/visored-helm.svg';
-import sparklesIcon from '../assets/icons/sparkles.svg';
-import bookCoverIcon from '../assets/icons/book-cover.svg';
-import tiedScrollIcon from '../assets/icons/tied-scroll.svg';
-import villageIcon from '../assets/icons/village.svg';
-import armorIcon from '../assets/icons/checked-shield.svg';
-import stonePileIcon from '../assets/icons/stone-pile.svg';
-import backpackIcon from '../assets/game-icons/delapouite/backpack.svg';
-import enemyIcon from '../assets/icons/wolf-head.svg';
-import gearsIcon from '../assets/icons/gears.svg';
-import toolboxIcon from '../assets/game-icons/delapouite/toolbox.svg';
 import { LOG_KINDS, type LogKind } from '@realmfall/core/game/stateTypes';
 import {
   HEX_SIZE,
   WORLD_RADIUS,
   WORLD_REVEAL_RADIUS,
 } from '@realmfall/core/game/config';
+import {
+  CLIENT_WINDOW_REGISTRY,
+  type WindowMountSource,
+  type WindowPosition,
+} from '../client.config';
 import { DEFAULT_AUDIO_SETTINGS } from './audioSettings';
 import { DEFAULT_GAMEPLAY_SETTINGS } from './gameplaySettings';
 import { DEFAULT_GRAPHICS_SETTINGS } from './graphicsSettings';
@@ -28,103 +22,9 @@ export {
   DEFAULT_INTERFACE_SETTINGS,
 };
 
-export interface WindowPosition {
-  x: number;
-  y: number;
-  width?: number;
-  height?: number;
-}
+export { type WindowPosition };
 
-type WindowMountSource = 'windowShown' | 'lootTransition' | 'combatTransition';
-
-export const WINDOW_REGISTRY = {
-  hero: {
-    defaultPosition: { x: 96, y: 20 },
-    dock: true,
-    appDeferred: false,
-    mountSource: 'windowShown',
-    hotkey: 'h',
-    icon: playerIcon,
-  },
-  skills: {
-    defaultPosition: { x: 96, y: 430 },
-    dock: true,
-    appDeferred: true,
-    mountSource: 'windowShown',
-    hotkey: 's',
-    icon: sparklesIcon,
-  },
-  recipes: {
-    defaultPosition: { x: 620, y: 470 },
-    dock: true,
-    appDeferred: true,
-    mountSource: 'windowShown',
-    hotkey: 'r',
-    icon: bookCoverIcon,
-  },
-  hexInfo: {
-    defaultPosition: { x: 280, y: 20 },
-    dock: true,
-    appDeferred: true,
-    mountSource: 'windowShown',
-    hotkey: 'c',
-    icon: villageIcon,
-  },
-  equipment: {
-    defaultPosition: { x: 1000, y: 20 },
-    dock: true,
-    appDeferred: true,
-    mountSource: 'windowShown',
-    hotkey: 'e',
-    icon: armorIcon,
-  },
-  inventory: {
-    defaultPosition: { x: 820, y: 290 },
-    dock: true,
-    appDeferred: true,
-    mountSource: 'windowShown',
-    hotkey: 'i',
-    icon: backpackIcon,
-  },
-  loot: {
-    defaultPosition: { x: 820, y: 20 },
-    dock: false,
-    appDeferred: false,
-    mountSource: 'lootTransition',
-    icon: stonePileIcon,
-  },
-  log: {
-    defaultPosition: { x: 420, y: 20 },
-    dock: true,
-    appDeferred: true,
-    mountSource: 'windowShown',
-    hotkey: 'g',
-    icon: tiedScrollIcon,
-  },
-  debug: {
-    defaultPosition: { x: 1040, y: 80, width: 760, height: 640 },
-    dock: true,
-    appDeferred: true,
-    mountSource: 'windowShown',
-    hotkey: 'd',
-    icon: toolboxIcon,
-  },
-  combat: {
-    defaultPosition: { x: 420, y: 470 },
-    dock: false,
-    appDeferred: false,
-    mountSource: 'combatTransition',
-    icon: enemyIcon,
-  },
-  settings: {
-    defaultPosition: { x: 188, y: 72, width: 640, height: 640 },
-    dock: true,
-    appDeferred: true,
-    mountSource: 'windowShown',
-    hotkey: 'm',
-    icon: gearsIcon,
-  },
-} as const satisfies Record<
+export const WINDOW_REGISTRY = CLIENT_WINDOW_REGISTRY satisfies Record<
   string,
   {
     defaultPosition: WindowPosition;

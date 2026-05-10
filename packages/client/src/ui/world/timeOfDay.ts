@@ -1,5 +1,6 @@
 import {
   DAYLIGHT_START,
+  WORLD_CALENDAR_DAYS_PER_YEAR,
   GAME_DAY_DURATION_MS,
   GAME_DAY_MINUTES,
   MOONRISE_END,
@@ -11,6 +12,11 @@ import {
   getWorldTimeMinutesFromTimestamp,
 } from '@realmfall/core/game/worldTime';
 import { t } from '../../i18n';
+import {
+  WORLD_EVENT_LIGHTING,
+  WORLD_LIGHTING_KEYFRAMES,
+  type LightingProfile,
+} from '../../theme.config';
 
 export {
   DAYLIGHT_START,
@@ -21,17 +27,6 @@ export {
   MOONRISE_END,
   MOONRISE_START,
 };
-
-interface LightingProfile {
-  skyColor: number;
-  overlayColor: number;
-  overlayAlpha: number;
-  ambientBrightness: number;
-  shaftAlpha: number;
-  celestialTint: number;
-  celestialAlpha: number;
-  cloudAlphaBoost: number;
-}
 
 interface TimeOfDayLighting {
   skyColor: number;
@@ -53,88 +48,6 @@ const SUNRISE_END = DAYLIGHT_START;
 const SUNSET_START = MOONRISE_START;
 const SUNSET_END = MOONRISE_END;
 
-const LIGHTING_KEYFRAMES: Array<{ minute: number; profile: LightingProfile }> =
-  [
-    {
-      minute: 0,
-      profile: {
-        skyColor: 0x020617,
-        overlayColor: 0x020617,
-        overlayAlpha: 0.4,
-        ambientBrightness: 0.66,
-        shaftAlpha: 0.11,
-        celestialTint: 0xdbeafe,
-        celestialAlpha: 0.74,
-        cloudAlphaBoost: -0.04,
-      },
-    },
-    {
-      minute: SUNRISE_START,
-      profile: {
-        skyColor: 0x06101f,
-        overlayColor: 0x020617,
-        overlayAlpha: 0.36,
-        ambientBrightness: 0.72,
-        shaftAlpha: 0.09,
-        celestialTint: 0xcbd5ff,
-        celestialAlpha: 0.62,
-        cloudAlphaBoost: -0.02,
-      },
-    },
-    {
-      minute: 7 * 60,
-      profile: {
-        skyColor: 0x5fa7dd,
-        overlayColor: 0x1e293b,
-        overlayAlpha: 0.1,
-        ambientBrightness: 0.96,
-        shaftAlpha: 0.18,
-        celestialTint: 0xfff4c2,
-        celestialAlpha: 0.8,
-        cloudAlphaBoost: 0,
-      },
-    },
-    {
-      minute: 12 * 60,
-      profile: {
-        skyColor: 0xdbeafe,
-        overlayColor: 0xfff7ed,
-        overlayAlpha: 0.04,
-        ambientBrightness: 1.18,
-        shaftAlpha: 0.32,
-        celestialTint: 0xfff1a8,
-        celestialAlpha: 0.92,
-        cloudAlphaBoost: 0.04,
-      },
-    },
-    {
-      minute: 18 * 60,
-      profile: {
-        skyColor: 0xf59e0b,
-        overlayColor: 0x78350f,
-        overlayAlpha: 0.1,
-        ambientBrightness: 0.94,
-        shaftAlpha: 0.16,
-        celestialTint: 0xffedd5,
-        celestialAlpha: 0.5,
-        cloudAlphaBoost: -0.01,
-      },
-    },
-    {
-      minute: 20 * 60,
-      profile: {
-        skyColor: 0x1e293b,
-        overlayColor: 0x020617,
-        overlayAlpha: 0.24,
-        ambientBrightness: 0.74,
-        shaftAlpha: 0.11,
-        celestialTint: 0xcbd5ff,
-        celestialAlpha: 0.8,
-        cloudAlphaBoost: -0.02,
-      },
-    },
-  ];
-
 export function formatWorldTime(totalMinutes: number) {
   const normalizedMinutes =
     ((Math.floor(totalMinutes) % GAME_DAY_MINUTES) + GAME_DAY_MINUTES) %
@@ -155,8 +68,8 @@ export function formatWorldDateTime(timestampMs: number) {
 
 export function formatWorldCalendarDateTime(timestampMs: number) {
   const day = getWorldDayFromTimestamp(timestampMs);
-  const year = Math.floor((day - 1) / 365) + 1;
-  const dayOfYear = ((day - 1) % 365) + 1;
+  const year = Math.floor((day - 1) / WORLD_CALENDAR_DAYS_PER_YEAR) + 1;
+  const dayOfYear = ((day - 1) % WORLD_CALENDAR_DAYS_PER_YEAR) + 1;
   return t('game.time.calendarDateTime', {
     year,
     day: dayOfYear,
@@ -306,27 +219,33 @@ function mixColor(from: number, to: number, progress: number) {
 
 function sampleLightingProfile(minutes: number): LightingProfile {
   const upperIndex =
-    LIGHTING_KEYFRAMES.findIndex((keyframe) => keyframe.minute > minutes) === -1
+    WORLD_LIGHTING_KEYFRAMES.findIndex(
+      (keyframe) => keyframe.minute > minutes,
+    ) === -1
       ? 0
-      : LIGHTING_KEYFRAMES.findIndex((keyframe) => keyframe.minute > minutes);
+      : WORLD_LIGHTING_KEYFRAMES.findIndex(
+          (keyframe) => keyframe.minute > minutes,
+        );
   const lowerIndex =
-    (upperIndex - 1 + LIGHTING_KEYFRAMES.length) % LIGHTING_KEYFRAMES.length;
+    (upperIndex - 1 + WORLD_LIGHTING_KEYFRAMES.length) %
+    WORLD_LIGHTING_KEYFRAMES.length;
   const previousIndex =
-    (lowerIndex - 1 + LIGHTING_KEYFRAMES.length) % LIGHTING_KEYFRAMES.length;
-  const nextIndex = (upperIndex + 1) % LIGHTING_KEYFRAMES.length;
-  const lowerMinute = LIGHTING_KEYFRAMES[lowerIndex]?.minute ?? 0;
+    (lowerIndex - 1 + WORLD_LIGHTING_KEYFRAMES.length) %
+    WORLD_LIGHTING_KEYFRAMES.length;
+  const nextIndex = (upperIndex + 1) % WORLD_LIGHTING_KEYFRAMES.length;
+  const lowerMinute = WORLD_LIGHTING_KEYFRAMES[lowerIndex]?.minute ?? 0;
   const upperMinute = wrappedMinuteForIndex(upperIndex, lowerMinute);
   const progress = smootherstep(
     (minutes - lowerMinute) / Math.max(1, upperMinute - lowerMinute),
   );
   const previous =
-    LIGHTING_KEYFRAMES[previousIndex]?.profile ??
-    LIGHTING_KEYFRAMES[lowerIndex]!.profile;
-  const lower = LIGHTING_KEYFRAMES[lowerIndex]!.profile;
-  const upper = LIGHTING_KEYFRAMES[upperIndex]!.profile;
+    WORLD_LIGHTING_KEYFRAMES[previousIndex]?.profile ??
+    WORLD_LIGHTING_KEYFRAMES[lowerIndex]!.profile;
+  const lower = WORLD_LIGHTING_KEYFRAMES[lowerIndex]!.profile;
+  const upper = WORLD_LIGHTING_KEYFRAMES[upperIndex]!.profile;
   const next =
-    LIGHTING_KEYFRAMES[nextIndex]?.profile ??
-    LIGHTING_KEYFRAMES[upperIndex]!.profile;
+    WORLD_LIGHTING_KEYFRAMES[nextIndex]?.profile ??
+    WORLD_LIGHTING_KEYFRAMES[upperIndex]!.profile;
 
   return {
     skyColor: mixColorSpline(
@@ -389,7 +308,7 @@ function sampleLightingProfile(minutes: number): LightingProfile {
 }
 
 function wrappedMinuteForIndex(index: number, referenceMinute: number) {
-  const minute = LIGHTING_KEYFRAMES[index]?.minute ?? 0;
+  const minute = WORLD_LIGHTING_KEYFRAMES[index]?.minute ?? 0;
   return minute <= referenceMinute ? minute + GAME_DAY_MINUTES : minute;
 }
 
@@ -465,30 +384,80 @@ function clamp01(value: number) {
 function applyBloodMoonLighting(
   lighting: TimeOfDayLighting,
 ): TimeOfDayLighting {
+  const bloodMoonLighting = WORLD_EVENT_LIGHTING.bloodMoon;
   return {
     ...lighting,
-    skyColor: mixColor(lighting.skyColor, 0x220409, 0.68),
-    overlayColor: mixColor(lighting.overlayColor, 0x2a0208, 0.82),
-    overlayAlpha: Math.min(0.66, lighting.overlayAlpha + 0.1),
-    ambientBrightness: Math.max(0.6, lighting.ambientBrightness * 0.9),
-    celestialTint: mixColor(lighting.celestialTint, 0xff4d5d, 0.88),
-    celestialAlpha: Math.min(1, lighting.celestialAlpha + 0.18),
-    moonShaftOpacity: Math.min(1, lighting.moonShaftOpacity + 0.26),
+    skyColor: mixColor(
+      lighting.skyColor,
+      bloodMoonLighting.skyColor,
+      bloodMoonLighting.skyMix,
+    ),
+    overlayColor: mixColor(
+      lighting.overlayColor,
+      bloodMoonLighting.overlayColor,
+      bloodMoonLighting.overlayMix,
+    ),
+    overlayAlpha: Math.min(
+      bloodMoonLighting.overlayAlphaCap,
+      lighting.overlayAlpha + bloodMoonLighting.overlayAlphaBoost,
+    ),
+    ambientBrightness: Math.max(
+      bloodMoonLighting.ambientBrightnessFloor,
+      lighting.ambientBrightness * bloodMoonLighting.ambientBrightnessScale,
+    ),
+    celestialTint: mixColor(
+      lighting.celestialTint,
+      bloodMoonLighting.celestialTint,
+      bloodMoonLighting.celestialTintMix,
+    ),
+    celestialAlpha: Math.min(
+      1,
+      lighting.celestialAlpha + bloodMoonLighting.celestialAlphaBoost,
+    ),
+    moonShaftOpacity: Math.min(
+      1,
+      lighting.moonShaftOpacity + bloodMoonLighting.moonShaftOpacityBoost,
+    ),
   };
 }
 
 function applyHarvestMoonLighting(
   lighting: TimeOfDayLighting,
 ): TimeOfDayLighting {
+  const harvestMoonLighting = WORLD_EVENT_LIGHTING.harvestMoon;
   return {
     ...lighting,
-    skyColor: mixColor(lighting.skyColor, 0x083344, 0.68),
-    overlayColor: mixColor(lighting.overlayColor, 0x0c4a6e, 0.74),
-    overlayAlpha: Math.min(0.56, lighting.overlayAlpha + 0.08),
-    ambientBrightness: Math.max(0.68, lighting.ambientBrightness * 0.94),
-    celestialTint: mixColor(lighting.celestialTint, 0x67e8f9, 0.9),
-    celestialAlpha: Math.min(1, lighting.celestialAlpha + 0.14),
-    moonShaftOpacity: Math.min(1, lighting.moonShaftOpacity + 0.28),
+    skyColor: mixColor(
+      lighting.skyColor,
+      harvestMoonLighting.skyColor,
+      harvestMoonLighting.skyMix,
+    ),
+    overlayColor: mixColor(
+      lighting.overlayColor,
+      harvestMoonLighting.overlayColor,
+      harvestMoonLighting.overlayMix,
+    ),
+    overlayAlpha: Math.min(
+      harvestMoonLighting.overlayAlphaCap,
+      lighting.overlayAlpha + harvestMoonLighting.overlayAlphaBoost,
+    ),
+    ambientBrightness: Math.max(
+      harvestMoonLighting.ambientBrightnessFloor,
+      lighting.ambientBrightness * harvestMoonLighting.ambientBrightnessScale,
+    ),
+    celestialTint: mixColor(
+      lighting.celestialTint,
+      harvestMoonLighting.celestialTint,
+      harvestMoonLighting.celestialTintMix,
+    ),
+    celestialAlpha: Math.min(
+      1,
+      lighting.celestialAlpha + harvestMoonLighting.celestialAlphaBoost,
+    ),
+    moonShaftOpacity: Math.min(
+      1,
+      lighting.moonShaftOpacity + harvestMoonLighting.moonShaftOpacityBoost,
+    ),
   };
 }
 

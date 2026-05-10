@@ -1,11 +1,13 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { CLIENT_BOOTSTRAP_SHELL } from './client.config';
 import {
   applyInterfaceFontFamily,
   loadInterfaceFontFamily,
 } from './app/interfaceFonts';
 import { loadInterfaceSettings } from './app/interfaceSettings';
 import { loadI18n } from './i18n/bootstrap';
+import { BOOTSTRAP_SCREEN_COLORS } from './theme.config';
 import { BootstrapErrorScreen } from './ui/components/BootstrapErrorScreen';
 import { installGlobalVersion } from './version';
 import './styles/base.scss';
@@ -67,12 +69,12 @@ async function bootstrap() {
 
 function BootstrapShell() {
   const spinnerStyle: React.CSSProperties = {
-    animation: '0.75s linear infinite spin',
-    border: '3px solid rgba(255, 255, 255, 0.35)',
-    borderTop: '3px solid #fff',
-    borderRadius: '9999px',
-    height: '2rem',
-    width: '2rem',
+    animation: `${CLIENT_BOOTSTRAP_SHELL.spinnerAnimationSeconds}s linear infinite spin`,
+    border: `${CLIENT_BOOTSTRAP_SHELL.spinnerBorderWidthPx}px solid ${BOOTSTRAP_SCREEN_COLORS.spinnerTrack}`,
+    borderTop: `${CLIENT_BOOTSTRAP_SHELL.spinnerBorderWidthPx}px solid ${BOOTSTRAP_SCREEN_COLORS.spinnerActive}`,
+    borderRadius: `${CLIENT_BOOTSTRAP_SHELL.spinnerBorderRadiusPx}px`,
+    height: `${CLIENT_BOOTSTRAP_SHELL.spinnerSizeRem}rem`,
+    width: `${CLIENT_BOOTSTRAP_SHELL.spinnerSizeRem}rem`,
   };
 
   return (
@@ -82,7 +84,7 @@ function BootstrapShell() {
       role="status"
       style={{
         alignItems: 'center',
-        background: '#050814',
+        background: BOOTSTRAP_SCREEN_COLORS.background,
         display: 'flex',
         fontFamily: 'var(--app-font-family)',
         inset: 0,

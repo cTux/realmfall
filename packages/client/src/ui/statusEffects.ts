@@ -5,6 +5,7 @@ import {
 import { StatusEffectTypeId } from '@realmfall/core/game/content/ids';
 import { CONTENT_ICON_IDS } from '@realmfall/core/game/content/iconIds';
 import type { StatusEffectId } from '@realmfall/core/game/stateTypes';
+import { STATUS_EFFECT_FALLBACK_TINTS } from '../theme.config';
 import { resolveIconAsset } from './iconAssets';
 
 export function statusEffectIcon(effect: StatusEffectId | string) {
@@ -18,8 +19,7 @@ export function statusEffectTint(
   tone: 'buff' | 'debuff',
 ) {
   return (
-    getEffectDefinition(effect)?.tint ??
-    (tone === 'buff' ? '#4ade80' : '#f87171')
+    getEffectDefinition(effect)?.tint ?? STATUS_EFFECT_FALLBACK_TINTS[tone]
   );
 }
 

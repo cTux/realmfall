@@ -14,7 +14,7 @@
   },
   "exports": {
     ".": "./src/index.ts",
-    "./game.config": "./src/game.config.ts",
+    "./core.config": "./src/core.config.ts",
     "./game": "./src/game/index.ts",
     "./game/content/abilities": "./src/game/content/abilities/index.ts",
     "./game/content/enemies": "./src/game/content/enemies/index.ts",

@@ -1,5 +1,9 @@
 import { t } from '../i18n';
-import { WORLD_REVEAL_RADIUS } from './config';
+import {
+  WATCHTOWER_INFLUENCE_RADIUS,
+  WATCHTOWER_REVEAL_BONUS,
+  WORLD_REVEAL_RADIUS,
+} from './config';
 import { ItemId, type ItemKey } from './content/ids';
 import { itemName, structureTitle } from './content/i18n';
 import { getActiveWorld, getSurfaceWorld } from './dungeons/worldState';
@@ -7,9 +11,6 @@ import { hexesInRange, hexKey } from './hex';
 import { isPlayerClaim } from './territories';
 import { getCurrentTile, getResolvedCurrentTile } from './stateWorldQueries';
 import type { GameState, Tile } from './types';
-
-const WATCHTOWER_REVEAL_BONUS = 2;
-const WATCHTOWER_INFLUENCE_RADIUS = 1;
 
 const OUTPOST_BUILDABLES = [
   {

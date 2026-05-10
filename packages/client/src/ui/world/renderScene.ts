@@ -16,6 +16,7 @@ import { RenderSceneOptions } from './renderSceneFrameState';
 import { getRenderSceneFrameState } from './renderSceneFrameState';
 import { getRenderScenePhasePlan } from './renderScenePhasePlan';
 import { isCombatPresentationActive } from '../../game/combatPresentation';
+import { WORLD_RENDER_COLORS } from '../../theme.config';
 import type { VisibleWorldTile } from './visibleWorldTiles';
 
 export function renderScene(
@@ -50,7 +51,7 @@ export function renderScene(
       app,
       scene.skyFill,
       frameState.currentWorldKind === 'dungeon'
-        ? 0x0b1220
+        ? WORLD_RENDER_COLORS.dungeonSky
         : phasePlan.lightingState.lighting.skyColor,
     );
     beginAnimatedSceneRender(scene);

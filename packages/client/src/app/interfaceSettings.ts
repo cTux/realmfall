@@ -4,11 +4,11 @@ import {
   normalizeStoredFiniteNumber,
 } from './settingsNormalization';
 import {
-  DEFAULT_INTERFACE_FONT_FAMILY,
   isInterfaceFontFamily,
   type InterfaceFontFamily,
 } from './interfaceFonts';
 import { createSettingsSectionStore } from './settingsSectionStore';
+import { CLIENT_INTERFACE_SETTINGS } from '../client.config';
 
 export type InterfaceLanguage = 'en';
 
@@ -46,12 +46,7 @@ export interface InterfaceSettingsRangeOptionDefinition {
 }
 
 export const DEFAULT_INTERFACE_SETTINGS: InterfaceSettings = {
-  language: 'en',
-  fontFamily: DEFAULT_INTERFACE_FONT_FAMILY,
-  fontSize: 100,
-  interfaceScale: 100,
-  showTooltipTags: true,
-  windowTransparency: 0,
+  ...CLIENT_INTERFACE_SETTINGS.defaults,
 };
 
 export const INTERFACE_LANGUAGE_OPTIONS: InterfaceLanguageOptionDefinition[] = [
@@ -71,27 +66,21 @@ export const INTERFACE_SETTINGS_RANGE_OPTIONS: InterfaceSettingsRangeOptionDefin
   [
     {
       key: 'fontSize',
-      min: 75,
-      max: 150,
-      step: 1,
+      ...CLIENT_INTERFACE_SETTINGS.ranges.fontSize,
       labelKey: 'ui.settings.interface.fontSize.label',
       descriptionKey: 'ui.settings.interface.fontSize.description',
       valueKey: 'ui.settings.interface.fontSize.value',
     },
     {
       key: 'interfaceScale',
-      min: 75,
-      max: 150,
-      step: 1,
+      ...CLIENT_INTERFACE_SETTINGS.ranges.interfaceScale,
       labelKey: 'ui.settings.interface.interfaceScale.label',
       descriptionKey: 'ui.settings.interface.interfaceScale.description',
       valueKey: 'ui.settings.interface.interfaceScale.value',
     },
     {
       key: 'windowTransparency',
-      min: 0,
-      max: 100,
-      step: 1,
+      ...CLIENT_INTERFACE_SETTINGS.ranges.windowTransparency,
       labelKey: 'ui.settings.interface.windowTransparency.label',
       descriptionKey: 'ui.settings.interface.windowTransparency.description',
       valueKey: 'ui.settings.interface.windowTransparency.value',
@@ -141,14 +130,14 @@ function normalizeInterfaceSettings(settings: unknown): InterfaceSettings {
     fontSize: normalizeInterfacePercent(
       settings.fontSize,
       DEFAULT_INTERFACE_SETTINGS.fontSize,
-      75,
-      150,
+      CLIENT_INTERFACE_SETTINGS.ranges.fontSize.min,
+      CLIENT_INTERFACE_SETTINGS.ranges.fontSize.max,
     ),
     interfaceScale: normalizeInterfacePercent(
       settings.interfaceScale,
       DEFAULT_INTERFACE_SETTINGS.interfaceScale,
-      75,
-      150,
+      CLIENT_INTERFACE_SETTINGS.ranges.interfaceScale.min,
+      CLIENT_INTERFACE_SETTINGS.ranges.interfaceScale.max,
     ),
     showTooltipTags: normalizeStoredBoolean(
       settings.showTooltipTags,

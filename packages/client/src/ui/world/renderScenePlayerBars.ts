@@ -1,5 +1,7 @@
 import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
 import type { HexCoord, WorldKind } from '@realmfall/core/game/stateTypes';
+import { CLIENT_WORLD_RENDER_SETTINGS } from '../../client.config';
+import { WORLD_RENDER_COLORS } from '../../theme.config';
 import type { SceneCache } from './renderSceneCache';
 import {
   decorateEntityBadge,
@@ -21,12 +23,13 @@ import {
   type MovementTransitionRevealState,
 } from './renderSceneVisibility';
 
-const PLAYER_BAR_TRACK_COLOR = 0x422006;
-const PLAYER_BAR_TRACK_ALPHA = 0.85;
-const PLAYER_BAR_FILL_ALPHA = 0.95;
-const MOVEMENT_COOLDOWN_BAR_COLOR = 0xfacc15;
+const PLAYER_BAR_TRACK_COLOR = WORLD_RENDER_COLORS.playerBarTrack;
+const PLAYER_BAR_TRACK_ALPHA = CLIENT_WORLD_RENDER_SETTINGS.playerBarTrackAlpha;
+const PLAYER_BAR_FILL_ALPHA = CLIENT_WORLD_RENDER_SETTINGS.playerBarFillAlpha;
+const MOVEMENT_COOLDOWN_BAR_COLOR = WORLD_RENDER_COLORS.movementCooldownBar;
 const PLAYER_BADGE_OUTER_RADIUS_SCALE = 0.78;
-export const PLAYER_BADGE_BACKGROUND_ALPHA = 0.6;
+export const PLAYER_BADGE_BACKGROUND_ALPHA =
+  CLIENT_WORLD_RENDER_SETTINGS.playerBadgeBackgroundAlpha;
 const HOSTILE_BADGE_OUTER_RADIUS_SCALE = 0.76;
 
 export function renderPlayerMovementCooldown({

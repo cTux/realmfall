@@ -1,5 +1,6 @@
 import { t } from '../../../i18n';
 import { formatLogKindLabel } from '../../../i18n/labels';
+import { TOOLTIP_BORDER_COLORS } from '../../../theme.config';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { createDeferredWindowComponent } from '../deferredWindowComponent';
 import { WindowHeaderActionButton } from '../WindowHeaderActionButton';
@@ -53,7 +54,7 @@ export const LogWindow = createDeferredWindowComponent<
           tooltipLines={[
             { kind: 'text', text: t('ui.tooltip.window.logFilters') },
           ]}
-          tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+          tooltipBorderColor={TOOLTIP_BORDER_COLORS.positive}
           onHoverDetail={onHoverDetail}
           onLeaveDetail={onLeaveDetail}
         >

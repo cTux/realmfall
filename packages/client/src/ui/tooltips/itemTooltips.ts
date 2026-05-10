@@ -24,6 +24,7 @@ import {
   formatEquipmentSlotLabel,
   formatSecondaryStatLabel,
 } from '../../i18n/labels';
+import { ICON_TINT_COLORS } from '../../theme.config';
 import { Icons } from '../icons';
 import { resolveIconAsset } from '../iconAssets';
 import { type TooltipLine, tagTooltipLines } from './shared';
@@ -37,7 +38,7 @@ interface ItemTooltipOptions {
   showTags?: boolean;
 }
 
-const SELL_VALUE_TINT = '#fbbf24';
+const SELL_VALUE_TINT = ICON_TINT_COLORS.sellValue;
 
 export function comparisonLines(
   item: Item,

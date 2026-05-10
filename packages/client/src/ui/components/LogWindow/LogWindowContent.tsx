@@ -5,6 +5,7 @@ import { getAbilityDefinition } from '@realmfall/core/game/abilities';
 import { getStatusEffectDefinition } from '@realmfall/core/game/content/statusEffects';
 import type { LogEntry, LogRichSegment } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
+import { ICON_TINT_COLORS } from '../../../theme.config';
 import { parseWorldCalendarDateTime } from '../../world/timeOfDay';
 import { rarityColor } from '../../rarity';
 import { resolveIconAsset } from '../../iconAssets';
@@ -365,13 +366,13 @@ function sourceIconStyle(
 ): CSSProperties {
   if (segment.source.kind === 'ability') {
     const ability = getAbilityDefinition(segment.source.abilityId);
-    return maskStyle(resolveIconAsset(ability.icon), '#f8fafc');
+    return maskStyle(resolveIconAsset(ability.icon), ICON_TINT_COLORS.neutral);
   }
 
   if (segment.source.kind === 'secondaryStat') {
     return maskStyle(
       getSecondaryStatIcon(segment.source.stat),
-      'rgba(34, 197, 94, 0.9)',
+      ICON_TINT_COLORS.secondaryStat,
     );
   }
 

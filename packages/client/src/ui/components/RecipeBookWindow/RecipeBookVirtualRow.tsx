@@ -1,6 +1,7 @@
 import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui-react';
 import roundStarIcon from '../../../assets/icons/round-star.svg';
 import { t } from '../../../i18n';
+import { ICON_TINT_COLORS } from '../../../theme.config';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';
 import styles from './styles.module.scss';
 import type { RecipeBookRow } from './useRecipeBookRows';
@@ -191,7 +192,9 @@ export function RecipeBookVirtualRow({
               className={styles.favoriteIcon}
               style={starIconMask(
                 roundStarIcon,
-                recipe.favorite ? '#f59e0b' : '#94a3b8',
+                recipe.favorite
+                  ? ICON_TINT_COLORS.favorite
+                  : ICON_TINT_COLORS.muted,
               )}
             />
           </Button>

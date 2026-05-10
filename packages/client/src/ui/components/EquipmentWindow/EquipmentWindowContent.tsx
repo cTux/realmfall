@@ -3,8 +3,10 @@ import type { CSSProperties } from 'react';
 import silhouetteImage from '../../../assets/images/silhouette.png';
 import { EquipmentSlotId } from '@realmfall/core/game/content/ids';
 import { isOffhandSlotDisabled } from '@realmfall/core/game/stateSelectors';
+import { EQUIPMENT_WINDOW_LAYOUT } from '../../../client.config';
 import { t } from '../../../i18n';
 import { formatEquipmentSlotLabel } from '../../../i18n/labels';
+import { TOOLTIP_BORDER_COLORS } from '../../../theme.config';
 import type { EquipmentWindowProps } from './types';
 import styles from './styles.module.scss';
 
@@ -32,11 +34,9 @@ const PAPER_DOLL_SLOTS: PaperDollSlot[] = [
   EquipmentSlotId.Cloak,
 ];
 
-const REDUCED_RADIUS_SLOTS = new Set<PaperDollSlot>([
-  EquipmentSlotId.Amulet,
-  EquipmentSlotId.RingLeft,
-  EquipmentSlotId.RingRight,
-]);
+const REDUCED_RADIUS_SLOTS = new Set<PaperDollSlot>(
+  EQUIPMENT_WINDOW_LAYOUT.reducedRadiusSlots,
+);
 
 export function EquipmentWindowContent({
   equipment,
@@ -58,10 +58,12 @@ export function EquipmentWindowContent({
       />
       {PAPER_DOLL_SLOTS.map((slot) => {
         const equipped = equipment[slot];
-        const position = SLOT_POSITIONS[slot];
+        const position = EQUIPMENT_WINDOW_LAYOUT.slotPositions[slot];
         const compactSlot = COMPACT_SLOTS.has(slot);
         const reducedRadiusSlot = REDUCED_RADIUS_SLOTS.has(slot);
-        const slotSize = compactSlot ? 19 : 38;
+        const slotSize = compactSlot
+          ? EQUIPMENT_WINDOW_LAYOUT.slotSizePx.compact
+          : EQUIPMENT_WINDOW_LAYOUT.slotSizePx.regular;
         const disabled = slot === 'offhand' && offhandDisabled;
         return (
           <ItemSlotButton
@@ -106,7 +108,7 @@ export function EquipmentWindowContent({
                           }),
                         },
                       ],
-                      'rgba(148, 163, 184, 0.9)',
+                      TOOLTIP_BORDER_COLORS.neutral,
                     )
             }
             onMouseLeave={onLeaveItem}
@@ -118,8 +120,10 @@ export function EquipmentWindowContent({
                 transform: 'translate(-50%, -50%)',
                 width: `${slotSize}px`,
                 height: `${slotSize}px`,
-                padding: compactSlot ? '0.06rem' : '0.12rem',
-                borderRadius: reducedRadiusSlot ? '0 8px' : undefined,
+                padding: `${compactSlot ? EQUIPMENT_WINDOW_LAYOUT.slotPaddingRem.compact : EQUIPMENT_WINDOW_LAYOUT.slotPaddingRem.regular}rem`,
+                borderRadius: reducedRadiusSlot
+                  ? EQUIPMENT_WINDOW_LAYOUT.reducedRadiusBorderRadius
+                  : undefined,
               } as CSSProperties
             }
           />
@@ -129,25 +133,6 @@ export function EquipmentWindowContent({
   );
 }
 
-const SLOT_POSITIONS: Record<PaperDollSlot, { left: number; top: number }> = {
-  head: { left: 50, top: 12.5 },
-  shoulders: { left: 74.5, top: 16.25 },
-  amulet: { left: 25.5, top: 22 },
-  cloak: { left: 50, top: 24.75 },
-  chest: { left: 50, top: 36.5 },
-  bracers: { left: 82.25, top: 41 },
-  hands: { left: 17.75, top: 41 },
-  belt: { left: 50, top: 49.5 },
-  ringLeft: { left: 75.5, top: 55.75 },
-  weapon: { left: 18.25, top: 69.75 },
-  legs: { left: 50, top: 64.25 },
-  offhand: { left: 81.75, top: 69.75 },
-  ringRight: { left: 24.5, top: 55.75 },
-  feet: { left: 50, top: 83.5 },
-};
-
-const COMPACT_SLOTS = new Set<PaperDollSlot>([
-  'amulet',
-  'ringLeft',
-  'ringRight',
-]);
+const COMPACT_SLOTS = new Set<PaperDollSlot>(
+  EQUIPMENT_WINDOW_LAYOUT.compactSlots,
+);

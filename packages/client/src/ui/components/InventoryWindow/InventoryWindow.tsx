@@ -5,6 +5,7 @@ import {
   type InventorySortMode,
 } from '@realmfall/core/game/inventory';
 import { t } from '../../../i18n';
+import { TOOLTIP_BORDER_COLORS } from '../../../theme.config';
 import { WINDOW_LABELS } from '../../windowLabels';
 import { DeferredWindowShell } from '../DeferredWindowShell';
 import { createLazyWindowComponent } from '../lazyWindowComponent';
@@ -94,7 +95,7 @@ export const InventoryWindow = memo(function InventoryWindow({
                   text: t('ui.tooltip.window.sortInventory'),
                 },
               ]}
-              tooltipBorderColor="rgba(74, 222, 128, 0.9)"
+              tooltipBorderColor={TOOLTIP_BORDER_COLORS.positive}
               onHoverDetail={onHoverDetail}
               onLeaveDetail={onLeaveDetail}
             >
