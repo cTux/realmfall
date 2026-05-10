@@ -36,6 +36,11 @@ import {
 } from './worldMapFishEyeRuntime';
 import type { AnimatedWorldMarker } from './renderSceneMarkerAnimations';
 import type { DungeonEnemyMovementTransition } from './renderSceneDungeonEnemyTransitions';
+import {
+  pruneUnusedSceneIconTransitionStates,
+  WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX,
+  type SceneIconTransitionState,
+} from './renderSceneIconTransitions';
 import type { VisibleWorldTile } from './visibleWorldTiles';
 
 const SCENE_CACHE_KEY = Symbol('renderSceneCache');
@@ -108,7 +113,9 @@ export interface SceneCache {
   >;
   dungeonEnemyLastCoordsById: Map<string, { q: number; r: number }>;
   dungeonEnemyTransitionWorldId: string | null;
+  iconTransitionsByKey: Map<string, SceneIconTransitionState>;
   player: ShadowedSpriteEntry;
+  worldMarkerIconTransitionKeysUsed: Set<string>;
   derivedRenderVisibleTilesSource: VisibleWorldTile[] | null;
   derivedRenderEnemiesSource: Record<string, unknown> | null;
   derivedRenderVisibleTileInputs: VisibleTileRenderInput[] | null;
@@ -248,7 +255,9 @@ export function getSceneCache(app: Application) {
     dungeonEnemyMovementTransitionsByEnemyId: new Map(),
     dungeonEnemyLastCoordsById: new Map(),
     dungeonEnemyTransitionWorldId: null,
+    iconTransitionsByKey: new Map(),
     player,
+    worldMarkerIconTransitionKeysUsed: new Set(),
     derivedRenderVisibleTilesSource: null,
     derivedRenderEnemiesSource: null,
     derivedRenderVisibleTileInputs: null,
@@ -339,6 +348,7 @@ export function completeAnimatedSceneRender(scene: SceneCache) {
 
 export function beginStaticSceneRender(scene: SceneCache) {
   scene.renderCounts.static += 1;
+  scene.worldMarkerIconTransitionKeysUsed.clear();
   resetGraphicsPool(scene.worldGroundGraphics);
   resetSpritePool(scene.worldTerrainSprites);
   resetGraphicsPool(scene.worldStaticDetailGraphics);
@@ -359,6 +369,11 @@ export function completeStaticSceneRender(scene: SceneCache) {
   finishShadowedSpritePool(scene.worldStaticMarkerSprites);
   finishGraphicsPool(scene.worldStaticMarkerBadgeGraphics);
   finishTextPool(scene.worldStaticMarkerTexts);
+  pruneUnusedSceneIconTransitionStates(
+    scene.iconTransitionsByKey,
+    scene.worldMarkerIconTransitionKeysUsed,
+    WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX,
+  );
 }
 
 export function beginInteractionSceneRender(scene: SceneCache) {

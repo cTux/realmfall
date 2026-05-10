@@ -10,10 +10,7 @@ import {
   renderCampfireLight,
   renderCloudLayer,
 } from './renderSceneEnvironment';
-import {
-  configureShadowedSprite,
-  setShadowedSpriteIcon,
-} from './renderScenePools';
+import { configureShadowedSpriteIconTransition } from './renderScenePools';
 import { renderWorldOverlay } from './renderSceneAtmosphere';
 import {
   completeAnimatedSceneRender,
@@ -23,6 +20,10 @@ import {
   getCombatLungeOffset,
   renderSceneCombatFeedback,
 } from './renderSceneCombatFeedback';
+import {
+  getSceneIconTransitionLayers,
+  PLAYER_ICON_TRANSITION_KEY,
+} from './renderSceneIconTransitions';
 import {
   renderDungeonEnemyMovementCooldowns,
   renderPlayerMovementCooldown,
@@ -124,20 +125,25 @@ export function renderAnimatedScene({
     y: origin.y + playerLungeOffset.y,
   };
   const playerInCombat = state.combat !== null;
-
-  setShadowedSpriteIcon(
-    scene.player,
-    playerInCombat ? WorldIcons.Combat : WorldIcons.Player,
+  const playerTint = playerInCombat
+    ? COMBAT_WORLD_ICON_TINT
+    : scaleColor(
+        0xffffff,
+        Math.max(0.84, lightingState.lighting.ambientBrightness + 0.08),
+      );
+  const playerIconTransitionLayers = getSceneIconTransitionLayers(
+    scene.iconTransitionsByKey,
+    PLAYER_ICON_TRANSITION_KEY,
+    {
+      icon: playerInCombat ? WorldIcons.Combat : WorldIcons.Player,
+      tint: playerTint,
+    },
+    animationMs,
   );
 
-  configureShadowedSprite(
+  configureShadowedSpriteIconTransition(
     scene.player,
-    playerInCombat
-      ? COMBAT_WORLD_ICON_TINT
-      : scaleColor(
-          0xffffff,
-          Math.max(0.84, lightingState.lighting.ambientBrightness + 0.08),
-        ),
+    playerIconTransitionLayers,
     playerIconSize,
     playerIconSize,
     1,

@@ -26,6 +26,10 @@ import {
 } from './renderScenePools';
 import { ENEMY_GROUP_LABEL_STYLE, type SceneCache } from './renderSceneCache';
 import {
+  getSceneIconTransitionLayers,
+  WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX,
+} from './renderSceneIconTransitions';
+import {
   ENEMY_GROUP_BADGE_OFFSET,
   getStructureBadgeBackgroundColor,
   getStructureHexIconTint,
@@ -204,6 +208,9 @@ export function renderStaticMarkers({
       engagedEnemyIdSet !== null &&
       hostileEnemies.some((enemy) => engagedEnemyIdSet.has(enemy.id));
     if (!worldBossCenter || isBossCenter) {
+      const markerStableKey = isBossCenter
+        ? getMarkerIdentityKey('world-boss')
+        : `enemy:${leadEnemy.id}`;
       const markerIcon = showCombatBars
         ? WorldIcons.Combat
         : enemyIconFor(leadEnemy);
@@ -211,14 +218,28 @@ export function renderStaticMarkers({
         scene.worldStaticMarkerSprites,
         markerIcon,
         {
-          stableKey: isBossCenter
-            ? getMarkerIdentityKey('world-boss')
-            : `enemy:${leadEnemy.id}`,
+          stableKey: markerStableKey,
         },
       );
       const tint = showCombatBars
         ? COMBAT_WORLD_ICON_TINT
         : enemyIconTintFor(highestRarityEnemy);
+      const iconTransitionLayers = markerStableKey
+        ? getSceneIconTransitionLayers(
+            scene.iconTransitionsByKey,
+            `${WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX}${markerStableKey}`,
+            {
+              icon: markerIcon,
+              tint,
+            },
+            animationMs,
+          )
+        : null;
+      if (markerStableKey) {
+        scene.worldMarkerIconTransitionKeysUsed.add(
+          `${WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX}${markerStableKey}`,
+        );
+      }
       const markerPoint = isBossCenter
         ? point
         : {
@@ -240,6 +261,7 @@ export function renderStaticMarkers({
               max: leadEnemy.maxHp,
             }
           : undefined,
+        iconTransitionLayers: iconTransitionLayers ?? undefined,
         iconSize: markerIconSize,
         iconTint: tint,
         levelLabel: leadEnemy.tier.toString(),

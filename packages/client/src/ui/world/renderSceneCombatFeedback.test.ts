@@ -559,6 +559,101 @@ describe('renderScene combat feedback', () => {
     );
   });
 
+  it('crossfades the player icon into the combat emblem during battle start', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { WorldIcons } = await import('./worldIcons');
+    const game = createLungeCombatGame('render-scene-player-icon-crossfade');
+    const app = createMockApp();
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      {
+        ...game,
+        combat: null,
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 240,
+      } as never,
+    );
+    renderScene(
+      app as never,
+      {
+        ...game,
+        worldTimeMs: 240,
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        worldTimeMs: 240,
+      } as never,
+    );
+    renderScene(
+      app as never,
+      {
+        ...game,
+        worldTimeMs: 240,
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      90,
+      null,
+      {
+        worldTimeMs: 240,
+      } as never,
+    );
+
+    const midWrapper = getPlayerLayer(app).children[2] as
+      | MockContainer
+      | undefined;
+    const midIcons = getVisibleForegroundPlayerSprites(midWrapper).map(
+      (sprite) => sprite.icon,
+    );
+
+    expect(midIcons).toContain(WorldIcons.Player);
+    expect(midIcons).toContain(WorldIcons.Combat);
+
+    renderScene(
+      app as never,
+      {
+        ...game,
+        worldTimeMs: 240,
+      },
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      220,
+      null,
+      {
+        worldTimeMs: 240,
+      } as never,
+    );
+
+    const settledWrapper = getPlayerLayer(app).children[2] as
+      | MockContainer
+      | undefined;
+    const settledIcons = new Set(
+      getVisibleForegroundPlayerSprites(settledWrapper).map(
+        (sprite) => sprite.icon,
+      ),
+    );
+
+    expect(settledIcons).toEqual(new Set([WorldIcons.Combat]));
+  });
+
   it('combines a combat state with a carried movement-transition offset without extra displacement', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createLungeCombatGame(
@@ -932,9 +1027,7 @@ function createLungeCombatGame(seed: string) {
 }
 
 function getForegroundPlayerSprite(wrapper: MockContainer | undefined) {
-  const sprites = collectDescendants(wrapper ?? new MockContainer()).filter(
-    isVisibleSpriteLike,
-  );
+  const sprites = getVisibleForegroundPlayerSprites(wrapper);
   for (let index = sprites.length - 1; index >= 0; index -= 1) {
     const sprite = sprites[index];
     if (sprite && sprite.tint !== 0x000000) {
@@ -943,6 +1036,18 @@ function getForegroundPlayerSprite(wrapper: MockContainer | undefined) {
   }
 
   return undefined;
+}
+
+function getVisibleForegroundPlayerSprites(wrapper: MockContainer | undefined) {
+  return collectDescendants(wrapper ?? new MockContainer()).filter(
+    (
+      sprite,
+    ): sprite is {
+      icon?: string;
+      tint: number;
+      visible: boolean;
+    } => isVisibleSpriteLike(sprite) && sprite.tint !== 0x000000,
+  );
 }
 
 function isVisibleSpriteLike(

@@ -1,4 +1,5 @@
 import { Container, Graphics, Sprite, Text, type TextStyle } from 'pixi.js';
+import type { SceneIconTransitionLayer } from './renderSceneIconTransitions';
 import { getWorldIconTexture } from './worldIcons';
 
 export interface GraphicsPool {
@@ -25,6 +26,9 @@ export interface ShadowedSpriteEntry {
   outline: Sprite;
   shadows: Sprite[];
   sprite: Sprite;
+  transitionOutline: Sprite;
+  transitionShadows: Sprite[];
+  transitionSprite: Sprite;
 }
 
 export interface ShadowedSpritePool {
@@ -145,6 +149,11 @@ export function takeShadowedSprite(
       shadow.texture = texture;
     });
     item.sprite.texture = texture;
+    hideShadowedSpriteIconLayer({
+      outline: item.transitionOutline,
+      shadows: item.transitionShadows,
+      sprite: item.transitionSprite,
+    });
     resetShadowedSpriteBadge(item);
     item.wrapper.visible = true;
     pool.usedEntries.add(item);
@@ -168,6 +177,11 @@ export function takeShadowedSprite(
     shadow.texture = texture;
   });
   item.sprite.texture = texture;
+  hideShadowedSpriteIconLayer({
+    outline: item.transitionOutline,
+    shadows: item.transitionShadows,
+    sprite: item.transitionSprite,
+  });
   resetShadowedSpriteBadge(item);
   item.wrapper.visible = true;
   pool.usedEntries.add(item);
@@ -254,20 +268,15 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   setTextAnchor(badgeSecondaryText, 0.5);
   wrapper.addChild(badgeBackground);
   wrapper.addChild(badgeTrackGraphics);
-  const shadows = [0.3, 0.55, 0.8, 1].map(() => {
-    const shadow = new Sprite(
-      getWorldIconTexture(icon, { allowPending: true }),
-    );
-    shadow.anchor.set(0.5);
-    wrapper.addChild(shadow);
-    return shadow;
-  });
-  const outline = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
-  outline.anchor.set(0.5);
-  wrapper.addChild(outline);
-  const sprite = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
-  sprite.anchor.set(0.5);
-  wrapper.addChild(sprite);
+  const {
+    outline: transitionOutline,
+    shadows: transitionShadows,
+    sprite: transitionSprite,
+  } = createShadowedSpriteIconLayer(wrapper, icon);
+  const { outline, shadows, sprite } = createShadowedSpriteIconLayer(
+    wrapper,
+    icon,
+  );
   wrapper.addChild(badgeFillGraphics);
   wrapper.addChild(badgeOverlayGraphics);
   wrapper.addChild(badgePlateGraphics);
@@ -284,7 +293,15 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
     outline,
     shadows,
     sprite,
+    transitionOutline,
+    transitionShadows,
+    transitionSprite,
     wrapper,
+  });
+  hideShadowedSpriteIconLayer({
+    outline: transitionOutline,
+    shadows: transitionShadows,
+    sprite: transitionSprite,
   });
   return {
     wrapper,
@@ -298,6 +315,9 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
     outline,
     shadows,
     sprite,
+    transitionOutline,
+    transitionShadows,
+    transitionSprite,
   };
 }
 
@@ -310,59 +330,111 @@ export function configureShadowedSprite(
   shadowOffset: { x: number; y: number },
   point: { x: number; y: number },
 ) {
-  const outlineInsetPx = 2;
-
-  entry.wrapper.visible = true;
-  entry.wrapper.alpha = alpha;
-  entry.wrapper.position.set(point.x, point.y);
-  entry.wrapper.scale.set(1, 1);
-  entry.wrapper.rotation = 0;
-
-  const shadowLayers = [
-    { offset: 0.3, alpha: 0.05, scale: 1.14 },
-    { offset: 0.55, alpha: 0.045, scale: 1.1 },
-    { offset: 0.8, alpha: 0.035, scale: 1.06 },
-    { offset: 1, alpha: 0.025, scale: 1.02 },
-  ];
-
-  shadowLayers.forEach((layer, index) => {
-    const shadow = entry.shadows[index];
-    shadow.visible = true;
-    shadow.position.set(
-      shadowOffset.x * layer.offset,
-      shadowOffset.y * layer.offset,
-    );
-    shadow.width = width * layer.scale;
-    shadow.height = height * layer.scale;
-    shadow.tint = 0x000000;
-    shadow.alpha = layer.alpha;
+  configureShadowedSpriteWrapper(entry, alpha, point);
+  configureShadowedSpriteIconLayer(
+    {
+      outline: entry.outline,
+      shadows: entry.shadows,
+      sprite: entry.sprite,
+    },
+    tint,
+    width,
+    height,
+    shadowOffset,
+    1,
+  );
+  hideShadowedSpriteIconLayer({
+    outline: entry.transitionOutline,
+    shadows: entry.transitionShadows,
+    sprite: entry.transitionSprite,
   });
+}
 
-  entry.outline.visible = true;
-  entry.outline.position.set(0, 0);
-  entry.outline.width = width + outlineInsetPx * 2;
-  entry.outline.height = height + outlineInsetPx * 2;
-  entry.outline.tint = 0x000000;
-  entry.outline.alpha = 1;
+export function configureShadowedSpriteIconTransition(
+  entry: ShadowedSpriteEntry,
+  transitionLayers: SceneIconTransitionLayer[],
+  width: number,
+  height: number,
+  alpha: number,
+  shadowOffset: { x: number; y: number },
+  point: { x: number; y: number },
+) {
+  configureShadowedSpriteWrapper(entry, alpha, point);
 
-  entry.sprite.visible = true;
-  entry.sprite.position.set(0, 0);
-  entry.sprite.width = width;
-  entry.sprite.height = height;
-  entry.sprite.tint = tint;
-  entry.sprite.alpha = 1;
+  const [transitionLayer, primaryLayer = transitionLayer] = transitionLayers;
+
+  if (primaryLayer) {
+    setShadowedSpriteIconLayerIcon(
+      {
+        outline: entry.outline,
+        shadows: entry.shadows,
+        sprite: entry.sprite,
+      },
+      primaryLayer.icon,
+    );
+    configureShadowedSpriteIconLayer(
+      {
+        outline: entry.outline,
+        shadows: entry.shadows,
+        sprite: entry.sprite,
+      },
+      primaryLayer.tint,
+      width,
+      height,
+      shadowOffset,
+      primaryLayer.alpha,
+    );
+  } else {
+    hideShadowedSpriteIconLayer({
+      outline: entry.outline,
+      shadows: entry.shadows,
+      sprite: entry.sprite,
+    });
+  }
+
+  if (!transitionLayer || transitionLayer === primaryLayer) {
+    hideShadowedSpriteIconLayer({
+      outline: entry.transitionOutline,
+      shadows: entry.transitionShadows,
+      sprite: entry.transitionSprite,
+    });
+    return;
+  }
+
+  setShadowedSpriteIconLayerIcon(
+    {
+      outline: entry.transitionOutline,
+      shadows: entry.transitionShadows,
+      sprite: entry.transitionSprite,
+    },
+    transitionLayer.icon,
+  );
+  configureShadowedSpriteIconLayer(
+    {
+      outline: entry.transitionOutline,
+      shadows: entry.transitionShadows,
+      sprite: entry.transitionSprite,
+    },
+    transitionLayer.tint,
+    width,
+    height,
+    shadowOffset,
+    transitionLayer.alpha,
+  );
 }
 
 export function setShadowedSpriteIcon(
   entry: ShadowedSpriteEntry,
   icon: string,
 ) {
-  const texture = getWorldIconTexture(icon, { allowPending: true });
-  entry.outline.texture = texture;
-  entry.shadows.forEach((shadow) => {
-    shadow.texture = texture;
-  });
-  entry.sprite.texture = texture;
+  setShadowedSpriteIconLayerIcon(
+    {
+      outline: entry.outline,
+      shadows: entry.shadows,
+      sprite: entry.sprite,
+    },
+    icon,
+  );
 }
 
 export function configureSprite(
@@ -435,6 +507,112 @@ export function setTextScale(text: Text, x: number, y = x) {
   };
 
   candidate.scale?.set?.(x, y);
+}
+
+function createShadowedSpriteIconLayer(wrapper: Container, icon: string) {
+  const shadows = [0.3, 0.55, 0.8, 1].map(() => {
+    const shadow = new Sprite(
+      getWorldIconTexture(icon, { allowPending: true }),
+    );
+    shadow.anchor.set(0.5);
+    wrapper.addChild(shadow);
+    return shadow;
+  });
+  const outline = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
+  outline.anchor.set(0.5);
+  wrapper.addChild(outline);
+  const sprite = new Sprite(getWorldIconTexture(icon, { allowPending: true }));
+  sprite.anchor.set(0.5);
+  wrapper.addChild(sprite);
+  return { outline, shadows, sprite };
+}
+
+function configureShadowedSpriteWrapper(
+  entry: ShadowedSpriteEntry,
+  alpha: number,
+  point: { x: number; y: number },
+) {
+  entry.wrapper.visible = true;
+  entry.wrapper.alpha = alpha;
+  entry.wrapper.position.set(point.x, point.y);
+  entry.wrapper.scale.set(1, 1);
+  entry.wrapper.rotation = 0;
+}
+
+function configureShadowedSpriteIconLayer(
+  layer: {
+    outline: Sprite;
+    shadows: Sprite[];
+    sprite: Sprite;
+  },
+  tint: number,
+  width: number,
+  height: number,
+  shadowOffset: { x: number; y: number },
+  alpha: number,
+) {
+  const outlineInsetPx = 2;
+  const shadowLayers = [
+    { offset: 0.3, alpha: 0.05, scale: 1.14 },
+    { offset: 0.55, alpha: 0.045, scale: 1.1 },
+    { offset: 0.8, alpha: 0.035, scale: 1.06 },
+    { offset: 1, alpha: 0.025, scale: 1.02 },
+  ];
+
+  shadowLayers.forEach((shadowLayer, index) => {
+    const shadow = layer.shadows[index];
+    shadow.visible = alpha > 0;
+    shadow.position.set(
+      shadowOffset.x * shadowLayer.offset,
+      shadowOffset.y * shadowLayer.offset,
+    );
+    shadow.width = width * shadowLayer.scale;
+    shadow.height = height * shadowLayer.scale;
+    shadow.tint = 0x000000;
+    shadow.alpha = shadowLayer.alpha * alpha;
+  });
+
+  layer.outline.visible = alpha > 0;
+  layer.outline.position.set(0, 0);
+  layer.outline.width = width + outlineInsetPx * 2;
+  layer.outline.height = height + outlineInsetPx * 2;
+  layer.outline.tint = 0x000000;
+  layer.outline.alpha = alpha;
+
+  layer.sprite.visible = alpha > 0;
+  layer.sprite.position.set(0, 0);
+  layer.sprite.width = width;
+  layer.sprite.height = height;
+  layer.sprite.tint = tint;
+  layer.sprite.alpha = alpha;
+}
+
+function hideShadowedSpriteIconLayer(layer: {
+  outline: Sprite;
+  shadows: Sprite[];
+  sprite: Sprite;
+}) {
+  layer.shadows.forEach((shadow) => {
+    shadow.visible = false;
+  });
+  layer.outline.visible = false;
+  layer.sprite.visible = false;
+}
+
+function setShadowedSpriteIconLayerIcon(
+  layer: {
+    outline: Sprite;
+    shadows: Sprite[];
+    sprite: Sprite;
+  },
+  icon: string,
+) {
+  const texture = getWorldIconTexture(icon, { allowPending: true });
+  layer.outline.texture = texture;
+  layer.shadows.forEach((shadow) => {
+    shadow.texture = texture;
+  });
+  layer.sprite.texture = texture;
 }
 
 function clearGraphics(graphics: Graphics) {

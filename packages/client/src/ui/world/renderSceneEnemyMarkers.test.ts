@@ -468,7 +468,7 @@ describe('renderScene enemy markers', () => {
     expect(badgeTexts.some((child) => child.text === '2')).toBe(true);
   });
 
-  it('swaps engaged hostile markers to the red combat emblem without rebuilding the enemy map', async () => {
+  it('crossfades engaged hostile markers into the red combat emblem without rebuilding the enemy map', async () => {
     const { renderScene } = await import('./renderScene');
     const { WorldIcons } = await import('./worldIcons');
     const game = createEnemyMarkerGame(
@@ -534,15 +534,45 @@ describe('renderScene enemy markers', () => {
       game.player.coord,
       null,
       12 * 60,
+      0,
+    );
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      90,
+    );
+
+    const transitionWrapper = findMarkerWrapperByIcon(
+      getMarkerLayer(app),
+      WorldIcons.Combat,
+    );
+    const midIcons = getVisibleForegroundMarkerSprites(transitionWrapper).map(
+      (sprite) => sprite.icon,
+    );
+
+    expect(midIcons).toContain(WorldIcons.Combat);
+    expect(midIcons.some((icon) => icon !== WorldIcons.Combat)).toBe(true);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      220,
     );
 
     expect(
-      collectDescendants(getMarkerLayer(app)).some(
-        (child) =>
-          child instanceof MockSprite &&
-          child.icon === WorldIcons.Combat &&
-          child.tint === 0xef4444 &&
-          child.visible,
+      getVisibleForegroundMarkerSprites(
+        findMarkerWrapperByIcon(getMarkerLayer(app), WorldIcons.Combat),
+      ).every(
+        (child) => child.icon === WorldIcons.Combat && child.tint === 0xef4444,
       ),
     ).toBe(true);
   });
@@ -812,6 +842,16 @@ function findMarkerWrapperByIcon(markerLayer: MockContainer, icon: string) {
         descendant instanceof MockSprite && descendant.icon === icon,
     );
   }) as MockContainer | undefined;
+}
+
+function getVisibleForegroundMarkerSprites(wrapper: MockContainer | undefined) {
+  return collectDescendants(wrapper ?? new MockContainer()).filter(
+    (child): child is MockSprite =>
+      child instanceof MockSprite &&
+      child.visible &&
+      child.tint !== 0x000000 &&
+      child.alpha > 0,
+  );
 }
 
 function assertStructureBadgeWrapper(
