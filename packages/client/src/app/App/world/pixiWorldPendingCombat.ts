@@ -3,9 +3,6 @@ import type { Application } from 'pixi.js';
 import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
 import { startCombat } from '@realmfall/core/game/stateCombat';
 import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
-import { WORLD_COMBAT_LUNGE_DURATION_MS } from '@realmfall/core/game/worldCombatPresentation';
-import { getWorldHexSize } from '../../../ui/world/renderSceneMath';
-import { getWorldCombatLungeOffset } from '../../../ui/world/worldCombatLunge';
 import { sameCoord } from '../usePixiWorldHover';
 import type { WorldMovementTransition } from './movement/worldMovementTransition';
 
@@ -50,7 +47,10 @@ export function getPendingCombatUpdatePlan({
       playerCoord,
     });
     if (remainingApproachMs > 0) {
-      return { action: 'stamp', delayMs: remainingApproachMs };
+      return {
+        action: hasPendingCombatLunge(combat) ? 'stamp' : 'start',
+        delayMs: remainingApproachMs,
+      };
     }
 
     return {
@@ -60,11 +60,7 @@ export function getPendingCombatUpdatePlan({
   }
 
   const remainingIntroMs = hasPendingCombatLunge(combat)
-    ? Math.max(
-        0,
-        WORLD_COMBAT_LUNGE_DURATION_MS -
-          Math.max(0, worldTimeMs - combat.startedAtMs),
-      )
+    ? Math.max(0, 180 - Math.max(0, worldTimeMs - combat.startedAtMs))
     : 0;
 
   return {
@@ -84,9 +80,7 @@ export function getPendingCombatApproachDelayMs({
   nowMs: number;
   playerCoord: HexCoord;
 }) {
-  if (!hasPendingCombatLunge(combat)) {
-    return 0;
-  }
+  void combat;
 
   if (
     !movementTransition ||
@@ -104,11 +98,8 @@ export function getPendingCombatApproachDelayMs({
 export function hasPendingCombatLunge(
   combat: NonNullable<GameState['combat']>,
 ) {
-  const targetCoord = combat.engagement?.targetCoord;
-  const stagingCoord = combat.engagement?.stagingCoord;
-  return Boolean(
-    targetCoord && stagingCoord && !sameCoord(targetCoord, stagingCoord),
-  );
+  void combat;
+  return false;
 }
 
 export function stampPendingCombatIntro({
@@ -206,27 +197,7 @@ export function getPostCombatTransitionOffset({
   app: Application | null;
   previousGame: GameState;
 }) {
-  const combat = previousGame.combat;
-  const engagement = combat?.engagement;
-  if (
-    !app ||
-    combat === null ||
-    combat.startedAtMs == null ||
-    !engagement?.stagingCoord ||
-    !engagement.targetCoord
-  ) {
-    return null;
-  }
-
-  const hexSize = getWorldHexSize(app.screen, previousGame.radius);
-  const offset = getWorldCombatLungeOffset({
-    hexSize,
-    phase: combat.started ? 'held' : 'animating',
-    stagingCoord: engagement.stagingCoord,
-    startedAtMs: combat.startedAtMs,
-    targetCoord: engagement.targetCoord,
-    worldTimeMs: previousGame.worldTimeMs,
-  });
-
-  return Math.hypot(offset.x, offset.y) > 0 ? offset : null;
+  void app;
+  void previousGame;
+  return null;
 }

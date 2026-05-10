@@ -14,7 +14,6 @@ import { setTextPosition, setTextScale, takeText } from './renderScenePools';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import type { SceneCache } from './renderSceneCache';
 import { ENEMY_GROUP_BADGE_OFFSET } from './renderSceneShared';
-import { getWorldCombatLungeOffset } from './worldCombatLunge';
 
 const WORLD_FLOATING_TEXT_LIFETIME_MS = 1_200;
 const FLOATING_TEXT_RISE_PX = 18;
@@ -40,13 +39,6 @@ interface HostileMarkerAnchorSet {
   enemy: FloatingTextAnchor;
 }
 
-interface CombatLungeDescriptor {
-  phase: 'animating' | 'held';
-  startedAtMs: number;
-  stagingCoord: HexCoord;
-  targetCoord: HexCoord;
-}
-
 export function getCombatFeedbackRenderToken({
   state,
   worldRenderFrameMs,
@@ -59,18 +51,10 @@ export function getCombatFeedbackRenderToken({
   let token = 2166136261;
   let hasFeedback = false;
 
-  const lunge = getCombatLungeDescriptor(state);
-  if (lunge) {
+  if (state.combat) {
     hasFeedback = true;
-    token = mixToken(token, coordToken(lunge.stagingCoord));
-    token = mixToken(token, coordToken(lunge.targetCoord));
-    token = mixToken(token, lunge.startedAtMs);
-    if (lunge.phase === 'animating') {
-      token = mixToken(
-        token,
-        Math.floor((worldTimeMs - lunge.startedAtMs) / worldRenderFrameMs) + 1,
-      );
-    }
+    token = mixToken(token, state.combat.started ? 1 : 2);
+    token = mixToken(token, state.combat.enemyIds.length);
   }
 
   for (const event of state.worldFloatingTextEvents) {
@@ -103,19 +87,10 @@ export function getCombatLungeOffset({
   state: GameState;
   worldTimeMs: number;
 }) {
-  const descriptor = getCombatLungeDescriptor(state);
-  if (!descriptor) {
-    return { x: 0, y: 0 };
-  }
-
-  return getWorldCombatLungeOffset({
-    hexSize,
-    phase: descriptor.phase,
-    stagingCoord: descriptor.stagingCoord,
-    startedAtMs: descriptor.startedAtMs,
-    targetCoord: descriptor.targetCoord,
-    worldTimeMs,
-  });
+  void hexSize;
+  void state;
+  void worldTimeMs;
+  return { x: 0, y: 0 };
 }
 
 export function renderSceneCombatFeedback({
@@ -333,32 +308,6 @@ function getFloatingTextScale(kind: WorldFloatingTextEvent['kind']) {
     : kind === 'healing'
       ? HEALING_TEXT_SCALE
       : NORMAL_TEXT_SCALE;
-}
-
-function getCombatLungeDescriptor(
-  state: GameState,
-): CombatLungeDescriptor | null {
-  const targetCoord = state.combat?.engagement?.targetCoord;
-  const stagingCoord = state.combat?.engagement?.stagingCoord;
-  if (
-    !state.combat ||
-    !targetCoord ||
-    !stagingCoord ||
-    sameCoord(targetCoord, stagingCoord)
-  ) {
-    return null;
-  }
-
-  if (state.combat.startedAtMs == null) {
-    return null;
-  }
-
-  return {
-    phase: state.combat.started ? 'held' : 'animating',
-    startedAtMs: state.combat.startedAtMs,
-    stagingCoord,
-    targetCoord,
-  };
 }
 
 function createHostileMarkerAnchorSet(

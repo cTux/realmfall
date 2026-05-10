@@ -353,6 +353,18 @@ export function configureShadowedSprite(
   entry.sprite.alpha = 1;
 }
 
+export function setShadowedSpriteIcon(
+  entry: ShadowedSpriteEntry,
+  icon: string,
+) {
+  const texture = getWorldIconTexture(icon, { allowPending: true });
+  entry.outline.texture = texture;
+  entry.shadows.forEach((shadow) => {
+    shadow.texture = texture;
+  });
+  entry.sprite.texture = texture;
+}
+
 export function configureSprite(
   sprite: Sprite,
   tint: number,

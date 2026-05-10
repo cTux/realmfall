@@ -6,6 +6,7 @@ import {
   isWorldBossEnemyId,
 } from '@realmfall/core/game/worldBoss';
 import {
+  COMBAT_WORLD_ICON_TINT,
   WorldIcons,
   enemyIconFor,
   enemyIconTintFor,
@@ -203,16 +204,21 @@ export function renderStaticMarkers({
       engagedEnemyIdSet !== null &&
       hostileEnemies.some((enemy) => engagedEnemyIdSet.has(enemy.id));
     if (!worldBossCenter || isBossCenter) {
+      const markerIcon = showCombatBars
+        ? WorldIcons.Combat
+        : enemyIconFor(leadEnemy);
       const sprite = takeShadowedSprite(
         scene.worldStaticMarkerSprites,
-        enemyIconFor(leadEnemy),
+        markerIcon,
         {
           stableKey: isBossCenter
             ? getMarkerIdentityKey('world-boss')
             : `enemy:${leadEnemy.id}`,
         },
       );
-      const tint = enemyIconTintFor(highestRarityEnemy);
+      const tint = showCombatBars
+        ? COMBAT_WORLD_ICON_TINT
+        : enemyIconTintFor(highestRarityEnemy);
       const markerPoint = isBossCenter
         ? point
         : {

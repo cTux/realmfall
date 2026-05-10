@@ -381,11 +381,12 @@ describe('renderScene combat feedback', () => {
     expect(Math.abs(bossText!.position.y - genericEnemyY)).toBeGreaterThan(12);
   });
 
-  it('animates the player wrapper into the hostile target during the pre-combat lunge without changing gameplay coordinates', async () => {
+  it('keeps the player wrapper centered when combat begins on an adjacent hostile hex', async () => {
     const { renderScene } = await import('./renderScene');
+    const { COMBAT_WORLD_ICON_TINT, WorldIcons } = await import('./worldIcons');
     const game = createGame(2, 'render-scene-player-lunge');
     const baselineApp = createMockApp();
-    const lungingApp = createMockApp();
+    const combatApp = createMockApp();
 
     game.tiles['1,0'] = {
       coord: { q: 1, r: 0 },
@@ -461,7 +462,7 @@ describe('renderScene combat feedback', () => {
     );
 
     renderScene(
-      lungingApp as never,
+      combatApp as never,
       game,
       getVisibleTiles(game),
       game.player.coord,
@@ -477,26 +478,29 @@ describe('renderScene combat feedback', () => {
     const baselineWrapper = getPlayerLayer(baselineApp).children[2] as
       | MockContainer
       | undefined;
-    const lungingWrapper = getPlayerLayer(lungingApp).children[2] as
+    const combatWrapper = getPlayerLayer(combatApp).children[2] as
       | MockContainer
       | undefined;
+    const baselineSprite = getForegroundPlayerSprite(baselineWrapper);
+    const combatSprite = getForegroundPlayerSprite(combatWrapper);
 
     expect(baselineWrapper).toBeDefined();
-    expect(lungingWrapper).toBeDefined();
-    expect(lungingWrapper!.position.x).toBeGreaterThan(
+    expect(combatWrapper).toBeDefined();
+    expect(baselineSprite?.icon).not.toBe(WorldIcons.Combat);
+    expect(combatSprite?.icon).toBe(WorldIcons.Combat);
+    expect(combatSprite?.tint).toBe(COMBAT_WORLD_ICON_TINT);
+    expect(combatWrapper!.position.x).toBeCloseTo(
       baselineWrapper!.position.x,
+      4,
     );
-    expect(lungingWrapper!.position.y).toBeCloseTo(
+    expect(combatWrapper!.position.y).toBeCloseTo(
       baselineWrapper!.position.y,
       4,
     );
-    expect(
-      lungingWrapper!.position.x - baselineWrapper!.position.x,
-    ).toBeLessThan(getWorldHexSize(lungingApp.screen, game.radius) * 0.5);
     expect(game.player.coord).toEqual({ q: 0, r: 0 });
   });
 
-  it('keeps the player wrapper lunged after the intro window while combat remains active', async () => {
+  it('keeps the player wrapper centered after the intro window while combat remains active', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createLungeCombatGame('render-scene-player-lunge-relax');
     const baselineApp = createMockApp();
@@ -545,8 +549,9 @@ describe('renderScene combat feedback', () => {
 
     expect(baselineWrapper).toBeDefined();
     expect(settledWrapper).toBeDefined();
-    expect(settledWrapper!.position.x).toBeGreaterThan(
+    expect(settledWrapper!.position.x).toBeCloseTo(
       baselineWrapper!.position.x,
+      4,
     );
     expect(settledWrapper!.position.y).toBeCloseTo(
       baselineWrapper!.position.y,
@@ -554,7 +559,7 @@ describe('renderScene combat feedback', () => {
     );
   });
 
-  it('combines an active combat lunge with a carried movement-transition offset', async () => {
+  it('combines a combat state with a carried movement-transition offset without extra displacement', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createLungeCombatGame(
       'render-scene-player-lunge-carry-overlap',
@@ -662,24 +667,25 @@ describe('renderScene combat feedback', () => {
     expect(transitionOnlyWrapper).toBeDefined();
     expect(combinedWrapper).toBeDefined();
 
-    const lungeDeltaX =
+    const combatDeltaX =
       lungeOnlyWrapper!.position.x - baselineWrapper!.position.x;
     const transitionDeltaX =
       transitionOnlyWrapper!.position.x - baselineWrapper!.position.x;
     const combinedDeltaX =
       combinedWrapper!.position.x - baselineWrapper!.position.x;
 
-    expect(lungeDeltaX).toBeGreaterThan(0);
+    expect(combatDeltaX).toBeCloseTo(0, 4);
     expect(transitionDeltaX).toBeCloseTo(9, 4);
-    expect(combinedDeltaX).toBeCloseTo(lungeDeltaX + transitionDeltaX, 4);
+    expect(combinedDeltaX).toBeCloseTo(transitionDeltaX, 4);
     expect(combinedWrapper!.position.y).toBeCloseTo(
       baselineWrapper!.position.y,
       4,
     );
   });
 
-  it('does not offset the player wrapper before the pre-combat lunge starts', async () => {
+  it('keeps the player wrapper centered for pending combat before the encounter starts', async () => {
     const { renderScene } = await import('./renderScene');
+    const { COMBAT_WORLD_ICON_TINT, WorldIcons } = await import('./worldIcons');
     const game = createLungeCombatGame('render-scene-player-lunge-pending');
     const baselineApp = createMockApp();
     const pendingApp = createMockApp();
@@ -729,9 +735,14 @@ describe('renderScene combat feedback', () => {
     const pendingWrapper = getPlayerLayer(pendingApp).children[2] as
       | MockContainer
       | undefined;
+    const baselineSprite = getForegroundPlayerSprite(baselineWrapper);
+    const pendingSprite = getForegroundPlayerSprite(pendingWrapper);
 
     expect(baselineWrapper).toBeDefined();
     expect(pendingWrapper).toBeDefined();
+    expect(baselineSprite?.icon).not.toBe(WorldIcons.Combat);
+    expect(pendingSprite?.icon).toBe(WorldIcons.Combat);
+    expect(pendingSprite?.tint).toBe(COMBAT_WORLD_ICON_TINT);
     expect(pendingWrapper!.position.x).toBeCloseTo(
       baselineWrapper!.position.x,
       4,
@@ -918,4 +929,32 @@ function createLungeCombatGame(seed: string) {
   };
 
   return game;
+}
+
+function getForegroundPlayerSprite(wrapper: MockContainer | undefined) {
+  const sprites = collectDescendants(wrapper ?? new MockContainer()).filter(
+    isVisibleSpriteLike,
+  );
+  for (let index = sprites.length - 1; index >= 0; index -= 1) {
+    const sprite = sprites[index];
+    if (sprite && sprite.tint !== 0x000000) {
+      return sprite;
+    }
+  }
+
+  return undefined;
+}
+
+function isVisibleSpriteLike(
+  value: unknown,
+): value is { icon?: string; tint: number; visible: boolean } {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    'visible' in value &&
+    'tint' in value &&
+    'icon' in value &&
+    (value as { visible?: boolean }).visible === true &&
+    typeof (value as { tint?: unknown }).tint === 'number',
+  );
 }

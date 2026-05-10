@@ -10,7 +10,10 @@ import {
   renderCampfireLight,
   renderCloudLayer,
 } from './renderSceneEnvironment';
-import { configureShadowedSprite } from './renderScenePools';
+import {
+  configureShadowedSprite,
+  setShadowedSpriteIcon,
+} from './renderScenePools';
 import { renderWorldOverlay } from './renderSceneAtmosphere';
 import {
   completeAnimatedSceneRender,
@@ -26,6 +29,7 @@ import {
 } from './renderScenePlayerBars';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import type { MovementTransitionRevealState } from './renderSceneVisibility';
+import { COMBAT_WORLD_ICON_TINT, WorldIcons } from './worldIcons';
 
 interface RenderAnimatedSceneOptions {
   app: Application;
@@ -119,13 +123,21 @@ export function renderAnimatedScene({
     x: origin.x + playerLungeOffset.x,
     y: origin.y + playerLungeOffset.y,
   };
+  const playerInCombat = state.combat !== null;
+
+  setShadowedSpriteIcon(
+    scene.player,
+    playerInCombat ? WorldIcons.Combat : WorldIcons.Player,
+  );
 
   configureShadowedSprite(
     scene.player,
-    scaleColor(
-      0xffffff,
-      Math.max(0.84, lightingState.lighting.ambientBrightness + 0.08),
-    ),
+    playerInCombat
+      ? COMBAT_WORLD_ICON_TINT
+      : scaleColor(
+          0xffffff,
+          Math.max(0.84, lightingState.lighting.ambientBrightness + 0.08),
+        ),
     playerIconSize,
     playerIconSize,
     1,

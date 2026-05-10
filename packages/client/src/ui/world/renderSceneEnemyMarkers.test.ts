@@ -468,6 +468,85 @@ describe('renderScene enemy markers', () => {
     expect(badgeTexts.some((child) => child.text === '2')).toBe(true);
   });
 
+  it('swaps engaged hostile markers to the red combat emblem without rebuilding the enemy map', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { WorldIcons } = await import('./worldIcons');
+    const game = createEnemyMarkerGame(
+      'render-scene-engaged-combat-emblem',
+      'common',
+    );
+    const app = createMockApp();
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    expect(
+      collectDescendants(getMarkerLayer(app)).some(
+        (child) =>
+          child instanceof MockSprite && child.icon === WorldIcons.Combat,
+      ),
+    ).toBe(false);
+
+    game.combat = {
+      coord: { q: 0, r: 0 },
+      enemyIds: ['enemy-1,0-0'],
+      started: true,
+      startedAtMs: 0,
+      engagement: {
+        autoStepOnVictory: false,
+        engageMode: 'staged-click',
+        originCoord: { q: 0, r: 0 },
+        stagingCoord: { q: 0, r: 0 },
+        targetCoord: { q: 1, r: 0 },
+      },
+      player: {
+        abilityIds: ['slash'],
+        globalCooldownMs: 1500,
+        globalCooldownEndsAt: 0,
+        cooldownEndsAt: {},
+        casting: null,
+      },
+      enemies: {
+        'enemy-1,0-0': {
+          abilityIds: ['kick'],
+          globalCooldownMs: 1500,
+          globalCooldownEndsAt: 0,
+          cooldownEndsAt: {},
+          casting: null,
+        },
+      },
+      enemyStateById: {
+        'enemy-1,0-0': {},
+      },
+    };
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+    );
+
+    expect(
+      collectDescendants(getMarkerLayer(app)).some(
+        (child) =>
+          child instanceof MockSprite &&
+          child.icon === WorldIcons.Combat &&
+          child.tint === 0xef4444 &&
+          child.visible,
+      ),
+    ).toBe(true);
+  });
+
   it('refreshes visible hostile badge HP and MP arcs during combat without requiring a new enemy map object', async () => {
     const { renderScene } = await import('./renderScene');
     const game = createEnemyMarkerGame(
