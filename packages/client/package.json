@@ -1,6 +1,7 @@
 {
   "name": "@realmfall/client-web",
   "version": "1.0.0",
+  "description": "Browser client app, Pixi renderer, and React UI shell for Realmfall.",
   "private": true,
   "type": "module",
   "scripts": {

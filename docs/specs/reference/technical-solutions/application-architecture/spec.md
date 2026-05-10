@@ -25,7 +25,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/server-chat/src` contains the standalone chat-service runtime, HTTP message routes, in-memory message storage, and websocket availability notifications while reusing `packages/server-auth/src/googleAuth.ts` for Google player identity verification.
 - `packages/server-world/src` contains the world-service runtime entrypoint, HTTP routes, and server-only version metadata resolution.
 - `packages/server-auth/src` contains the standalone auth-service runtime, Google token verification, realm-directory routes, and auth-specific version metadata resolution.
-- `packages/common/src` is reserved for cross-runtime shared code and remains empty until a client/server abstraction is genuinely shared.
+- `packages/common/src` contains the shared world tile-resolution and movement request and response contracts, and it remains the package for future cross-runtime code that browser and server runtimes genuinely share.
 - Game mutations are performed through state transition functions in `src/game/state.ts` that clone the incoming game state and return the next state.
 - Save hydration enters through `src/app/normalize.ts`, while focused helpers such as `src/app/normalizeGameState.ts`, `src/app/normalizeCombat.ts`, `src/app/normalizeItems.ts`, `src/app/normalizeUiState.ts`, `src/app/normalizeShared.ts`, and `src/app/normalizeCompatibility.ts` own narrower validation and compatibility concerns.
 - Read-only game creation, queries, and shared gameplay types are split across `src/game/stateFactory.ts`, `src/game/stateSelectors.ts`, and `src/game/stateTypes.ts`, which keeps UI and renderer imports off the broad mutation entrypoint.
@@ -48,7 +48,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - React controllers invoke these transitions with the current world time injected from refs.
 - Shared selectors derive view-ready data without pushing gameplay logic down into windows.
 - Unique items, enemies, and structures live in dedicated content files under `src/game/content`.
-- Package-local setup and command notes live in `packages/client/README.md`, `packages/server-chat/README.md`, `packages/server-world/README.md`, `packages/server-auth/README.md`, `packages/common/README.md`, and `packages/ui/README.md`, while `docs/specs` stays canonical for cross-package technical solutions.
+- Package-local setup, requirement, and command notes live in `packages/client/README.md`, `packages/common/README.md`, `packages/core/README.md`, `packages/server-auth/README.md`, `packages/server-chat/README.md`, `packages/server-world/README.md`, and `packages/ui/README.md`, while `docs/specs` stays canonical for cross-package technical solutions.
 
 ## Main Implementation Areas
 

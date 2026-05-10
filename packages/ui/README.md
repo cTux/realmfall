@@ -2,6 +2,12 @@
 
 `@realmfall/ui-react` is the shared component library for the client package.
 
+## Requirements
+
+- Use the repo root workspace install with Node `v25.9.0` and `pnpm@11`.
+- Consumer apps must provide the `react` and `react-dom` peer dependencies declared by this package.
+- Keep runtime TypeScript imports from `packages/client/src` out of this package, except for the explicit Storybook helper bridge already documented by the architecture rules.
+
 ## Purpose
 
 - Keep reusable visual primitives in one package.
@@ -36,3 +42,12 @@
 - `pnpm --filter @realmfall/ui-react test:jsdom`
 - `pnpm --filter @realmfall/ui-react dev:storybook`
 - `pnpm --filter @realmfall/ui-react build:storybook`
+
+## Related Docs
+
+- Root overview: [`README.md`](../../README.md)
+- Workflow: [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md)
+- Architecture spec: [`docs/specs/reference/technical-solutions/application-architecture/spec.md`](../../docs/specs/reference/technical-solutions/application-architecture/spec.md)
+- UI component library spec: [`docs/specs/reference/technical-solutions/ui-component-library/spec.md`](../../docs/specs/reference/technical-solutions/ui-component-library/spec.md)
+- Input and tooltip handling spec: [`docs/specs/reference/technical-solutions/input-and-tooltip-handling/spec.md`](../../docs/specs/reference/technical-solutions/input-and-tooltip-handling/spec.md)
+- Internationalization spec: [`docs/specs/reference/technical-solutions/internationalization/spec.md`](../../docs/specs/reference/technical-solutions/internationalization/spec.md)

@@ -1,6 +1,16 @@
-# Realmfall Server
+# Realmfall World Server
 
 `@realmfall/server-world` is the Node service package for server-side Realmfall behavior. It starts as a thin Fastify app so future gameplay logic can move behind HTTP endpoints without replacing the package shape again.
+
+## Requirements
+
+- Use the repo root workspace install with Node `v25.9.0` and `pnpm@11`.
+- Root `pnpm dev` and `pnpm serve` already include this package alongside the client package.
+
+## Environment
+
+- `HOST`
+- `PORT`
 
 ## Current API
 
@@ -27,4 +37,5 @@
 
 - Root overview: [`README.md`](../../README.md)
 - Workflow: [`docs/WORKFLOW.md`](../../docs/WORKFLOW.md)
+- Architecture spec: [`docs/specs/reference/technical-solutions/application-architecture/spec.md`](../../docs/specs/reference/technical-solutions/application-architecture/spec.md)
 - Versioning spec: [`docs/specs/reference/technical-solutions/version-checking/spec.md`](../../docs/specs/reference/technical-solutions/version-checking/spec.md)

@@ -1,6 +1,7 @@
 {
   "name": "@realmfall/ui-react",
   "version": "1.0.0",
+  "description": "Shared React component library for Realmfall.",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",

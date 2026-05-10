@@ -1,6 +1,7 @@
 {
   "name": "@realmfall/server-world",
   "version": "1.0.0",
+  "description": "Realmfall world service runtime and version endpoint.",
   "private": true,
   "type": "module",
   "main": "./dist/index.js",

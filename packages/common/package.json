@@ -1,6 +1,7 @@
 {
   "name": "@realmfall/common",
   "version": "1.0.0",
+  "description": "Cross-runtime contracts and shared request/response types for Realmfall.",
   "private": true,
   "type": "module",
   "main": "./src/index.ts",
