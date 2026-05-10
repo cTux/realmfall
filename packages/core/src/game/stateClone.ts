@@ -222,6 +222,11 @@ export function cloneEnemy(enemy: Enemy): Enemy {
     ...(enemy.dungeonSpawnCoord === undefined
       ? {}
       : { dungeonSpawnCoord: { ...enemy.dungeonSpawnCoord } }),
+    ...(enemy.dungeonMovementTargetCoord === undefined
+      ? {}
+      : {
+          dungeonMovementTargetCoord: { ...enemy.dungeonMovementTargetCoord },
+        }),
     statusEffects: enemy.statusEffects?.map(cloneStatusEffect),
     ...(enemy.abilityIds === undefined
       ? {}

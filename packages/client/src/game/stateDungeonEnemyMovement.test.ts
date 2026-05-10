@@ -43,18 +43,40 @@ describe('dungeon enemy world movement', () => {
 
     const moved = syncPlayerStatusEffects(game, WORLD_MOVE_HEX_COOLDOWN_MS);
 
-    expect(moved.enemies[enemyId]?.coord).toEqual({ q: 3, r: 0 });
+    expect(moved.enemies[enemyId]?.coord).toEqual({ q: 4, r: 0 });
     expect(moved.enemies[enemyId]?.dungeonSpawnCoord).toEqual({ q: 4, r: 0 });
+    expect(moved.enemies[enemyId]?.dungeonMovementTargetCoord).toEqual({
+      q: 3,
+      r: 0,
+    });
     expect(moved.enemies[enemyId]?.dungeonMovementCooldownEndsAt).toBe(
       WORLD_MOVE_HEX_COOLDOWN_MS * 2,
     );
+    expect(moved.tiles['4,0']?.enemyIds).toContain(enemyId);
+    expect(moved.tiles['3,0']?.enemyIds).not.toContain(enemyId);
 
     const coolingDown = syncPlayerStatusEffects(
       moved,
       WORLD_MOVE_HEX_COOLDOWN_MS + 500,
     );
 
-    expect(coolingDown.enemies[enemyId]?.coord).toEqual({ q: 3, r: 0 });
+    expect(coolingDown.enemies[enemyId]?.coord).toEqual({ q: 4, r: 0 });
+    expect(coolingDown.enemies[enemyId]?.dungeonMovementTargetCoord).toEqual({
+      q: 3,
+      r: 0,
+    });
+
+    const arrived = syncPlayerStatusEffects(
+      coolingDown,
+      WORLD_MOVE_HEX_COOLDOWN_MS * 2,
+    );
+
+    expect(arrived.enemies[enemyId]?.coord).toEqual({ q: 3, r: 0 });
+    expect(
+      arrived.enemies[enemyId]?.dungeonMovementTargetCoord,
+    ).toBeUndefined();
+    expect(arrived.tiles['4,0']?.enemyIds).not.toContain(enemyId);
+    expect(arrived.tiles['3,0']?.enemyIds).toContain(enemyId);
   });
 
   it('chases the player from two hexes away and starts combat on contact', () => {
@@ -83,8 +105,14 @@ describe('dungeon enemy world movement', () => {
 
     const firstStep = syncPlayerStatusEffects(game, WORLD_MOVE_HEX_COOLDOWN_MS);
 
-    expect(firstStep.enemies[enemyId]?.coord).toEqual({ q: 1, r: 0 });
+    expect(firstStep.enemies[enemyId]?.coord).toEqual({ q: 2, r: 0 });
+    expect(firstStep.enemies[enemyId]?.dungeonMovementTargetCoord).toEqual({
+      q: 1,
+      r: 0,
+    });
     expect(firstStep.combat).toBeNull();
+    expect(firstStep.tiles['2,0']?.enemyIds).toContain(enemyId);
+    expect(firstStep.tiles['1,0']?.enemyIds).not.toContain(enemyId);
 
     const secondStep = syncPlayerStatusEffects(
       firstStep,
@@ -92,17 +120,44 @@ describe('dungeon enemy world movement', () => {
     );
 
     expect(secondStep.enemies[enemyId]?.coord).toEqual({ q: 1, r: 0 });
-    expect(secondStep.tiles['0,0']?.enemyIds).not.toContain(enemyId);
+    expect(
+      secondStep.enemies[enemyId]?.dungeonMovementTargetCoord,
+    ).toBeUndefined();
+    expect(secondStep.combat).toBeNull();
+    expect(secondStep.tiles['2,0']?.enemyIds).not.toContain(enemyId);
     expect(secondStep.tiles['1,0']?.enemyIds).toContain(enemyId);
-    expect(secondStep.combat?.coord).toEqual(ENTRANCE_COORD);
-    expect(secondStep.combat?.enemyIds).toEqual([enemyId]);
-    expect(secondStep.combat?.started).toBe(false);
-    expect(secondStep.combat?.startedAtMs).toBeUndefined();
-    expect(secondStep.combat?.engagement).toMatchObject({
+
+    const thirdStep = syncPlayerStatusEffects(
+      secondStep,
+      WORLD_MOVE_HEX_COOLDOWN_MS * 3,
+    );
+
+    expect(thirdStep.enemies[enemyId]?.coord).toEqual({ q: 1, r: 0 });
+    expect(thirdStep.enemies[enemyId]?.dungeonMovementTargetCoord).toEqual(
+      ENTRANCE_COORD,
+    );
+    expect(thirdStep.combat).toBeNull();
+    expect(thirdStep.tiles['0,0']?.enemyIds).not.toContain(enemyId);
+    expect(thirdStep.tiles['1,0']?.enemyIds).toContain(enemyId);
+
+    const fourthStep = syncPlayerStatusEffects(
+      thirdStep,
+      WORLD_MOVE_HEX_COOLDOWN_MS * 4,
+    );
+
+    expect(fourthStep.enemies[enemyId]?.coord).toEqual(ENTRANCE_COORD);
+    expect(
+      fourthStep.enemies[enemyId]?.dungeonMovementTargetCoord,
+    ).toBeUndefined();
+    expect(fourthStep.tiles['0,0']?.enemyIds).toContain(enemyId);
+    expect(fourthStep.combat?.coord).toEqual(ENTRANCE_COORD);
+    expect(fourthStep.combat?.enemyIds).toEqual([enemyId]);
+    expect(fourthStep.combat?.started).toBe(false);
+    expect(fourthStep.combat?.startedAtMs).toBeUndefined();
+    expect(fourthStep.combat?.engagement).toMatchObject({
       autoStepOnVictory: false,
       engageMode: 'enemy-chase',
       stagingCoord: { q: 0, r: 0 },
-      targetCoord: { q: 1, r: 0 },
     });
   });
 
@@ -131,9 +186,17 @@ describe('dungeon enemy world movement', () => {
     });
 
     const firstStep = syncPlayerStatusEffects(game, WORLD_MOVE_HEX_COOLDOWN_MS);
-    const chaseCombat = syncPlayerStatusEffects(
+    const secondStep = syncPlayerStatusEffects(
       firstStep,
       WORLD_MOVE_HEX_COOLDOWN_MS * 2,
+    );
+    const thirdStep = syncPlayerStatusEffects(
+      secondStep,
+      WORLD_MOVE_HEX_COOLDOWN_MS * 3,
+    );
+    const chaseCombat = syncPlayerStatusEffects(
+      thirdStep,
+      WORLD_MOVE_HEX_COOLDOWN_MS * 4,
     );
 
     delete chaseCombat.enemies[enemyId];
@@ -185,15 +248,32 @@ describe('dungeon enemy world movement', () => {
 
     const queued = syncPlayerStatusEffects(game, WORLD_MOVE_HEX_COOLDOWN_MS);
 
+    expect(queued.enemies[reinforcingEnemyId]?.coord).toEqual({ q: 0, r: 1 });
+    expect(
+      queued.enemies[reinforcingEnemyId]?.dungeonMovementTargetCoord,
+    ).toEqual(ENTRANCE_COORD);
     expect(queued.combat?.enemyIds).toEqual([engagedEnemyId]);
-    expect(queued.combat?.queuedEnemyIds).toEqual([reinforcingEnemyId]);
-    expect(queued.combat?.enemies[reinforcingEnemyId]).toBeDefined();
+    expect(queued.combat?.queuedEnemyIds).toEqual([]);
+    expect(queued.combat?.enemies[reinforcingEnemyId]).toBeUndefined();
     expect(queued.tiles['0,1']?.enemyIds).toContain(reinforcingEnemyId);
     expect(queued.tiles['0,0']?.enemyIds ?? []).not.toContain(
       reinforcingEnemyId,
     );
 
-    const promoted = progressCombat(queued);
+    const arrived = syncPlayerStatusEffects(
+      queued,
+      WORLD_MOVE_HEX_COOLDOWN_MS * 2,
+    );
+
+    expect(arrived.enemies[reinforcingEnemyId]?.coord).toEqual(ENTRANCE_COORD);
+    expect(
+      arrived.enemies[reinforcingEnemyId]?.dungeonMovementTargetCoord,
+    ).toBeUndefined();
+    expect(arrived.combat?.enemyIds).toEqual([engagedEnemyId]);
+    expect(arrived.combat?.queuedEnemyIds).toEqual([reinforcingEnemyId]);
+    expect(arrived.combat?.enemies[reinforcingEnemyId]).toBeDefined();
+
+    const promoted = progressCombat(arrived);
 
     expect(promoted.combat?.enemyIds).toEqual([
       engagedEnemyId,
@@ -230,8 +310,22 @@ describe('dungeon enemy world movement', () => {
 
     const chased = syncPlayerStatusEffects(game, WORLD_MOVE_HEX_COOLDOWN_MS);
 
-    expect(chased.enemies[enemyId]?.coord).toEqual({ q: 2, r: -1 });
+    expect(chased.enemies[enemyId]?.coord).toEqual({ q: 2, r: 0 });
+    expect(chased.enemies[enemyId]?.dungeonMovementTargetCoord).toEqual({
+      q: 2,
+      r: -1,
+    });
     expect(chased.combat).toBeNull();
+
+    const arrived = syncPlayerStatusEffects(
+      chased,
+      WORLD_MOVE_HEX_COOLDOWN_MS * 2,
+    );
+
+    expect(arrived.enemies[enemyId]?.coord).toEqual({ q: 2, r: -1 });
+    expect(
+      arrived.enemies[enemyId]?.dungeonMovementTargetCoord,
+    ).toBeUndefined();
   });
 
   it('keeps the final chest guard stationary even when it has an open move', () => {

@@ -36,6 +36,7 @@ import {
   registerAnimatedWorldMarker,
 } from './renderSceneShared';
 import { getDungeonEnemyAnimatedMovementTransition } from './renderSceneDungeonEnemyTransitions';
+import { tileToPoint } from './renderSceneMath';
 import type { VisibleTileRenderInput } from './renderSceneRenderInputs';
 import {
   getVisibleWorldTileRevealProgress,
@@ -240,11 +241,24 @@ export function renderStaticMarkers({
           `${WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX}${markerStableKey}`,
         );
       }
+      const leadEnemyTargetCoord = leadEnemy.dungeonMovementTargetCoord;
+      const movementTargetPoint =
+        !isBossCenter && leadEnemyTargetCoord
+          ? tileToPoint(
+              {
+                q: leadEnemyTargetCoord.q - tile.coord.q,
+                r: leadEnemyTargetCoord.r - tile.coord.r,
+              },
+              point.x,
+              point.y,
+              hexSize,
+            )
+          : point;
       const markerPoint = isBossCenter
-        ? point
+        ? movementTargetPoint
         : {
-            x: point.x,
-            y: point.y - 2,
+            x: movementTargetPoint.x,
+            y: movementTargetPoint.y - 2,
           };
       const markerSize = isBossCenter ? worldBossIconSize : enemyIconSize;
       const markerIconSize = isBossCenter
@@ -279,7 +293,7 @@ export function renderStaticMarkers({
       registerAnimatedWorldMarker(
         scene,
         state.seed,
-        tile.coord,
+        leadEnemyTargetCoord ?? tile.coord,
         sprite,
         markerPoint,
         markerIconSize,

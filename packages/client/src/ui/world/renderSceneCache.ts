@@ -111,7 +111,6 @@ export interface SceneCache {
     string,
     DungeonEnemyMovementTransition
   >;
-  dungeonEnemyLastCoordsById: Map<string, { q: number; r: number }>;
   dungeonEnemyTransitionWorldId: string | null;
   iconTransitionsByKey: Map<string, SceneIconTransitionState>;
   player: ShadowedSpriteEntry;
@@ -253,7 +252,6 @@ export function getSceneCache(app: Application) {
     campfireLightPoints: [],
     animatedWorldMarkers: [],
     dungeonEnemyMovementTransitionsByEnemyId: new Map(),
-    dungeonEnemyLastCoordsById: new Map(),
     dungeonEnemyTransitionWorldId: null,
     iconTransitionsByKey: new Map(),
     player,

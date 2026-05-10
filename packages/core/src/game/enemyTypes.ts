@@ -13,6 +13,7 @@ export interface Enemy {
   coord: HexCoord;
   dungeonSpawnCoord?: HexCoord;
   dungeonMovementCooldownEndsAt?: number;
+  dungeonMovementTargetCoord?: HexCoord;
   rarity?: EnemyRarity;
   tier: number;
   baseMaxHp?: number;
