@@ -4,6 +4,7 @@ import {
   collectDescendants,
   createMockApp,
   getBadgeLayer,
+  getMaxGraphicRadius,
   getLabelsLayer,
   getMarkerLayer,
   MockContainer,
@@ -363,7 +364,8 @@ describe('renderScene enemy markers', () => {
       'bottom',
     );
     const badgeSprites = markerDescendants.filter(
-      (child): child is MockSprite => child instanceof MockSprite,
+      (child): child is MockSprite =>
+        child instanceof MockSprite && child.visible,
     );
     const badgeSprite = badgeSprites[badgeSprites.length - 1];
 
@@ -468,9 +470,9 @@ describe('renderScene enemy markers', () => {
     expect(badgeTexts.some((child) => child.text === '2')).toBe(true);
   });
 
-  it('crossfades engaged hostile markers into the red combat emblem without rebuilding the enemy map', async () => {
+  it('keeps engaged hostile markers on their enemy badge and renders a swords-only combat indicator inside the same wrapper', async () => {
     const { renderScene } = await import('./renderScene');
-    const { WorldIcons } = await import('./worldIcons');
+    const { WorldIcons, enemyIconFor } = await import('./worldIcons');
     const game = createEnemyMarkerGame(
       'render-scene-engaged-combat-emblem',
       'common',
@@ -547,16 +549,65 @@ describe('renderScene enemy markers', () => {
       90,
     );
 
-    const transitionWrapper = findMarkerWrapperByIcon(
+    const enemyWrapper = findMarkerWrapperByIcon(
+      getMarkerLayer(app),
+      enemyIconFor(game.enemies['enemy-1,0-0']!),
+    );
+    const combatIndicatorWrapper = findMarkerWrapperByIcon(
       getMarkerLayer(app),
       WorldIcons.Combat,
     );
-    const midIcons = getVisibleForegroundMarkerSprites(transitionWrapper).map(
-      (sprite) => sprite.icon,
+
+    expect(enemyWrapper).toBeDefined();
+    expect(combatIndicatorWrapper).toBeDefined();
+    expect(combatIndicatorWrapper).toBe(enemyWrapper);
+    const midSprites = getVisibleForegroundMarkerSprites(enemyWrapper);
+    const midCombatSprites = midSprites.filter(
+      (child) => child.icon === WorldIcons.Combat,
+    );
+    const midCombatIndicatorContainer =
+      getBattleIndicatorContainer(enemyWrapper);
+    const midCombatShadowSprites = getVisibleMarkerShadowSprites(
+      enemyWrapper,
+      WorldIcons.Combat,
+    );
+    const midBadgeBackgrounds = collectDescendants(enemyWrapper!).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics &&
+        child.drawEllipse.mock.calls.length > 0,
+    );
+    const midBadgeGraphics = collectDescendants(enemyWrapper!).filter(
+      (child): child is MockGraphics =>
+        child instanceof MockGraphics && child.visible,
+    );
+    const midHealthTrack = findMarkerArc(
+      midBadgeGraphics,
+      ENEMY_HEALTH_TRACK_COLOR,
+      'top',
+    );
+    const midManaTrack = findMarkerArc(
+      midBadgeGraphics,
+      ENEMY_MANA_TRACK_COLOR,
+      'bottom',
+    );
+    const midIndicatorCenterX = Math.max(
+      getMaxGraphicRadius(midHealthTrack ?? new MockGraphics()),
+      getMaxGraphicRadius(midManaTrack ?? new MockGraphics()),
     );
 
-    expect(midIcons).toContain(WorldIcons.Combat);
-    expect(midIcons.some((icon) => icon !== WorldIcons.Combat)).toBe(true);
+    expect(midCombatSprites).toHaveLength(1);
+    expect(midHealthTrack).toBeDefined();
+    expect(midManaTrack).toBeDefined();
+    expect(midCombatIndicatorContainer).toBeDefined();
+    expect(midCombatSprites[0]!.tint).toBe(0xef4444);
+    expect(midCombatIndicatorContainer?.position.x).toBeCloseTo(
+      midIndicatorCenterX,
+      4,
+    );
+    expect(midCombatIndicatorContainer?.position.y).toBeCloseTo(0, 4);
+    expect(midCombatSprites[0]!.width).toBeLessThanOrEqual(15);
+    expect(midCombatShadowSprites.length).toBeGreaterThan(0);
+    expect(midBadgeBackgrounds).toHaveLength(1);
 
     renderScene(
       app as never,
@@ -568,13 +619,64 @@ describe('renderScene enemy markers', () => {
       220,
     );
 
+    const settledEnemyWrapper = findMarkerWrapperByIcon(
+      getMarkerLayer(app),
+      enemyIconFor(game.enemies['enemy-1,0-0']!),
+    );
+    const settledCombatIndicatorWrapper = findMarkerWrapperByIcon(
+      getMarkerLayer(app),
+      WorldIcons.Combat,
+    );
+
     expect(
-      getVisibleForegroundMarkerSprites(
-        findMarkerWrapperByIcon(getMarkerLayer(app), WorldIcons.Combat),
-      ).every(
-        (child) => child.icon === WorldIcons.Combat && child.tint === 0xef4444,
+      getVisibleForegroundMarkerSprites(settledEnemyWrapper).some(
+        (child) => child.icon !== WorldIcons.Combat,
       ),
     ).toBe(true);
+    expect(settledCombatIndicatorWrapper).toBe(settledEnemyWrapper);
+    expect(
+      getVisibleForegroundMarkerSprites(settledCombatIndicatorWrapper).every(
+        (child) =>
+          child.icon !== WorldIcons.Combat ||
+          (child.tint === 0xef4444 &&
+            child.position.x === 0 &&
+            child.width <= 15),
+      ),
+    ).toBe(true);
+    expect(
+      collectDescendants(settledEnemyWrapper!).filter(
+        (child): child is MockGraphics =>
+          child instanceof MockGraphics &&
+          child.drawEllipse.mock.calls.length > 0,
+      ),
+    ).toHaveLength(1);
+    expect(
+      getVisibleForegroundMarkerSprites(settledCombatIndicatorWrapper).some(
+        (child) => child.icon === WorldIcons.Combat,
+      ),
+    ).toBe(true);
+    expect(
+      getVisibleForegroundMarkerSprites(settledCombatIndicatorWrapper)
+        .filter((child) => child.icon === WorldIcons.Combat)
+        .every(
+          (child) =>
+            child.width <= 15 &&
+            child.position.x === 0 &&
+            child.position.y === 0,
+        ),
+    ).toBe(true);
+    expect(
+      getBattleIndicatorContainer(settledCombatIndicatorWrapper)?.position.y,
+    ).toBeCloseTo(0, 4);
+    expect(
+      getBattleIndicatorContainer(settledCombatIndicatorWrapper)?.position.x,
+    ).toBeGreaterThan(0);
+    expect(
+      getVisibleMarkerShadowSprites(
+        settledCombatIndicatorWrapper,
+        WorldIcons.Combat,
+      ).length,
+    ).toBeGreaterThan(0);
   });
 
   it('keeps hostile markers on their normal icons before pending combat intro begins', async () => {
@@ -912,6 +1014,52 @@ function getVisibleForegroundMarkerSprites(wrapper: MockContainer | undefined) {
       child.visible &&
       child.tint !== 0x000000 &&
       child.alpha > 0,
+  );
+}
+
+function getVisibleMarkerShadowSprites(
+  wrapper: MockContainer | undefined,
+  icon: string,
+) {
+  return collectDescendants(wrapper ?? new MockContainer()).filter(
+    (child): child is MockSprite =>
+      isVisibleSpriteLike(child) &&
+      child.icon === icon &&
+      child.tint === 0x000000 &&
+      child.alpha > 0,
+  );
+}
+
+function getBattleIndicatorContainer(wrapper: MockContainer | undefined) {
+  const children = wrapper?.children ?? [];
+  const candidate = children[children.length - 1];
+  return isContainerLike(candidate) ? candidate : undefined;
+}
+
+function isContainerLike(value: unknown): value is MockContainer {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    'children' in value &&
+    Array.isArray((value as { children?: unknown }).children),
+  );
+}
+
+function isVisibleSpriteLike(value: unknown): value is {
+  alpha: number;
+  icon?: string;
+  tint: number;
+  visible: boolean;
+} {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    'alpha' in value &&
+    'icon' in value &&
+    'tint' in value &&
+    'visible' in value &&
+    (value as { visible?: boolean }).visible === true &&
+    typeof (value as { tint?: unknown }).tint === 'number',
   );
 }
 

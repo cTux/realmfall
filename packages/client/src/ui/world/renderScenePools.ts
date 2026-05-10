@@ -23,6 +23,10 @@ export interface ShadowedSpriteEntry {
   badgePlateGraphics: Graphics;
   badgePrimaryText: Text;
   badgeSecondaryText: Text;
+  badgeIndicatorWrapper: Container;
+  badgeIndicatorOutline: Sprite;
+  badgeIndicatorShadows: Sprite[];
+  badgeIndicatorSprite: Sprite;
   outline: Sprite;
   shadows: Sprite[];
   sprite: Sprite;
@@ -263,6 +267,12 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   const badgePlateGraphics = new Graphics();
   const badgePrimaryText = new Text({ text: '' });
   const badgeSecondaryText = new Text({ text: '' });
+  const badgeIndicatorWrapper = new Container();
+  const {
+    outline: badgeIndicatorOutline,
+    shadows: badgeIndicatorShadows,
+    sprite: badgeIndicatorSprite,
+  } = createShadowedSpriteIconLayer(badgeIndicatorWrapper, icon);
 
   setTextAnchor(badgePrimaryText, 0.5);
   setTextAnchor(badgeSecondaryText, 0.5);
@@ -282,9 +292,14 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
   wrapper.addChild(badgePlateGraphics);
   wrapper.addChild(badgePrimaryText);
   wrapper.addChild(badgeSecondaryText);
+  wrapper.addChild(badgeIndicatorWrapper);
   resetShadowedSpriteBadge({
     badgeBackground,
     badgeFillGraphics,
+    badgeIndicatorOutline,
+    badgeIndicatorSprite,
+    badgeIndicatorShadows,
+    badgeIndicatorWrapper,
     badgeOverlayGraphics,
     badgePlateGraphics,
     badgePrimaryText,
@@ -299,6 +314,11 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
     wrapper,
   });
   hideShadowedSpriteIconLayer({
+    outline: badgeIndicatorOutline,
+    shadows: badgeIndicatorShadows,
+    sprite: badgeIndicatorSprite,
+  });
+  hideShadowedSpriteIconLayer({
     outline: transitionOutline,
     shadows: transitionShadows,
     sprite: transitionSprite,
@@ -308,6 +328,10 @@ export function createShadowedSprite(icon: string): ShadowedSpriteEntry {
     badgeBackground,
     badgeTrackGraphics,
     badgeFillGraphics,
+    badgeIndicatorOutline,
+    badgeIndicatorSprite,
+    badgeIndicatorShadows,
+    badgeIndicatorWrapper,
     badgeOverlayGraphics,
     badgePlateGraphics,
     badgePrimaryText,
@@ -464,6 +488,16 @@ export function resetShadowedSpriteBadge(entry: ShadowedSpriteEntry) {
   clearGraphics(entry.badgeOverlayGraphics);
   entry.badgePlateGraphics.visible = false;
   clearGraphics(entry.badgePlateGraphics);
+  entry.badgeIndicatorWrapper.visible = false;
+  entry.badgeIndicatorWrapper.alpha = 1;
+  entry.badgeIndicatorWrapper.position.set(0, 0);
+  entry.badgeIndicatorWrapper.scale.set(1, 1);
+  entry.badgeIndicatorWrapper.rotation = 0;
+  resetShadowedSpriteIconLayer({
+    outline: entry.badgeIndicatorOutline,
+    shadows: entry.badgeIndicatorShadows,
+    sprite: entry.badgeIndicatorSprite,
+  });
 
   [entry.badgePrimaryText, entry.badgeSecondaryText].forEach((text) => {
     text.visible = false;
@@ -477,6 +511,49 @@ export function resetShadowedSpriteBadge(entry: ShadowedSpriteEntry) {
 export function resetShadowedSpriteBadgeOverlay(entry: ShadowedSpriteEntry) {
   entry.badgeOverlayGraphics.visible = false;
   clearGraphics(entry.badgeOverlayGraphics);
+}
+
+export function configureShadowedSpriteBadgeIndicator(
+  entry: ShadowedSpriteEntry,
+  {
+    alpha,
+    icon,
+    point,
+    size,
+    tint,
+  }: {
+    alpha: number;
+    icon: string;
+    point: { x: number; y: number };
+    size: number;
+    tint: number;
+  },
+) {
+  setShadowedSpriteIconLayerIcon(
+    {
+      outline: entry.badgeIndicatorOutline,
+      shadows: entry.badgeIndicatorShadows,
+      sprite: entry.badgeIndicatorSprite,
+    },
+    icon,
+  );
+  entry.badgeIndicatorWrapper.visible = alpha > 0;
+  entry.badgeIndicatorWrapper.alpha = 1;
+  entry.badgeIndicatorWrapper.position.set(point.x, point.y);
+  entry.badgeIndicatorWrapper.scale.set(1, 1);
+  entry.badgeIndicatorWrapper.rotation = 0;
+  configureShadowedSpriteIconLayer(
+    {
+      outline: entry.badgeIndicatorOutline,
+      shadows: entry.badgeIndicatorShadows,
+      sprite: entry.badgeIndicatorSprite,
+    },
+    tint,
+    size,
+    size,
+    { x: 1.5, y: 1.5 },
+    alpha,
+  );
 }
 
 function setTextAnchor(text: Text, value: number) {
@@ -597,6 +674,25 @@ function hideShadowedSpriteIconLayer(layer: {
   });
   layer.outline.visible = false;
   layer.sprite.visible = false;
+}
+
+function resetShadowedSpriteIconLayer(layer: {
+  outline: Sprite;
+  shadows: Sprite[];
+  sprite: Sprite;
+}) {
+  hideShadowedSpriteIconLayer(layer);
+  [layer.outline, ...layer.shadows, layer.sprite].forEach((sprite) => {
+    sprite.alpha = 1;
+    sprite.width = 0;
+    sprite.height = 0;
+    sprite.position.set(0, 0);
+  });
+  layer.outline.tint = 0x000000;
+  layer.shadows.forEach((shadow) => {
+    shadow.tint = 0x000000;
+  });
+  layer.sprite.tint = 0xffffff;
 }
 
 function setShadowedSpriteIconLayerIcon(

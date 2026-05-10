@@ -288,9 +288,9 @@ export async function renderSceneFrame({
   return { app: nextApp, game: nextGame, visibleTiles: nextVisibleTiles };
 }
 
-export function collectDescendants(root: MockContainer): unknown[] {
+export function collectDescendants(root: { children: unknown[] }): unknown[] {
   return root.children.flatMap((child) => {
-    if (child instanceof MockContainer) {
+    if (isContainerLike(child)) {
       return [child, ...collectDescendants(child)];
     }
     return [child];
@@ -414,6 +414,15 @@ function getPolygonCenter(points: number[]) {
     x: sumX / vertexCount,
     y: sumY / vertexCount,
   };
+}
+
+function isContainerLike(value: unknown): value is { children: unknown[] } {
+  return Boolean(
+    value &&
+    typeof value === 'object' &&
+    'children' in value &&
+    Array.isArray((value as { children?: unknown }).children),
+  );
 }
 
 export function getAverageGraphicY(graphic: MockGraphics) {

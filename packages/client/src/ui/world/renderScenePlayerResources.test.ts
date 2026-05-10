@@ -69,7 +69,11 @@ describe('renderScene player resource bars', () => {
       (child): child is MockText => child instanceof MockText && child.visible,
     );
     const playerSprites = playerLayerEntries.filter(
-      (child): child is MockSprite => child instanceof MockSprite,
+      (child): child is MockSprite =>
+        child instanceof MockSprite &&
+        child.visible &&
+        child.tint !== 0x000000 &&
+        child.width > 0,
     );
     const playerSprite = playerSprites[playerSprites.length - 1];
     const backgroundGraphic = findBadgeBackground(resourceGraphics);
