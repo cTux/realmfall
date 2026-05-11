@@ -6,7 +6,8 @@ import {
   type CSSProperties,
   type MutableRefObject,
 } from 'react';
-import { Button, LoadingSpinner } from '@realmfall/ui-react';
+import { Button } from '@realmfall/ui-react/button';
+import { LoadingSpinner } from '@realmfall/ui-react/loading-spinner';
 import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import { recordStartupMark } from '../../../performance/performanceBridge';

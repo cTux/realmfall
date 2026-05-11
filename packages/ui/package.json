@@ -8,11 +8,15 @@
   "module": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./button": "./src/components/Button/Button.tsx",
     "./itemIcons": "./src/icons.ts",
+    "./tooltip": "./src/tooltip.ts",
+    "./tooltip-placement": "./src/tooltipPlacement.ts",
     "./generatedIconPools": "./src/generatedIconPools.ts",
     "./generatedIconAssets": "./src/generatedIconAssets.ts",
     "./i18n": "./src/i18n/index.ts",
     "./i18n/bootstrap": "./src/i18n/bootstrap.ts",
+    "./ui-audio": "./src/app/audio/UiAudioContext.tsx",
     "./loading-spinner": "./src/components/LoadingSpinner/LoadingSpinner.tsx"
   },
   "scripts": {

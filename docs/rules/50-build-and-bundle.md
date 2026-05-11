@@ -43,6 +43,12 @@
   resolvers off the root `@realmfall/ui-react` barrel. Expose them through
   narrow package subpaths so startup-adjacent imports of shared primitives do
   not link those asset modules by default.
+- Keep eager App-path runtime imports off the root `@realmfall/ui-react`
+  barrel. Startup-facing files should prefer narrow subpaths such as
+  `@realmfall/ui-react/button`, `@realmfall/ui-react/loading-spinner`,
+  `@realmfall/ui-react/tooltip`, `@realmfall/ui-react/tooltip-placement`, and
+  `@realmfall/ui-react/ui-audio` so the initial App chunk does not inherit the
+  broad shared UI barrel chunk.
 - Keep lazy debug mutation modules off eager gameplay barrels and startup-facing
   UI imports. If debug windows need shared constants or types, keep those in a
   tiny neighboring module instead of importing `stateDebug` statically.

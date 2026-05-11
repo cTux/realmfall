@@ -1,10 +1,10 @@
 import type { AudioSettings } from '../audioSettings';
-import type { UiAudioController as BaseUiAudioController } from '@realmfall/ui-react';
+import type { UiAudioController as BaseUiAudioController } from '@realmfall/ui-react/ui-audio';
 
 export type UiAudioController = BaseUiAudioController<AudioSettings>;
 export {
   DEFAULT_UI_AUDIO_CONTROLLER,
   UiAudioProvider,
   useUiAudio,
-} from '@realmfall/ui-react';
+} from '@realmfall/ui-react/ui-audio';
 export type { AudioSettings };
