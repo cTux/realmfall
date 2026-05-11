@@ -68,6 +68,13 @@ export function syncActiveDungeonEnemyMovement(state: GameState) {
       enemy.dungeonMovementCooldownEndsAt <= state.worldTimeMs
     ) {
       completedMovementEnemyIds.add(enemy.id);
+      if (sameCoord(enemy.dungeonMovementTargetCoord, state.player.coord)) {
+        enemy.dungeonMovementCooldownEndsAt = undefined;
+        enemy.dungeonMovementTargetCoord = undefined;
+        changed = true;
+        continue;
+      }
+
       completeDungeonEnemyMovement(
         state,
         enemy,
@@ -83,6 +90,31 @@ export function syncActiveDungeonEnemyMovement(state: GameState) {
       state,
       state.player.coord,
       initialHostileEnemyIds,
+      null,
+    );
+    return true;
+  }
+
+  const adjacentHostileEnemyIds = orderedEnemyIds.filter((enemyId) => {
+    if (
+      enemyId === activeWorld.dungeon.finalEliteEnemyId ||
+      involvedCombatEnemyIds.has(enemyId)
+    ) {
+      return false;
+    }
+
+    const enemy = activeWorld.enemies[enemyId];
+    return (
+      enemy !== undefined &&
+      enemy.aggressive !== false &&
+      hexDistance(enemy.coord, state.player.coord) === 1
+    );
+  });
+  if (adjacentHostileEnemyIds.length > 0) {
+    startDungeonEnemyCombat(
+      state,
+      state.player.coord,
+      adjacentHostileEnemyIds,
       null,
     );
     return true;
@@ -224,6 +256,10 @@ function getDungeonEnemyChaseStep(
         continue;
       }
 
+      if (sameCoord(neighbor, state.player.coord)) {
+        return next.firstStep;
+      }
+
       if (
         !canDungeonEnemyMoveToCoord(state, enemy, neighbor, {
           ignoreSpawnLeash: true,
@@ -233,15 +269,10 @@ function getDungeonEnemyChaseStep(
         continue;
       }
 
-      const firstStep = next.firstStep ?? neighbor;
-      if (sameCoord(neighbor, state.player.coord)) {
-        return firstStep;
-      }
-
       visited.add(key);
       queue.push({
         coord: neighbor,
-        firstStep,
+        firstStep: next.firstStep ?? neighbor,
       });
     }
   }
@@ -282,20 +313,18 @@ function canDungeonEnemyMoveToCoord(
     return false;
   }
 
-  const isPlayerTile = sameCoord(coord, state.player.coord);
   const targetKey = hexKey(coord);
   if (
-    !isPlayerTile &&
-    (targetTile.structure === 'dungeon' ||
-      targetTile.structure === 'dungeon-chest')
+    sameCoord(coord, state.player.coord) ||
+    targetTile.structure === 'dungeon' ||
+    targetTile.structure === 'dungeon-chest'
   ) {
     return false;
   }
 
   if (
-    !isPlayerTile &&
-    (reservedTargetKeys.has(targetKey) ||
-      targetTile.enemyIds.some((targetEnemyId) => targetEnemyId !== enemy.id))
+    reservedTargetKeys.has(targetKey) ||
+    targetTile.enemyIds.some((targetEnemyId) => targetEnemyId !== enemy.id)
   ) {
     return false;
   }

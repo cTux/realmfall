@@ -79,7 +79,7 @@ describe('dungeon enemy world movement', () => {
     expect(arrived.tiles['3,0']?.enemyIds).toContain(enemyId);
   });
 
-  it('chases the player from two hexes away and starts combat on contact', () => {
+  it('chases the player from two hexes away and starts combat without entering the player hex', () => {
     const enemyId = 'chasing-enemy';
     const game = createDungeonMovementGame({
       enemies: [
@@ -123,7 +123,15 @@ describe('dungeon enemy world movement', () => {
     expect(
       secondStep.enemies[enemyId]?.dungeonMovementTargetCoord,
     ).toBeUndefined();
-    expect(secondStep.combat).toBeNull();
+    expect(secondStep.combat?.coord).toEqual(ENTRANCE_COORD);
+    expect(secondStep.combat?.enemyIds).toEqual([enemyId]);
+    expect(secondStep.combat?.started).toBe(false);
+    expect(secondStep.combat?.startedAtMs).toBeUndefined();
+    expect(secondStep.combat?.engagement).toMatchObject({
+      autoStepOnVictory: false,
+      engageMode: 'enemy-chase',
+      stagingCoord: { q: 0, r: 0 },
+    });
     expect(secondStep.tiles['2,0']?.enemyIds).not.toContain(enemyId);
     expect(secondStep.tiles['1,0']?.enemyIds).toContain(enemyId);
 
@@ -133,10 +141,10 @@ describe('dungeon enemy world movement', () => {
     );
 
     expect(thirdStep.enemies[enemyId]?.coord).toEqual({ q: 1, r: 0 });
-    expect(thirdStep.enemies[enemyId]?.dungeonMovementTargetCoord).toEqual(
-      ENTRANCE_COORD,
-    );
-    expect(thirdStep.combat).toBeNull();
+    expect(
+      thirdStep.enemies[enemyId]?.dungeonMovementTargetCoord,
+    ).toBeUndefined();
+    expect(thirdStep.combat?.enemyIds).toEqual([enemyId]);
     expect(thirdStep.tiles['0,0']?.enemyIds).not.toContain(enemyId);
     expect(thirdStep.tiles['1,0']?.enemyIds).toContain(enemyId);
 
@@ -145,20 +153,13 @@ describe('dungeon enemy world movement', () => {
       WORLD_MOVE_HEX_COOLDOWN_MS * 4,
     );
 
-    expect(fourthStep.enemies[enemyId]?.coord).toEqual(ENTRANCE_COORD);
+    expect(fourthStep.enemies[enemyId]?.coord).toEqual({ q: 1, r: 0 });
     expect(
       fourthStep.enemies[enemyId]?.dungeonMovementTargetCoord,
     ).toBeUndefined();
-    expect(fourthStep.tiles['0,0']?.enemyIds).toContain(enemyId);
-    expect(fourthStep.combat?.coord).toEqual(ENTRANCE_COORD);
+    expect(fourthStep.tiles['0,0']?.enemyIds).not.toContain(enemyId);
+    expect(fourthStep.tiles['1,0']?.enemyIds).toContain(enemyId);
     expect(fourthStep.combat?.enemyIds).toEqual([enemyId]);
-    expect(fourthStep.combat?.started).toBe(false);
-    expect(fourthStep.combat?.startedAtMs).toBeUndefined();
-    expect(fourthStep.combat?.engagement).toMatchObject({
-      autoStepOnVictory: false,
-      engageMode: 'enemy-chase',
-      stagingCoord: { q: 0, r: 0 },
-    });
   });
 
   it('keeps the player on the staging hex after winning a roaming chase encounter', () => {
@@ -190,13 +191,9 @@ describe('dungeon enemy world movement', () => {
       firstStep,
       WORLD_MOVE_HEX_COOLDOWN_MS * 2,
     );
-    const thirdStep = syncPlayerStatusEffects(
+    const chaseCombat = syncPlayerStatusEffects(
       secondStep,
       WORLD_MOVE_HEX_COOLDOWN_MS * 3,
-    );
-    const chaseCombat = syncPlayerStatusEffects(
-      thirdStep,
-      WORLD_MOVE_HEX_COOLDOWN_MS * 4,
     );
 
     delete chaseCombat.enemies[enemyId];
@@ -251,10 +248,10 @@ describe('dungeon enemy world movement', () => {
     expect(queued.enemies[reinforcingEnemyId]?.coord).toEqual({ q: 0, r: 1 });
     expect(
       queued.enemies[reinforcingEnemyId]?.dungeonMovementTargetCoord,
-    ).toEqual(ENTRANCE_COORD);
+    ).toBeUndefined();
     expect(queued.combat?.enemyIds).toEqual([engagedEnemyId]);
-    expect(queued.combat?.queuedEnemyIds).toEqual([]);
-    expect(queued.combat?.enemies[reinforcingEnemyId]).toBeUndefined();
+    expect(queued.combat?.queuedEnemyIds).toEqual([reinforcingEnemyId]);
+    expect(queued.combat?.enemies[reinforcingEnemyId]).toBeDefined();
     expect(queued.tiles['0,1']?.enemyIds).toContain(reinforcingEnemyId);
     expect(queued.tiles['0,0']?.enemyIds ?? []).not.toContain(
       reinforcingEnemyId,
@@ -265,7 +262,7 @@ describe('dungeon enemy world movement', () => {
       WORLD_MOVE_HEX_COOLDOWN_MS * 2,
     );
 
-    expect(arrived.enemies[reinforcingEnemyId]?.coord).toEqual(ENTRANCE_COORD);
+    expect(arrived.enemies[reinforcingEnemyId]?.coord).toEqual({ q: 0, r: 1 });
     expect(
       arrived.enemies[reinforcingEnemyId]?.dungeonMovementTargetCoord,
     ).toBeUndefined();
