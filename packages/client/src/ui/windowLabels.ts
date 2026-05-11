@@ -1,7 +1,4 @@
-import {
-  WINDOW_VISIBILITY_KEYS,
-  type WindowKey,
-} from '../app/constants';
+import { WINDOW_VISIBILITY_KEYS, type WindowKey } from '../app/constants';
 import { t } from '../i18n';
 
 export interface WindowLabelDefinition {
@@ -14,10 +11,18 @@ export interface WindowLabelDefinition {
 function createWindowLabel(key: WindowKey): WindowLabelDefinition {
   const baseKey = `ui.window.${key}`;
   return {
-    plain: t(`${baseKey}.plain`),
-    prefix: t(`${baseKey}.prefix`),
-    hotkey: t(`${baseKey}.hotkey`),
-    suffix: t(`${baseKey}.suffix`),
+    get plain() {
+      return t(`${baseKey}.plain`);
+    },
+    get prefix() {
+      return t(`${baseKey}.prefix`);
+    },
+    get hotkey() {
+      return t(`${baseKey}.hotkey`);
+    },
+    get suffix() {
+      return t(`${baseKey}.suffix`);
+    },
   };
 }
 

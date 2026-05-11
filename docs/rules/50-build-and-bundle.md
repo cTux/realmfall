@@ -22,7 +22,11 @@
 - Keep bootstrap-only locale loading on a module that does not also re-export
   the app-facing `t` helpers, so the entry chunk does not become a shared
   runtime dependency of the full app i18n surface.
-- Use `modulepreload` hints for the deferred `App` entry when that lets the browser fetch the chunk while i18n loads, but keep `src/main.tsx` from evaluating `App` until `loadI18n()` resolves.
+- Use `modulepreload` hints for the deferred `App` entry when that lets the
+  browser fetch the chunk while i18n loads. `src/main.tsx` may start `App`
+  module work before locale readiness settles if eager translation caches have
+  been removed or made lazy, but keep the live `App` render gated on bootstrap
+  locale and font readiness.
 - Keep React Compiler enabled through the repository's Vite plugin helper for React 19 app builds, and guard the integration with a Vite plugin policy test when the compiler or plugin path changes.
 - Keep shipped locale and other bootstrap-loaded JSON assets on LF line endings so emitted asset sizes stay stable across platforms.
 - Keep large repeated locale families concise. When many entries differ only by set name or item slot, prefer shorter shared phrasing over long near-duplicate sentences so locale payloads do not grow faster than the feature surface.

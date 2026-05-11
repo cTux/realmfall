@@ -11,7 +11,12 @@ This spec covers the top-level React hook composition and derived view-model pat
 - Bootstrap refs and initial app state live in `useAppBootstrapState`, while the top-level keyboard shortcut wiring lives in `useAppShortcutBindings`, keeping `App.tsx` focused on composing the major app flows instead of rebuilding every initialization detail inline.
 - The remaining top-level orchestration graph now lives in `useAppRuntime`, which assembles bootstrap, controller, persistence, world, lifecycle, and shell-view wiring before `App.tsx` renders `AppShell`.
 - Before the main app finishes loading, `src/main.tsx` renders a fixed bootstrap shell with a spinner-only loading state so the first paint stays visible without depending on translated copy.
-- The bootstrap path reads the persisted interface font choice synchronously, applies that font stack to the document root, and waits for the selected bundled font plus the active locale asset before importing `App`, because module-level UI constants must not hydrate against missing translations or swap through an unready fallback face.
+- The bootstrap path reads the persisted interface font choice synchronously,
+  applies that font stack to the document root, starts `App` module loading in
+  parallel with locale and font readiness, and waits for the selected bundled
+  font plus the active locale asset before rendering the live `App`, so startup
+  overlaps module work without hydrating translated UI against missing locale
+  data or an unready fallback face.
 - The optional browser performance harness records main-start, bootstrap-shell, i18n-loaded, app-module-loaded, app-render-scheduled, and app-ready marks when explicitly enabled, keeping startup milestone measurement available without changing normal app sessions.
 - When that harness is active, `App.tsx` wraps the app shell in a React Profiler and records commit timings through the shared harness; otherwise the entry component renders the shell directly.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.

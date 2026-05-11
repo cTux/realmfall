@@ -99,14 +99,21 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     ).toBe(__APP_VERSION__);
   });
 
-  it('waits for i18n to load before importing App', async () => {
+  it('starts App module loading before i18n resolves, while keeping render gated', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
     let resolveI18n!: () => void;
+    let resolveFont!: () => void;
     loadI18n.mockImplementationOnce(
       () =>
         new Promise((resolve) => {
           resolveI18n = () => resolve({});
+        }),
+    );
+    loadInterfaceFontFamily.mockImplementationOnce(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveFont = resolve;
         }),
     );
 
@@ -114,16 +121,27 @@ describe('main bootstrap', { timeout: 10000 }, () => {
     await Promise.resolve();
 
     expect(loadI18n).toHaveBeenCalledWith('en');
-    expect(appModuleImported).not.toHaveBeenCalled();
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    expect(appModuleImported).toHaveBeenCalledTimes(1);
+    expect(render).toHaveBeenCalledTimes(1);
 
     resolveI18n();
     await vi.dynamicImportSettled();
     await Promise.resolve();
 
     expect(appModuleImported).toHaveBeenCalledTimes(1);
+    expect(render).toHaveBeenCalledTimes(1);
+
+    resolveFont();
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
+
+    expect(render).toHaveBeenCalledTimes(2);
   });
 
-  it('waits for the selected interface font before importing App', async () => {
+  it('keeps App render gated until the selected interface font is loaded', async () => {
     document.body.innerHTML = '<div id="root"></div>';
 
     let resolveFont!: () => void;
@@ -143,16 +161,19 @@ describe('main bootstrap', { timeout: 10000 }, () => {
 
     await import('./mainTestkit');
     await Promise.resolve();
+    await vi.dynamicImportSettled();
+    await Promise.resolve();
 
     expect(applyInterfaceFontFamily).toHaveBeenCalledWith('ubuntu');
     expect(loadInterfaceFontFamily).toHaveBeenCalledWith('ubuntu');
-    expect(appModuleImported).not.toHaveBeenCalled();
+    expect(appModuleImported).toHaveBeenCalledTimes(1);
+    expect(render).toHaveBeenCalledTimes(1);
 
     resolveFont();
     await vi.dynamicImportSettled();
     await Promise.resolve();
 
-    expect(appModuleImported).toHaveBeenCalledTimes(1);
+    expect(render).toHaveBeenCalledTimes(2);
   });
 
   it('loads the browser performance harness only when requested', async () => {

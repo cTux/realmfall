@@ -40,14 +40,24 @@ void bootstrap();
 
 async function bootstrap() {
   try {
-    await Promise.all([
-      loadI18n(bootstrapInterfaceSettings.language).then(() => {
+    const appModulePromise = import('./app/App').then((module) => {
+      recordPerformanceStartupMark('app-module-loaded');
+      return module;
+    });
+    const i18nPromise = loadI18n(bootstrapInterfaceSettings.language).then(
+      () => {
         recordPerformanceStartupMark('i18n-loaded');
-      }),
-      loadInterfaceFontFamily(bootstrapInterfaceSettings.fontFamily),
+      },
+    );
+    const fontPromise = loadInterfaceFontFamily(
+      bootstrapInterfaceSettings.fontFamily,
+    );
+
+    const [{ App }] = await Promise.all([
+      appModulePromise,
+      i18nPromise,
+      fontPromise,
     ]);
-    const { App } = await import('./app/App');
-    recordPerformanceStartupMark('app-module-loaded');
 
     root.render(
       <React.StrictMode>
