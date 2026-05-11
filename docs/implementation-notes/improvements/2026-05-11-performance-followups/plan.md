@@ -14,17 +14,17 @@
 
 **Files:**
 
-- Create: `packages/client/src/app/interfaceSettings.config.ts`
-- Create: `packages/client/src/app/worldViewport.config.ts`
-- Modify: `packages/client/src/app/interfaceSettings.ts`
-- Modify: `packages/client/src/app/App/world/pixiWorldBootstrap.ts`
-- Modify: `packages/client/src/main.test.tsx`
+- Create: `packages/client-web/src/app/interfaceSettings.config.ts`
+- Create: `packages/client-web/src/app/worldViewport.config.ts`
+- Modify: `packages/client-web/src/app/interfaceSettings.ts`
+- Modify: `packages/client-web/src/app/App/world/pixiWorldBootstrap.ts`
+- Modify: `packages/client-web/src/main.test.tsx`
 - Modify: `docs/specs/reference/technical-solutions/browser-entry-metadata/spec.md`
 - Modify: `docs/specs/reference/technical-solutions/react-app-orchestration/spec.md`
 
 - [ ] **Step 1: Add a focused test that keeps bootstrap settings detached from window-registry assets**
 
-Add a bootstrap-oriented assertion in `packages/client/src/main.test.tsx` that continues to verify the spinner-only shell and interface-settings bootstrap path work after the config split. Keep the test focused on startup behavior, not chunk internals.
+Add a bootstrap-oriented assertion in `packages/client-web/src/main.test.tsx` that continues to verify the spinner-only shell and interface-settings bootstrap path work after the config split. Keep the test focused on startup behavior, not chunk internals.
 
 ```ts
 it('renders the bootstrap shell before loading the app module', async () => {
@@ -47,10 +47,10 @@ Expected: PASS for the current startup and interface-settings suites.
 
 - [ ] **Step 3: Move entry-safe constants into tiny config modules and update imports**
 
-Create `packages/client/src/app/interfaceSettings.config.ts` for `CLIENT_INTERFACE_SETTINGS` and `packages/client/src/app/worldViewport.config.ts` for `CLIENT_WORLD_VIEWPORT`. Update `interfaceSettings.ts` and `pixiWorldBootstrap.ts` to import those tiny modules instead of `client.config.ts`, leaving icon-bearing window-registry data in the broader config surface.
+Create `packages/client-web/src/app/interfaceSettings.config.ts` for `CLIENT_INTERFACE_SETTINGS` and `packages/client-web/src/app/worldViewport.config.ts` for `CLIENT_WORLD_VIEWPORT`. Update `interfaceSettings.ts` and `pixiWorldBootstrap.ts` to import those tiny modules instead of `client.config.ts`, leaving icon-bearing window-registry data in the broader config surface.
 
 ```ts
-// packages/client/src/app/interfaceSettings.config.ts
+// packages/client-web/src/app/interfaceSettings.config.ts
 import { DEFAULT_INTERFACE_FONT_FAMILY } from './interfaceFonts';
 
 export const CLIENT_INTERFACE_SETTINGS = Object.freeze({
@@ -72,7 +72,7 @@ export const CLIENT_INTERFACE_SETTINGS = Object.freeze({
 ```
 
 ```ts
-// packages/client/src/app/worldViewport.config.ts
+// packages/client-web/src/app/worldViewport.config.ts
 export const CLIENT_WORLD_VIEWPORT = Object.freeze({
   minimumHeight: 480,
   minimumWidth: 640,
@@ -96,11 +96,11 @@ Document that the bootstrap path now reads interface settings and viewport minim
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/client/src/app/interfaceSettings.config.ts \
-  packages/client/src/app/worldViewport.config.ts \
-  packages/client/src/app/interfaceSettings.ts \
-  packages/client/src/app/App/world/pixiWorldBootstrap.ts \
-  packages/client/src/main.test.tsx \
+git add packages/client-web/src/app/interfaceSettings.config.ts \
+  packages/client-web/src/app/worldViewport.config.ts \
+  packages/client-web/src/app/interfaceSettings.ts \
+  packages/client-web/src/app/App/world/pixiWorldBootstrap.ts \
+  packages/client-web/src/main.test.tsx \
   docs/specs/reference/technical-solutions/browser-entry-metadata/spec.md \
   docs/specs/reference/technical-solutions/react-app-orchestration/spec.md
 git commit -m "refactor: split bootstrap-safe client config"
@@ -110,12 +110,12 @@ git commit -m "refactor: split bootstrap-safe client config"
 
 **Files:**
 
-- Modify: `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
-- Modify: `packages/client/src/app/App/world/pixiWorldHoverInteractions.ts`
-- Modify: `packages/client/src/app/App/world/usePixiWorldHoverLifecycle.ts`
-- Modify: `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.test.ts`
-- Modify: `packages/client/src/app/App/world/hoverAnalysis/createWorkerWorldHoverAnalysisSource.test.ts`
-- Modify: `packages/client/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
+- Modify: `packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
+- Modify: `packages/client-web/src/app/App/world/pixiWorldHoverInteractions.ts`
+- Modify: `packages/client-web/src/app/App/world/usePixiWorldHoverLifecycle.ts`
+- Modify: `packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.test.ts`
+- Modify: `packages/client-web/src/app/App/world/hoverAnalysis/createWorkerWorldHoverAnalysisSource.test.ts`
+- Modify: `packages/client-web/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
 - Modify: `docs/specs/reference/technical-solutions/input-and-tooltip-handling/spec.md`
 
 - [ ] **Step 1: Add tests for idle-hover refresh behavior and sync-state reuse**
@@ -194,12 +194,12 @@ Document that idle hover refreshes no longer rebuild or re-sync the worker slice
 - [ ] **Step 7: Commit**
 
 ```bash
-git add packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts \
-  packages/client/src/app/App/world/pixiWorldHoverInteractions.ts \
-  packages/client/src/app/App/world/usePixiWorldHoverLifecycle.ts \
-  packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.test.ts \
-  packages/client/src/app/App/world/hoverAnalysis/createWorkerWorldHoverAnalysisSource.test.ts \
-  packages/client/src/app/App/tests/App.worldInteractionPerformance.test.tsx \
+git add packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts \
+  packages/client-web/src/app/App/world/pixiWorldHoverInteractions.ts \
+  packages/client-web/src/app/App/world/usePixiWorldHoverLifecycle.ts \
+  packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.test.ts \
+  packages/client-web/src/app/App/world/hoverAnalysis/createWorkerWorldHoverAnalysisSource.test.ts \
+  packages/client-web/src/app/App/tests/App.worldInteractionPerformance.test.tsx \
   docs/specs/reference/technical-solutions/input-and-tooltip-handling/spec.md
 git commit -m "perf: avoid unnecessary hover-analysis worker sync"
 ```
@@ -208,16 +208,16 @@ git commit -m "perf: avoid unnecessary hover-analysis worker sync"
 
 **Files:**
 
-- Modify: `packages/client/src/app/App/hooks/useAppRuntime.ts`
-- Modify: `packages/client/src/app/App/useAppGameView.ts`
-- Modify: `packages/client/src/app/App/hooks/useHexGameplayView.ts`
-- Create: `packages/client/src/app/App/useAppGameView.test.ts`
-- Create: `packages/client/src/app/App/hooks/useHexGameplayView.test.ts`
+- Modify: `packages/client-web/src/app/App/hooks/useAppRuntime.ts`
+- Modify: `packages/client-web/src/app/App/useAppGameView.ts`
+- Modify: `packages/client-web/src/app/App/hooks/useHexGameplayView.ts`
+- Create: `packages/client-web/src/app/App/useAppGameView.test.ts`
+- Create: `packages/client-web/src/app/App/hooks/useHexGameplayView.test.ts`
 - Modify: `docs/specs/reference/technical-solutions/react-app-orchestration/spec.md`
 
 - [ ] **Step 1: Add focused tests for demand-scoped derivation**
 
-Create `packages/client/src/app/App/useAppGameView.test.ts` and assert that expensive selectors such as recipe-book entry generation, log filtering, and town-stock derivation are skipped when the related windows are hidden, while visible-window behavior remains unchanged.
+Create `packages/client-web/src/app/App/useAppGameView.test.ts` and assert that expensive selectors such as recipe-book entry generation, log filtering, and town-stock derivation are skipped when the related windows are hidden, while visible-window behavior remains unchanged.
 
 ```ts
 it('skips recipe and log derivation when those windows are hidden', async () => {
@@ -280,11 +280,11 @@ Document that deferred-window view derivation is demand-scoped and that hidden l
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/client/src/app/App/hooks/useAppRuntime.ts \
-  packages/client/src/app/App/useAppGameView.ts \
-  packages/client/src/app/App/hooks/useHexGameplayView.ts \
-  packages/client/src/app/App/useAppGameView.test.ts \
-  packages/client/src/app/App/hooks/useHexGameplayView.test.ts \
+git add packages/client-web/src/app/App/hooks/useAppRuntime.ts \
+  packages/client-web/src/app/App/useAppGameView.ts \
+  packages/client-web/src/app/App/hooks/useHexGameplayView.ts \
+  packages/client-web/src/app/App/useAppGameView.test.ts \
+  packages/client-web/src/app/App/hooks/useHexGameplayView.test.ts \
   docs/specs/reference/technical-solutions/react-app-orchestration/spec.md
 git commit -m "perf: scope deferred window derivations"
 ```
@@ -293,10 +293,10 @@ git commit -m "perf: scope deferred window derivations"
 
 **Files:**
 
-- Modify: `packages/client/src/app/App/components/AppShell.tsx`
-- Modify: `packages/client/src/app/audio/voiceLibrary.ts`
-- Modify: `packages/client/src/app/App/components/AppShell.test.tsx`
-- Modify: `packages/client/src/app/audio/voiceLibrary.test.ts`
+- Modify: `packages/client-web/src/app/App/components/AppShell.tsx`
+- Modify: `packages/client-web/src/app/audio/voiceLibrary.ts`
+- Modify: `packages/client-web/src/app/App/components/AppShell.test.tsx`
+- Modify: `packages/client-web/src/app/audio/voiceLibrary.test.ts`
 - Modify: `docs/specs/reference/technical-solutions/react-app-orchestration/spec.md`
 
 - [ ] **Step 1: Add tests for effective voice-enable gating and lazy library construction**
@@ -375,10 +375,10 @@ Document that the voice bridge now stays behind both user activation and effecti
 - [ ] **Step 6: Commit**
 
 ```bash
-git add packages/client/src/app/App/components/AppShell.tsx \
-  packages/client/src/app/audio/voiceLibrary.ts \
-  packages/client/src/app/App/components/AppShell.test.tsx \
-  packages/client/src/app/audio/voiceLibrary.test.ts \
+git add packages/client-web/src/app/App/components/AppShell.tsx \
+  packages/client-web/src/app/audio/voiceLibrary.ts \
+  packages/client-web/src/app/App/components/AppShell.test.tsx \
+  packages/client-web/src/app/audio/voiceLibrary.test.ts \
   docs/specs/reference/technical-solutions/react-app-orchestration/spec.md
 git commit -m "perf: defer voice playback setup"
 ```

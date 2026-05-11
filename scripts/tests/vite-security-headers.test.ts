@@ -2,7 +2,7 @@ import {
   createSecurityHeaders,
   DEV_CONTENT_SECURITY_POLICY,
   RESPONSE_CONTENT_SECURITY_POLICY,
-} from '../../packages/client/vite.security';
+} from '../../packages/client-web/vite.security';
 
 describe('Vite security headers', () => {
   it('keeps isolation headers enabled for dev and preview responses', () => {

@@ -14,17 +14,17 @@ const PRETTIER_EXTENSIONS = new Set([
 const STYLELINT_EXTENSIONS = new Set(['.css', '.scss']);
 const VITEST_RELATED_EXTENSIONS = new Set([...LINT_EXTENSIONS, '.json']);
 const PACKAGE_JSON_PATH = 'package.json';
-const CLIENT_SRC_DIR = 'packages/client/src';
-const CLIENT_GAME_CONFIG_PATH = 'packages/client/game.config.ts';
+const CLIENT_SRC_DIR = 'packages/client-web/src';
+const CLIENT_GAME_CONFIG_PATH = 'packages/client-web/game.config.ts';
 const DEFAULT_MAX_ARGUMENT_CHARS = 6_000;
 const PACKAGE_JSON_VERSION_DIFF_LINE_PATTERN =
   /^[-+]\s*"version":\s*"[^"]+",\s*$/u;
 
 export const FULL_TEST_TRIGGER_FILES = new Set([
   'pnpm-lock.yaml',
-  'packages/client/vite.config.ts',
-  'packages/client/tsconfig.json',
-  'packages/client/tsconfig.node.json',
+  'packages/client-web/vite.config.ts',
+  'packages/client-web/tsconfig.json',
+  'packages/client-web/tsconfig.node.json',
   `${CLIENT_SRC_DIR}/test/setup.node.ts`,
   `${CLIENT_SRC_DIR}/test/setup.shared.ts`,
   `${CLIENT_SRC_DIR}/test/setup.ts`,

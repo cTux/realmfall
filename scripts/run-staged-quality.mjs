@@ -9,7 +9,7 @@ import {
   isVitestRelatedFile,
   shouldRunFullTestSuite,
 } from './run-staged-quality.helpers.mjs';
-import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
+import { createPnpmInvocation } from '../packages/client-web/scripts/pnpm-command.mjs';
 
 const gitBin = process.platform === 'win32' ? 'git.exe' : 'git';
 
@@ -78,7 +78,7 @@ const packageJsonDiffText = stagedFiles.includes('package.json')
   ? getPackageJsonDiffText()
   : '';
 const lintClientFiles = lintFiles.filter((file) =>
-  file.startsWith('packages/client/'),
+  file.startsWith('packages/client-web/'),
 );
 const hasFullTestTrigger = shouldRunFullTestSuite(
   stagedFiles,

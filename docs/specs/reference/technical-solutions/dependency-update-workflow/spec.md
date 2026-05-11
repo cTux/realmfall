@@ -17,13 +17,13 @@ This spec covers the local workflow for inspecting, applying, validating, and co
 
 - `pnpm-workspace.yaml`
 - `package.json`
-- `packages/client/package.json`
+- `packages/client-web/package.json`
 - `packages/common/package.json`
 - `packages/server-world/package.json`
-- `packages/ui/package.json`
-- `packages/client/scripts/dependency-updates.mjs`
-- `packages/client/scripts/dependency-updates.helpers.mjs`
-- `packages/client/scripts/pnpm-command.mjs`
+- `packages/ui-react/package.json`
+- `packages/client-web/scripts/dependency-updates.mjs`
+- `packages/client-web/scripts/dependency-updates.helpers.mjs`
+- `packages/client-web/scripts/pnpm-command.mjs`
 - `scripts/commit-version-bump.mjs`
 - `scripts/git-commit.mjs`
 - `scripts/tests/dependency-updates.test.ts`

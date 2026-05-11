@@ -4,7 +4,7 @@ import { resolve } from 'node:path';
 describe('index.html favicon theme mapping', () => {
   it('uses contrast-first favicon assets for light and dark color schemes', () => {
     const html = readFileSync(
-      resolve(process.cwd(), 'packages/client/index.html'),
+      resolve(process.cwd(), 'packages/client-web/index.html'),
       'utf8',
     ).replaceAll('\r\n', '\n');
 
@@ -20,7 +20,7 @@ describe('index.html favicon theme mapping', () => {
 describe('index.html startup hints', () => {
   it('leaves App modulepreload injection to the Vite plugin', () => {
     const html = readFileSync(
-      resolve(process.cwd(), 'packages/client/index.html'),
+      resolve(process.cwd(), 'packages/client-web/index.html'),
       'utf8',
     );
 

@@ -28,6 +28,7 @@ This spec covers deterministic hex-world traversal, visibility, and safe-path tr
 - Clicking an adjacent hostile hex stages combat in place instead of moving onto that hostile hex first, then starts the fight only after the short visual lunge completes.
 - A safe-path move can route to a visible destination when a path exists.
 - Clicking a farther visible hostile hex resolves the nearest reachable adjacent staging hex, paths only to that staging hex, then waits for the full arrival before the short visual lunge starts combat against the originally clicked hostile hex.
+- Hovering a farther visible hostile hex previews that same adjacent staging route instead of a direct path into the hostile tile.
 - If no reachable adjacent staging hex exists for a hostile destination, the click does not queue travel or start combat.
 - Unrevealed distant world-map hexes do not trigger movement, tooltip, or pathfinding work until they fall inside the revealed travel radius.
 - Missing visible frontier hexes appear immediately as unknown placeholders, cannot be entered or pathfound through until resolved, and each successful movement step starts a real-time `1000 ms` movement cooldown before the next approved step.

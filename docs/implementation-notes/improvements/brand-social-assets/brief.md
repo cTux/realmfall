@@ -77,9 +77,9 @@ Compass` silhouette.
 
 ## Expected Repo Touchpoints
 
-- `packages/client/src/assets/favicons/`
+- `packages/client-web/src/assets/favicons/`
 - Any additional social-avatar asset location selected during implementation.
-- `packages/client/index.html` if the favicon filenames or references change.
+- `packages/client-web/index.html` if the favicon filenames or references change.
 
 ## Verification Direction
 

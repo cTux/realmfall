@@ -6,7 +6,7 @@
 
 - Use the repo root workspace install with Node `v25.9.0` and `pnpm@11`.
 - Keep this package isomorphic. Do not introduce React, Pixi, Vite asset-loader, or browser-only I/O dependencies here.
-- Import canonical gameplay helpers from `@realmfall/core/game/*`. Keep compatibility facades and client-only gameplay test helpers in `packages/client/src/game`.
+- Import canonical gameplay helpers from `@realmfall/core/game/*`. Keep compatibility facades and client-only gameplay test helpers in `packages/client-web/src/game`.
 
 ## Scope
 
@@ -30,7 +30,7 @@
 
 ## Usage
 
-The package is isomorphic and does not depend on React, Pixi, or browser-only I/O helpers. It is safe for use in server-side workflows, and non-game client modules should import gameplay helpers from `@realmfall/core/game/*` instead of reaching into `packages/client/src/game`.
+The package is isomorphic and does not depend on React, Pixi, or browser-only I/O helpers. It is safe for use in server-side workflows, and non-game client modules should import gameplay helpers from `@realmfall/core/game/*` instead of reaching into `packages/client-web/src/game`.
 
 ## Related Docs
 

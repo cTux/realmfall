@@ -6,22 +6,22 @@ This spec covers the repository layer boundaries, state transition shape, and co
 
 ## Current Solution
 
-- Client-side `src/*` paths below live under `packages/client/` after the monorepo split.
-- Gameplay-module `src/game/*` references below resolve under `packages/core/src/game` unless a bullet explicitly names `packages/client/src/game`.
+- Client-side `src/*` paths below live under `packages/client-web/` after the monorepo split.
+- Gameplay-module `src/game/*` references below resolve under `packages/core/src/game` unless a bullet explicitly names `packages/client-web/src/game`.
 - `packages/core/src/game` contains the canonical gameplay and simulation rules.
-- `packages/client/src/game` contains compatibility facades and client-owned gameplay test helpers, while non-game client modules import canonical runtime code directly from `@realmfall/core/game/*`.
-- `packages/client/src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
-- Repeated app-controller command families that only adapt gameplay transitions into UI handlers stay in focused neighbors such as `packages/client/src/app/App/hooks/gameActionHandlers/*` instead of regrowing broad orchestration hooks with hand-wired callback lists.
-- `packages/client/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui/src/components` contains shared reusable controls consumed through `@realmfall/ui-react`.
-- Shared `packages/ui` controls keep UI-owned view contracts and helper logic under `packages/ui/src/game` and receive caller-derived action metadata instead of importing client `stateTypes`, app-only controller types, or gameplay config modules into the shared package implementation.
-- Shared package-owned helpers for icons, tooltip placement, tooltip lines, compact formatting, and generated icon resolution live under `packages/ui/src/*` instead of re-exporting `packages/client/src/ui/*`.
-- Shared translation state now lives in `packages/ui/src/i18n`, while `packages/client/src/i18n/index.ts` remains responsible for loading locale assets and seeding the shared contract at runtime.
+- `packages/client-web/src/game` contains compatibility facades and client-owned gameplay test helpers, while non-game client modules import canonical runtime code directly from `@realmfall/core/game/*`.
+- `packages/client-web/src/app` contains app orchestration, hydration, persistence wiring, clock wiring, and controller hooks.
+- Repeated app-controller command families that only adapt gameplay transitions into UI handlers stay in focused neighbors such as `packages/client-web/src/app/App/hooks/gameActionHandlers/*` instead of regrowing broad orchestration hooks with hand-wired callback lists.
+- `packages/client-web/src/ui/components` contains client-only React window components and presentational UI, while `packages/ui-react/src/components` contains shared reusable controls consumed through `@realmfall/ui-react`.
+- Shared `packages/ui-react` controls keep UI-owned view contracts and helper logic under `packages/ui-react/src/game` and receive caller-derived action metadata instead of importing client `stateTypes`, app-only controller types, or gameplay config modules into the shared package implementation.
+- Shared package-owned helpers for icons, tooltip placement, tooltip lines, compact formatting, and generated icon resolution live under `packages/ui-react/src/*` instead of re-exporting `packages/client-web/src/ui/*`.
+- Shared translation state now lives in `packages/ui-react/src/i18n`, while `packages/client-web/src/i18n/index.ts` remains responsible for loading locale assets and seeding the shared contract at runtime.
 - Shared item presentation ownership in `@realmfall/ui-react` includes canonical slot-based item-category fallback rules, item tag constants required by shared UI display logic, icon-kind selection, configured tint lookup, and equippable tint family/tone selection.
 - Runtime item contracts are aligned to carry optional `tint` on built/configured items so shared item tint decisions can prefer materialized presentation data without re-querying configuration.
-- `packages/client/src/ui/icons.ts` only adds client-only concerns (enemy, structure, skill, and configured item overrides) and delegates shared item display decisions to `@realmfall/ui-react`.
-- `packages/ui/src/game` does not re-export `packages/client/src/game/content/*`, and `packages/ui/src/game/__tests__/boundary.spec.test.ts` now enforces the broader `packages/ui/src/**` no-client-import boundary for TypeScript modules, leaving only the Storybook fixture helper as an explicit bridge while `packages/ui/src/styles/_ui.scss` remains the isolated shared surface-token forward.
-- `packages/client/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
-- `packages/client/src/persistence` contains local save storage helpers.
+- `packages/client-web/src/ui/icons.ts` only adds client-only concerns (enemy, structure, skill, and configured item overrides) and delegates shared item display decisions to `@realmfall/ui-react`.
+- `packages/ui-react/src/game` does not re-export `packages/client-web/src/game/content/*`, and `packages/ui-react/src/game/__tests__/boundary.spec.test.ts` now enforces the broader `packages/ui-react/src/**` no-client-import boundary for TypeScript modules, leaving only the Storybook fixture helper as an explicit bridge while `packages/ui-react/src/styles/_ui.scss` remains the isolated shared surface-token forward.
+- `packages/client-web/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
+- `packages/client-web/src/persistence` contains local save storage helpers.
 - `packages/server-chat/src` contains the standalone chat-service runtime, HTTP message routes, in-memory message storage, and websocket availability notifications while reusing `packages/server-auth/src/googleAuth.ts` for Google player identity verification.
 - `packages/server-world/src` contains the world-service runtime entrypoint, HTTP routes, and server-only version metadata resolution.
 - `packages/server-auth/src` contains the standalone auth-service runtime, Google token verification, realm-directory routes, and auth-specific version metadata resolution.
@@ -48,7 +48,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - React controllers invoke these transitions with the current world time injected from refs.
 - Shared selectors derive view-ready data without pushing gameplay logic down into windows.
 - Unique items, enemies, and structures live in dedicated content files under `src/game/content`.
-- Package-local setup, requirement, and command notes live in `packages/client/README.md`, `packages/common/README.md`, `packages/core/README.md`, `packages/server-auth/README.md`, `packages/server-chat/README.md`, `packages/server-world/README.md`, and `packages/ui/README.md`, while `docs/specs` stays canonical for cross-package technical solutions.
+- Package-local setup, requirement, and command notes live in `packages/client-web/README.md`, `packages/common/README.md`, `packages/core/README.md`, `packages/server-auth/README.md`, `packages/server-chat/README.md`, `packages/server-world/README.md`, and `packages/ui-react/README.md`, while `docs/specs` stays canonical for cross-package technical solutions.
 
 ## Main Implementation Areas
 
@@ -58,13 +58,13 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/core/src/game/stateFactory.ts`
 - `packages/core/src/game/stateSelectors.ts`
 - `packages/core/src/game/stateTypes.ts`
-- `packages/client/src/game`
-- `packages/client/src/app`
-- `packages/client/src/ui/components`
-- `packages/client/src/ui/world`
-- `packages/client/src/persistence`
-- `packages/ui/src/game`
-- `packages/ui/src/components`
+- `packages/client-web/src/game`
+- `packages/client-web/src/app`
+- `packages/client-web/src/ui/components`
+- `packages/client-web/src/ui/world`
+- `packages/client-web/src/persistence`
+- `packages/ui-react/src/game`
+- `packages/ui-react/src/components`
 - `packages/server-chat/src`
 - `packages/server-world/src`
 - `packages/server-auth/src`

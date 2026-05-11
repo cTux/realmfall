@@ -5,8 +5,8 @@
 - Follow the existing window-based desktop-style UI instead of introducing unrelated navigation patterns.
 - Keep heavy app coordination in dedicated hooks when possible, following patterns already used in `src/app/App`.
 - Keep component-only hooks in a colocated `hooks/` directory when just one component or feature uses them.
-- Keep reusable UI layout, sizing, spacing, transparency, and timing values in `packages/client/src/client.config.ts` instead of open-coding them across window and renderer modules.
-- Keep reusable UI and renderer color values in `packages/client/src/theme.config.ts` instead of repeating raw color literals across TS and TSX modules.
+- Keep reusable UI layout, sizing, spacing, transparency, and timing values in `packages/client-web/src/client.config.ts` instead of open-coding them across window and renderer modules.
+- Keep reusable UI and renderer color values in `packages/client-web/src/theme.config.ts` instead of repeating raw color literals across TS and TSX modules.
 - When reducing React rerender fanout, move window-specific derivation, dock composition, and stable window handler ownership out of `src/app/App/App.tsx` and into narrower hooks or the window composition layer when that keeps unrelated windows from recomputing together.
 - Compose memoized window view slices and grouped window action maps through dedicated hooks under `src/app/App/hooks` once `App.tsx` starts accumulating broad `hero`, `player`, `world`, `logs`, or action-group objects inline.
 - Do not let `src/app/App/App.tsx` rebuild broad nested `layout`, `views`, or `actions` object graphs inline once that data can be composed in narrower hooks or neighboring modules.
@@ -19,6 +19,7 @@
 - When `AppShell` only needs shell-local slices such as home-indicator inputs or
   recorded-voice playback state, pass a dedicated shell contract instead of the
   full `GameState`.
+- Keep audio-bridge-only state on a sibling or narrower child boundary instead of bundling it into broad shell props. Combat log and voice playback updates should not force unrelated shell UI such as the home indicator, dock, or loading chrome through the same render path.
 - Keep `useAppRuntime` composition-first. When shortcut availability or window wiring starts expanding inside it, move those branches into focused neighbors such as `useAppShortcutRuntime` and `useAppWindowRuntime` instead of letting one orchestration hook own every nested argument object directly.
 - Keep `useAppWindowRuntime` responsible for adapting grouped controller, settings, gameplay-view, and transition slices into window view and action inputs so `useAppRuntime` does not rebuild another large window-facing argument object inline.
 - When multiple deferred windows share the same entered, mounted, timeout, and snapshot-retention lifecycle, extract that lifecycle into a focused local hook under `src/app/App/hooks` and keep `useWindowTransitions` as a thin composition layer over the shared helper.
@@ -39,12 +40,12 @@
 - When one view-model hook accumulates separate hero, logs, recipes, and tile-specific derivation together, split the tile-facing branch into a focused helper such as `useHexGameplayView` so hex availability, item modification state, and town interactions do not share a file with unrelated view slices.
 - Name persisted or transitional loot arrays after their tile ownership, such as `tileLootSnapshot`, and type them from tile loot or window view state instead of reusing player inventory types for convenience.
 - Keep the base app shell visible while persistence hydration or Pixi bootstrap is in flight. Loading states may cover the map viewport, but they should not hide the dock, action bar, or other already-renderable shell UI behind a full-screen visibility gate.
-- Keep Storybook stories for every shared component under `packages/ui/src/components` and for every client-only window or wrapper component under `packages/client/src/ui/components`.
+- Keep Storybook stories for every shared component under `packages/ui-react/src/components` and for every client-only window or wrapper component under `packages/client-web/src/ui/components`.
 - Every component addition, removal, or behavior-affecting UI change should add or update the corresponding Storybook story in the same task.
 - Keep Storybook coverage guards aligned with colocated test layout. Top-level `__tests__` directories used for UI testkits should be ignored by Storybook-coverage checks instead of being treated as missing component-story folders.
-- When a shared `packages/ui` story only needs representative gameplay-shaped data, prefer local fixture objects or existing Storybook fixtures instead of routing through `packages/ui/src/game` into client gameplay builders.
-- When a shared `packages/ui` control only needs item or window display data plus scalar gameplay values, pass those values through a UI-owned structural prop contract instead of importing client config, app helpers, or broad client state types into the shared package.
-- In `packages/client`, render button affordances through `Button` from `@realmfall/ui-react` instead of raw `<button>` elements. When a client surface needs bespoke chrome, keep that styling on the client class while routing the element through the shared `Button` primitive.
+- When a shared `packages/ui-react` story only needs representative gameplay-shaped data, prefer local fixture objects or existing Storybook fixtures instead of routing through `packages/ui-react/src/game` into client gameplay builders.
+- When a shared `packages/ui-react` control only needs item or window display data plus scalar gameplay values, pass those values through a UI-owned structural prop contract instead of importing client config, app helpers, or broad client state types into the shared package.
+- In `packages/client-web`, render button affordances through `Button` from `@realmfall/ui-react` instead of raw `<button>` elements. When a client surface needs bespoke chrome, keep that styling on the client class while routing the element through the shared `Button` primitive.
 - Keep aggregate Storybook catalogs for entity dictionaries such as `ITEM_CONFIGS`, `ENEMY_CONFIGS`, and `STRUCTURE_CONFIGS`, and prefer rendering those catalogs directly from the live config arrays so entity additions, removals, and edits appear automatically.
 - Derive Storybook window-dock fixtures from the same runtime dock builder and window registry used by the app instead of maintaining a separate Storybook-only dock entry list.
 - Prefer maximally reusable UI components and helpers. When multiple windows or controls share the same structure or behavior, reuse or extend a shared primitive instead of maintaining parallel implementations.
