@@ -14,7 +14,9 @@ This spec covers the shipped version metadata flow from `package.json` into the 
 - `packages/server-auth/src/version.ts` derives the auth-service build version from the same root `package.json` source and the same git short SHA strategy, falling back to the plain release version when git metadata is unavailable.
 - `packages/server-auth/src/app.ts` exposes `GET /api/version`, returning `{ "version": "<package version plus git build metadata>" }`.
 - `pnpm dev` runs both the client Vite server and the server source runtime behind local HTTPS without a production build step, so secure-origin local checks use the live source path.
+- `pnpm dev:electron` launches Electron against the existing local client-web dev server URL, preserving the browser client's version polling behavior on the desktop path.
 - `pnpm serve` runs the built `dist` output behind local HTTPS using a generated self-signed localhost certificate so release-like checks exercise the secure origin path.
+- The production Electron shell serves the built `packages/client-web/dist` output over localhost, so the desktop renderer reads the same emitted `version.json` file that the browser build uses instead of switching the client to a separate desktop-only version source.
 - The app mounts an in-game version-status widget in the bottom-right corner, polls `/version.json`, shows yellow while checking, green when versions match, red when they differ, and exposes a reload action only for the mismatched state.
 - Routine contributor commits increment the `package.json` patch version before the commit is created, making the package release version advance monotonically with local commit history.
 - When the active pre-commit hook already covers the validation needed for a commit, contributors rely on that hook instead of rerunning the same manual checks immediately beforehand.

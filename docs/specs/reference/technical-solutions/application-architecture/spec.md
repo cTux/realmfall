@@ -22,6 +22,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/ui-react/src/game` does not re-export `packages/client-web/src/game/content/*`, and `packages/ui-react/src/game/__tests__/boundary.spec.test.ts` now enforces the broader `packages/ui-react/src/**` no-client-import boundary for TypeScript modules, leaving only the Storybook fixture helper as an explicit bridge while `packages/ui-react/src/styles/_ui.scss` remains the isolated shared surface-token forward.
 - `packages/client-web/src/ui/world` contains Pixi world rendering, render math, scene caches, pools, and atmosphere helpers.
 - `packages/client-web/src/persistence` contains local save storage helpers.
+- `packages/client-electron/src` contains the thin Electron shell runtime, preload boundary, and localhost serving path for the existing web renderer.
 - `packages/server-chat/src` contains the standalone chat-service runtime, HTTP message routes, in-memory message storage, and websocket availability notifications while reusing `packages/server-auth/src/googleAuth.ts` for Google player identity verification.
 - `packages/server-world/src` contains the world-service runtime entrypoint, HTTP routes, and server-only version metadata resolution.
 - `packages/server-auth/src` contains the standalone auth-service runtime, Google token verification, realm-directory routes, and auth-specific version metadata resolution.
@@ -63,6 +64,7 @@ This spec covers the repository layer boundaries, state transition shape, and co
 - `packages/client-web/src/ui/components`
 - `packages/client-web/src/ui/world`
 - `packages/client-web/src/persistence`
+- `packages/client-electron/src`
 - `packages/ui-react/src/game`
 - `packages/ui-react/src/components`
 - `packages/server-chat/src`
