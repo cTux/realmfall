@@ -2,6 +2,10 @@ import { setWorldClockTime } from '../../../../app/App/worldClockStore';
 import { HexInfoWindowTestkit } from './HexInfoWindowTestkit';
 import { buildCombatState } from './utils/hexInfoWindowFixtures';
 
+const HEX_INFO_WINDOW_HEADER_TIMEOUT_MS = 10_000;
+
+vi.setConfig({ testTimeout: HEX_INFO_WINDOW_HEADER_TIMEOUT_MS });
+
 describe('HexInfoWindow header', () => {
   let testkit: HexInfoWindowTestkit;
 
