@@ -9,7 +9,7 @@
 - Consider React rerender cost and Pixi redraw cost together for world-facing changes.
 - Prefer a single clear render scheduler for the world path. Avoid duplicate immediate redraw triggers layered on top of the ticker unless there is a measured reason.
 - When React-driven world state changes need a redraw, prefer updating refs or lightweight invalidation flags that the ticker consumes instead of adding a second immediate `renderScene` effect path.
-- Cap Pixi ticker wakeups to the selected world render FPS, and keep the render bucket frame size aligned with that selected cadence so idle frames do not wake at display refresh speed only to no-op.
+- Cap Pixi ticker wakeups to the selected world render FPS, and use a separate lower idle-animation bucket cadence when stable animated-world layers do not need full-speed redraw invalidation.
 - Keep user-facing Pixi render FPS controls normalized through graphics settings and clamped to the supported range before they reach ticker or render-bucket code.
 - Keep `usePixiWorld` focused on refs, lifecycle effects, and async bootstrap wiring. Move render-loop comparison, camera persistence, and pointer interaction details into neighboring `src/app/App/world` modules once the world hook starts accumulating those responsibilities.
 - Keep world tile-resolution coordinator bootstrap, overlay-to-visible-tile updates, resolved-payload merges, and `syncVisibleCoords` orchestration in a focused neighboring helper such as `src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts` so `usePixiWorld` remains composition-first.
@@ -30,7 +30,7 @@
 - Separate static world layers from animated or transient layers when doing so reduces repeated redraw cost without making the renderer harder to reason about.
 - Keep world-map terrain geometry, fog, ground cover, and stable structure or enemy markers on cached static Pixi layers. Do not redraw unchanged map geometry on every ticker frame just because time-based animation is advancing.
 - Put hover, selection, and other short-lived interaction highlights on their own invalidated layer so pointer-state changes do not force a rebuild of the full world scene.
-- Reserve per-frame ticker redraws for genuinely animated layers such as clouds, atmosphere, overlays, firelight, and similar time-driven effects; static layers should refresh only when their actual inputs change.
+- Reserve high-frequency ticker redraws for movement, cooldown, transition, or similarly time-sensitive invalidation. Idle animated layers such as clouds, atmosphere, overlays, firelight, and similar time-driven effects may run on a lower dedicated cadence, while static layers refresh only when their actual inputs change.
 - Keep `pointermove` handlers focused on pointer-to-world translation, cache lookup, and lightweight state handoff. Expensive hover analysis such as pathfinding, enemy aggregation, or tooltip assembly should be throttled or precomputed when it becomes measurable on that path.
 - Keep hover-analysis worker sync payloads on a nearby active-world slice with
   precomputed reveal-radius inputs. Do not clone full `tiles`, `enemies`, or

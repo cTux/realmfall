@@ -4,7 +4,10 @@ import { WORLD_MOVE_HEX_COOLDOWN_MS } from '@realmfall/core/game/config';
 import { hexDistance } from '@realmfall/core/game/hex';
 import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 import { getWorldTimeMinutesFromTimestamp } from '@realmfall/core/game/worldTime';
-import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
+import {
+  ANIMATED_LAYER_FPS,
+  getWorldRenderFrameMs,
+} from '../../../ui/world/renderCadence';
 import {
   getReachableWorldIconAssetIds,
   getWorldIconTextureVersion,
@@ -29,7 +32,7 @@ import {
 
 type RenderScene = typeof import('../../../ui/world/renderScene').renderScene;
 
-export const WORLD_ANIMATION_FPS = DEFAULT_WORLD_RENDER_FPS;
+export const WORLD_ANIMATION_FPS = ANIMATED_LAYER_FPS;
 
 export function configureWorldTickerCadence(
   ticker: { maxFPS: number },
@@ -95,7 +98,12 @@ export function createWorldRenderFrame({
       : wallClockMs;
     const worldRenderFps = normalizeWorldRenderFps(worldRenderFpsRef.current);
     const worldRenderFrameMs = getWorldRenderFrameMs(worldRenderFps);
-    const animationBucket = Math.floor(animationMs / worldRenderFrameMs);
+    const animatedWorldRenderFrameMs =
+      getWorldRenderFrameMs(WORLD_ANIMATION_FPS);
+    const animationBucket = Math.floor(
+      animationMs / animatedWorldRenderFrameMs,
+    );
+    const animatedFrameMs = animationBucket * animatedWorldRenderFrameMs;
     const lastRenderSnapshot = lastRenderSnapshotRef.current;
     const invalidationToken = renderInvalidationRef.current;
     const iconTextureVersion = getWorldIconTextureVersion();
@@ -234,7 +242,7 @@ export function createWorldRenderFrame({
       currentSelected,
       currentHoveredMove,
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
-      animationBucket * worldRenderFrameMs,
+      animatedFrameMs,
       currentHoveredSafePath,
       movementCooldown || currentMovementTransition
         ? {

@@ -29,6 +29,7 @@ import {
   configureWorldTickerCadence,
   createWorldRenderFrame,
 } from './pixiWorldRenderLoopTestkit';
+import { getWorldRenderFrameMs } from '../../../ui/world/renderCadence';
 import {
   createInitialWorldRenderSnapshot,
   getWorldRenderToken,
@@ -64,8 +65,8 @@ describe('pixiWorldRenderLoop', () => {
     expect(ticker.maxFPS).toBe(MAX_WORLD_RENDER_FPS);
   });
 
-  it('defaults the world render FPS to the minimum supported cadence', () => {
-    expect(WORLD_ANIMATION_FPS).toBe(DEFAULT_WORLD_RENDER_FPS);
+  it('uses a lower animated FPS than the selected world render FPS', () => {
+    expect(WORLD_ANIMATION_FPS).toBeLessThan(DEFAULT_WORLD_RENDER_FPS);
   });
 
   it('re-renders when world icon textures finish loading after the first frame', () => {
@@ -276,7 +277,7 @@ describe('pixiWorldRenderLoop', () => {
     performanceNowSpy.mockRestore();
   });
 
-  it('uses the selected render FPS for animation buckets', () => {
+  it('uses a lower animated cadence for idle frames', () => {
     let now = 0;
     const performanceNowSpy = vi
       .spyOn(performance, 'now')
@@ -306,9 +307,62 @@ describe('pixiWorldRenderLoop', () => {
     now = 10;
     renderFrame();
 
+    expect(renderScene).toHaveBeenCalledTimes(1);
+
+    now = 34;
+    renderFrame();
+
     expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[1]?.[6]).toBe(
+      1 * getWorldRenderFrameMs(WORLD_ANIMATION_FPS),
+    );
     expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
       worldRenderFps: 120,
+    });
+
+    performanceNowSpy.mockRestore();
+  });
+
+  it('keeps movement-cooldown redraws independent from the idle animation bucket', () => {
+    let now = 0;
+    const performanceNowSpy = vi
+      .spyOn(performance, 'now')
+      .mockImplementation(() => now);
+    const renderScene = vi.fn();
+    const movementCooldownEndAtRef = { current: 1_500 as number | null };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: { player: { coord: { q: 0, r: 0 } } } } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 0, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: 120 },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef: { current: 0 },
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+      movementCooldownEndAtRef,
+    } as never);
+
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(1);
+    expect(renderScene.mock.calls[0]?.[6]).toBe(0);
+
+    now = 16;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+      movementCooldown: {
+        endAtMs: 1_500,
+      },
     });
 
     performanceNowSpy.mockRestore();
