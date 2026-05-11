@@ -22,8 +22,3 @@ export interface AppShellHomeIndicatorState {
   radius: number;
   visibleRadius: number;
 }
-
-export interface AppShellState {
-  homeIndicator: AppShellHomeIndicatorState;
-  voicePlayback: AppShellVoicePlaybackState;
-}

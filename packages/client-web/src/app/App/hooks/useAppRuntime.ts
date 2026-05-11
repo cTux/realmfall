@@ -22,7 +22,10 @@ import { useCraftingRecipeBookPromotion } from './useCraftingRecipeBookPromotion
 import { useGameplayAutomation } from './useGameplayAutomation';
 import { useDungeonTransitionController } from './useDungeonTransitionController';
 import { useHexInfoWindowPromotion } from './useHexInfoWindowPromotion';
-import type { AppShellState } from '../AppShell.types';
+import type {
+  AppShellHomeIndicatorState,
+  AppShellVoicePlaybackState,
+} from '../AppShell.types';
 import { getPresentedCombat } from '../../../game/combatPresentation';
 
 export function useAppRuntime() {
@@ -303,39 +306,42 @@ export function useAppRuntime() {
       bootstrap.game.worlds,
     ],
   );
-  const shellState = useMemo(
+  const homeIndicatorState = useMemo(
     () =>
       ({
-        homeIndicator: {
-          currentWorldKind,
-          dungeonExitHex,
-          homeHex: bootstrap.game.homeHex,
-          playerCoord: bootstrap.game.player.coord,
-          radius: bootstrap.game.radius,
-          visibleRadius: worldRevealRadius,
-        },
-        voicePlayback: {
-          combat: bootstrap.game.combat,
-          logSequence: bootstrap.game.logSequence,
-          logs: bootstrap.game.logs,
-          player: {
-            hp: bootstrap.game.player.hp,
-            statusEffects: bootstrap.game.player.statusEffects,
-          },
-        },
-      }) satisfies AppShellState,
+        currentWorldKind,
+        dungeonExitHex,
+        homeHex: bootstrap.game.homeHex,
+        playerCoord: bootstrap.game.player.coord,
+        radius: bootstrap.game.radius,
+        visibleRadius: worldRevealRadius,
+      }) satisfies AppShellHomeIndicatorState,
     [
-      bootstrap.game.combat,
       bootstrap.game.homeHex,
-      bootstrap.game.logs,
-      bootstrap.game.logSequence,
       bootstrap.game.player.coord,
-      bootstrap.game.player.hp,
-      bootstrap.game.player.statusEffects,
       bootstrap.game.radius,
       currentWorldKind,
       dungeonExitHex,
       worldRevealRadius,
+    ],
+  );
+  const voicePlaybackState = useMemo(
+    () =>
+      ({
+        combat: bootstrap.game.combat,
+        logSequence: bootstrap.game.logSequence,
+        logs: bootstrap.game.logs,
+        player: {
+          hp: bootstrap.game.player.hp,
+          statusEffects: bootstrap.game.player.statusEffects,
+        },
+      }) satisfies AppShellVoicePlaybackState,
+    [
+      bootstrap.game.combat,
+      bootstrap.game.logSequence,
+      bootstrap.game.logs,
+      bootstrap.game.player.hp,
+      bootstrap.game.player.statusEffects,
     ],
   );
 
@@ -343,7 +349,7 @@ export function useAppRuntime() {
     audioSettings: controllerState.audioSettings,
     backgroundMusicMood: gameView.backgroundMusicMood,
     claimedHex: gameView.firstClaimedHex,
-    shellState,
+    homeIndicatorState,
     hostRef: pixiWorld.hostRef,
     interfaceSettings: controllerState.interfaceSettings,
     isReady,
@@ -351,6 +357,7 @@ export function useAppRuntime() {
       pixiWorld.canvasError || dungeonTransition.hasTransitionError,
     paused: bootstrap.paused,
     uiAudio: bootstrap.uiAudio,
+    voicePlaybackState,
     windowsProps,
     onRetryPixiWorld: dungeonTransition.hasTransitionError
       ? dungeonTransition.retryTransition

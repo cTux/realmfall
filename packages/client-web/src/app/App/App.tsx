@@ -1,5 +1,6 @@
 import { Profiler, type ProfilerOnRenderCallback } from 'react';
-import { AppShell } from './components/AppShell';
+import { UiAudioProvider } from '../audio/UiAudioContext';
+import { AppAudioBridgeLayer, AppShell } from './components/AppShell';
 import { useAppRuntime } from './hooks/useAppRuntime';
 import {
   isPerformanceHarnessActive,
@@ -19,21 +20,25 @@ export function App() {
   const appRuntime = useAppRuntime();
 
   const shell = (
-    <AppShell
-      audioSettings={appRuntime.audioSettings}
-      backgroundMusicMood={appRuntime.backgroundMusicMood}
-      claimedHex={appRuntime.claimedHex}
-      shellState={appRuntime.shellState}
-      hostRef={appRuntime.hostRef}
-      interfaceSettings={appRuntime.interfaceSettings}
-      isReady={appRuntime.isReady}
-      pixiWorldError={appRuntime.pixiWorldError}
-      paused={appRuntime.paused}
-      uiAudio={appRuntime.uiAudio}
-      windowsProps={appRuntime.windowsProps}
-      onRetryPixiWorld={appRuntime.onRetryPixiWorld}
-      onUiAudioChange={appRuntime.onUiAudioChange}
-    />
+    <UiAudioProvider value={appRuntime.uiAudio}>
+      <AppAudioBridgeLayer
+        audioSettings={appRuntime.audioSettings}
+        backgroundMusicMood={appRuntime.backgroundMusicMood}
+        onUiAudioChange={appRuntime.onUiAudioChange}
+        voicePlaybackState={appRuntime.voicePlaybackState}
+      />
+      <AppShell
+        claimedHex={appRuntime.claimedHex}
+        homeIndicatorState={appRuntime.homeIndicatorState}
+        hostRef={appRuntime.hostRef}
+        interfaceSettings={appRuntime.interfaceSettings}
+        isReady={appRuntime.isReady}
+        pixiWorldError={appRuntime.pixiWorldError}
+        paused={appRuntime.paused}
+        windowsProps={appRuntime.windowsProps}
+        onRetryPixiWorld={appRuntime.onRetryPixiWorld}
+      />
+    </UiAudioProvider>
   );
 
   return isPerformanceHarnessActive() ? (

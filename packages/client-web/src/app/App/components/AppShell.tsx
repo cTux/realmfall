@@ -1,5 +1,6 @@
 import {
   lazy,
+  memo,
   Suspense,
   useEffect,
   useMemo,
@@ -12,15 +13,15 @@ import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
 import { recordStartupMark } from '../../../performance/performanceBridge';
 import type { BackgroundMusicMood } from '../../audio/backgroundMusic';
-import {
-  UiAudioProvider,
-  type UiAudioController,
-} from '../../audio/UiAudioContext';
+import type { UiAudioController } from '../../audio/UiAudioContext';
 import type { AudioSettings } from '../../audioSettings';
 import { applyInterfaceFontFamily } from '../../interfaceFonts';
 import type { InterfaceSettings } from '../../interfaceSettings';
 import type { AppWindowsProps } from '../AppWindows.types';
-import type { AppShellState } from '../AppShell.types';
+import type {
+  AppShellHomeIndicatorState,
+  AppShellVoicePlaybackState,
+} from '../AppShell.types';
 import styles from '../styles.module.scss';
 import { PauseOverlay } from './PauseOverlay';
 import { useAudioBridgeActivation } from './useAudioBridgeActivation';
@@ -56,37 +57,66 @@ const VersionStatusPanel = lazy(() =>
   })),
 );
 
-export function AppShell({
+export function AppAudioBridgeLayer({
   audioSettings,
   backgroundMusicMood,
+  onUiAudioChange,
+  voicePlaybackState,
+}: {
+  audioSettings: AudioSettings;
+  backgroundMusicMood: BackgroundMusicMood;
+  onUiAudioChange: (nextController: UiAudioController) => void;
+  voicePlaybackState: AppShellVoicePlaybackState;
+}) {
+  const audioBridgeActivated = useAudioBridgeActivation();
+  const canRenderRecordedVoice =
+    audioBridgeActivated && canPlayRecordedVoice(audioSettings);
+
+  return (
+    <Suspense fallback={null}>
+      <UiAudioControllerBridge
+        audioSettings={audioSettings}
+        onChange={onUiAudioChange}
+      />
+      {audioBridgeActivated ? (
+        <>
+          {canRenderRecordedVoice ? (
+            <VoiceAudioControllerBridge
+              audioSettings={audioSettings}
+              voicePlaybackState={voicePlaybackState}
+            />
+          ) : null}
+          <BackgroundMusicControllerBridge
+            audioSettings={audioSettings}
+            mood={backgroundMusicMood}
+          />
+        </>
+      ) : null}
+    </Suspense>
+  );
+}
+
+export const AppShell = memo(function AppShell({
   claimedHex,
-  shellState,
+  homeIndicatorState,
   hostRef,
   interfaceSettings,
   isReady,
   pixiWorldError,
   paused,
-  uiAudio,
   windowsProps,
   onRetryPixiWorld,
-  onUiAudioChange,
 }: {
-  audioSettings: AudioSettings;
-  backgroundMusicMood: BackgroundMusicMood;
   claimedHex: HexCoord | null;
-  shellState: AppShellState;
+  homeIndicatorState: AppShellHomeIndicatorState;
   hostRef: MutableRefObject<HTMLDivElement | null>;
   interfaceSettings: InterfaceSettings;
   isReady: boolean;
   pixiWorldError: boolean;
   paused: boolean;
-  uiAudio: UiAudioController;
   windowsProps: AppWindowsProps;
   onRetryPixiWorld: () => void;
-  onUiAudioChange: (nextController: UiAudioController) => void;
 }) {
-  const audioBridgeActivated = useAudioBridgeActivation();
-  const { homeIndicator, voicePlayback } = shellState;
   useEffect(() => {
     if (isReady) {
       recordStartupMark('app-ready');
@@ -95,25 +125,6 @@ export function AppShell({
   useEffect(() => {
     applyInterfaceFontFamily(interfaceSettings.fontFamily);
   }, [interfaceSettings.fontFamily]);
-
-  const voicePlaybackState = useMemo(
-    () => ({
-      combat: voicePlayback.combat,
-      logSequence: voicePlayback.logSequence,
-      logs: voicePlayback.logs,
-      player: {
-        hp: voicePlayback.player.hp,
-        statusEffects: voicePlayback.player.statusEffects,
-      },
-    }),
-    [
-      voicePlayback.combat,
-      voicePlayback.logSequence,
-      voicePlayback.logs,
-      voicePlayback.player.hp,
-      voicePlayback.player.statusEffects,
-    ],
-  );
 
   const appRootStyle = useMemo(
     () =>
@@ -132,90 +143,65 @@ export function AppShell({
     ],
   );
 
-  const canRenderRecordedVoice =
-    audioBridgeActivated && canPlayRecordedVoice(audioSettings);
-
   return (
-    <UiAudioProvider value={uiAudio}>
-      <div className={styles.appRoot} style={appRootStyle}>
+    <div className={styles.appRoot} style={appRootStyle}>
+      <div className={styles.appShell}>
+        <div ref={hostRef} className={styles.mapViewport} />
         <Suspense fallback={null}>
-          <UiAudioControllerBridge
-            audioSettings={audioSettings}
-            onChange={onUiAudioChange}
+          <HomeIndicator
+            claimedHex={claimedHex}
+            currentWorldKind={homeIndicatorState.currentWorldKind}
+            dungeonExitHex={homeIndicatorState.dungeonExitHex}
+            hostRef={hostRef}
+            homeHex={homeIndicatorState.homeHex}
+            playerCoord={homeIndicatorState.playerCoord}
+            radius={homeIndicatorState.radius}
+            visibleRadius={homeIndicatorState.visibleRadius}
           />
-          {audioBridgeActivated ? (
-            <>
-              {canRenderRecordedVoice ? (
-                <VoiceAudioControllerBridge
-                  audioSettings={audioSettings}
-                  voicePlaybackState={voicePlaybackState}
-                />
-              ) : null}
-              <BackgroundMusicControllerBridge
-                audioSettings={audioSettings}
-                mood={backgroundMusicMood}
-              />
-            </>
-          ) : null}
         </Suspense>
-        <div className={styles.appShell}>
-          <div ref={hostRef} className={styles.mapViewport} />
+        <div className={styles.uiShell}>
           <Suspense fallback={null}>
-            <HomeIndicator
-              claimedHex={claimedHex}
-              currentWorldKind={homeIndicator.currentWorldKind}
-              dungeonExitHex={homeIndicator.dungeonExitHex}
-              hostRef={hostRef}
-              homeHex={homeIndicator.homeHex}
-              playerCoord={homeIndicator.playerCoord}
-              radius={homeIndicator.radius}
-              visibleRadius={homeIndicator.visibleRadius}
+            <AppWindows {...windowsProps} />
+          </Suspense>
+          {isReady && paused ? (
+            <PauseOverlay
+              title={t('ui.pauseOverlay.title')}
+              subtitle={t('ui.pauseOverlay.subtitle')}
+            />
+          ) : null}
+          <Suspense fallback={null}>
+            <VersionStatusPanel
+              onRefresh={() => window.location.reload()}
+              onHoverDetail={windowsProps.actions.tooltip.onShowTooltip}
+              onLeaveDetail={windowsProps.actions.tooltip.onCloseTooltip}
             />
           </Suspense>
-          <div className={styles.uiShell}>
-            <Suspense fallback={null}>
-              <AppWindows {...windowsProps} />
-            </Suspense>
-            {isReady && paused ? (
-              <PauseOverlay
-                title={t('ui.pauseOverlay.title')}
-                subtitle={t('ui.pauseOverlay.subtitle')}
-              />
-            ) : null}
-            <Suspense fallback={null}>
-              <VersionStatusPanel
-                onRefresh={() => window.location.reload()}
-                onHoverDetail={windowsProps.actions.tooltip.onShowTooltip}
-                onLeaveDetail={windowsProps.actions.tooltip.onCloseTooltip}
-              />
-            </Suspense>
-            {isReady ? null : (
-              <div
-                className={styles.loadingScreen}
-                aria-live="polite"
-                aria-busy={!pixiWorldError}
-              >
-                <div className={styles.loadingContentShell}>
-                  {pixiWorldError ? (
-                    <div className={styles.loadingError} role="alert">
-                      <strong>{t('ui.loading.worldErrorTitle')}</strong>
-                      <p>{t('ui.loading.worldErrorBody')}</p>
-                      <Button unstyled type="button" onClick={onRetryPixiWorld}>
-                        {t('ui.loading.worldRetryAction')}
-                      </Button>
-                    </div>
-                  ) : (
-                    <LoadingSpinner className={styles.loadingSpinner} />
-                  )}
-                </div>
+          {isReady ? null : (
+            <div
+              className={styles.loadingScreen}
+              aria-live="polite"
+              aria-busy={!pixiWorldError}
+            >
+              <div className={styles.loadingContentShell}>
+                {pixiWorldError ? (
+                  <div className={styles.loadingError} role="alert">
+                    <strong>{t('ui.loading.worldErrorTitle')}</strong>
+                    <p>{t('ui.loading.worldErrorBody')}</p>
+                    <Button unstyled type="button" onClick={onRetryPixiWorld}>
+                      {t('ui.loading.worldRetryAction')}
+                    </Button>
+                  </div>
+                ) : (
+                  <LoadingSpinner className={styles.loadingSpinner} />
+                )}
               </div>
-            )}
-          </div>
+            </div>
+          )}
         </div>
       </div>
-    </UiAudioProvider>
+    </div>
   );
-}
+});
 
 function canPlayRecordedVoice(audioSettings: AudioSettings) {
   return (
