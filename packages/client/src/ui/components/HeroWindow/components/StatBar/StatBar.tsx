@@ -1,4 +1,4 @@
-import { formatCompactNumber } from '@realmfall/ui-react';
+import { formatCompactNumber } from '@realmfall/ui-react/formatters';
 import type { StatBarProps } from './types';
 import styles from './styles.module.scss';
 

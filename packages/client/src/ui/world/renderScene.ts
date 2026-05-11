@@ -1,5 +1,5 @@
 import { type Application } from 'pixi.js';
-import { recordPixiRenderCounts } from '../../performance/performanceHarness';
+import { recordPixiRenderCounts } from '../../performance/performanceBridge';
 import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
 import { renderTilePasses } from './renderSceneTilePasses';
 import {

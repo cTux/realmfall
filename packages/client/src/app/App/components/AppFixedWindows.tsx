@@ -7,12 +7,10 @@ import {
   canUseItem,
   isEquippableItem,
 } from '@realmfall/core/game/inventory';
-import {
-  ActionBar,
-  ContextMenu as ItemContextMenu,
-  DockPanel as WindowDock,
-  Tooltip as GameTooltip,
-} from '@realmfall/ui-react';
+import { ActionBar } from '@realmfall/ui-react/action-bar';
+import { ContextMenu as ItemContextMenu } from '@realmfall/ui-react/context-menu';
+import { DockPanel as WindowDock } from '@realmfall/ui-react/dock-panel';
+import { GameTooltip } from '@realmfall/ui-react/tooltip';
 import { HeroWindow } from '../../../ui/components/HeroWindow';
 import type {
   AppWindowsActions,

@@ -1,9 +1,7 @@
 import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
-import {
-  syncFollowCursorTooltipPosition,
-  type TooltipPosition,
-} from '@realmfall/ui-react';
+import { syncFollowCursorTooltipPosition } from '@realmfall/ui-react/tooltip';
+import type { TooltipPosition } from '@realmfall/ui-react/tooltip';
 import {
   hexAtPoint,
   hexDistance,

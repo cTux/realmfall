@@ -1,4 +1,5 @@
-import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui-react';
+import { Button } from '@realmfall/ui-react/button';
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui-react/item-slot';
 import roundStarIcon from '../../../assets/icons/round-star.svg';
 import { t } from '../../../i18n';
 import { ICON_TINT_COLORS } from '../../../theme.config';

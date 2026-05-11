@@ -360,6 +360,57 @@ describe('renderScene cache invalidation', () => {
     );
   });
 
+  it('recomputes visible tile render inputs when blood moon changes without changing tile or enemy refs', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-blood-moon-input-cache');
+    game.tiles['1,0'] = {
+      coord: { q: 1, r: 0 },
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    };
+    const visibleTiles = getVisibleTiles(game);
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      { q: 1, r: 0 },
+      null,
+      12 * 60,
+      1200,
+    );
+
+    const scene = getSceneCache(app as never);
+    const initialVisibleTileInputs = scene.derivedRenderVisibleTileInputs;
+    const initialStaticRenderCount = scene.renderCounts.static;
+    const initialPolygonCalls = countDrawnPolygons(getWorld(app));
+
+    game.bloodMoonActive = true;
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      { q: 1, r: 0 },
+      null,
+      12 * 60,
+      1800,
+    );
+
+    expect(scene.derivedRenderVisibleTileInputs).not.toBe(
+      initialVisibleTileInputs,
+    );
+    expect(scene.derivedRenderBloodMoonActive).toBe(true);
+    expect(scene.renderCounts.static).toBe(initialStaticRenderCount + 1);
+    expect(countDrawnPolygons(getWorld(app))).toBeGreaterThan(
+      initialPolygonCalls,
+    );
+    expect(scene.derivedRenderVisibleTilesSource).toBe(visibleTiles);
+    expect(scene.derivedRenderEnemiesSource).toBe(game.enemies);
+  });
+
   it('rerenders static marker layers when a visible enemy HP or MP value changes inside the same frame bucket', async () => {
     const { renderScene } = await import('./renderScene');
     const { getSceneCache } = await import('./renderSceneCache');

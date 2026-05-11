@@ -4,7 +4,7 @@ import { useAppRuntime } from './hooks/useAppRuntime';
 import {
   isPerformanceHarnessActive,
   recordReactCommit,
-} from '../../performance/performanceHarness';
+} from '../../performance/performanceBridge';
 
 const handleProfilerRender: ProfilerOnRenderCallback = (
   id,

@@ -1,6 +1,6 @@
 import type { ReactNode } from 'react';
 import { useUiAudio } from '../../app/audio/UiAudioContext';
-import { Button } from '@realmfall/ui-react';
+import { Button } from '@realmfall/ui-react/button';
 import { stripBracketHotkeyLabel } from '../hotkeyLabels';
 import type { TooltipLine } from '../tooltips';
 import { BracketHotkeyLabel } from './BracketHotkeyLabel';

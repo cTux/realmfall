@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Button } from '@realmfall/ui-react';
+import { Button } from '@realmfall/ui-react/button';
 import { type AudioSettings } from '../../../app/audioSettings';
 import { type GameplaySettings } from '../../../app/gameplaySettings';
 import {

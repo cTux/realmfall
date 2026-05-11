@@ -32,11 +32,15 @@ function getVisibleWorldTileRenderKey(tile: VisibleWorldTile) {
     return `${hexKey(tile.coord)}|unknown|${tile.requestedAt}`;
   }
 
+  const itemsRenderKey = tile.items
+    .map((item) => `${item.id}:${item.quantity}`)
+    .join(',');
+
   return [
     hexKey(tile.coord),
     tile.terrain,
     tile.structure ?? 'none',
-    tile.items.length,
+    itemsRenderKey,
     tile.enemyIds.join(','),
     tile.claim
       ? `${tile.claim.ownerType}:${tile.claim.ownerId}:${tile.claim.npc?.enemyId ?? 'none'}`

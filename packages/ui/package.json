@@ -8,11 +8,23 @@
   "module": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./action-bar": "./src/components/ActionBar/index.ts",
+    "./context-menu": "./src/components/ContextMenu/index.ts",
+    "./dock-panel": "./src/components/DockPanel/index.ts",
+    "./item-slot": "./src/components/ItemSlot/index.ts",
+    "./button": "./src/components/Button/Button.tsx",
     "./itemIcons": "./src/icons.ts",
+    "./formatters": "./src/formatters.ts",
+    "./switch": "./src/components/Switch/Switch.tsx",
+    "./tooltip": "./src/tooltip.ts",
+    "./tooltip-placement": "./src/tooltipPlacement.ts",
+    "./window": "./src/window.ts",
+    "./window-label": "./src/components/WindowLabel/index.ts",
     "./generatedIconPools": "./src/generatedIconPools.ts",
     "./generatedIconAssets": "./src/generatedIconAssets.ts",
     "./i18n": "./src/i18n/index.ts",
     "./i18n/bootstrap": "./src/i18n/bootstrap.ts",
+    "./ui-audio": "./src/app/audio/UiAudioContext.tsx",
     "./loading-spinner": "./src/components/LoadingSpinner/LoadingSpinner.tsx"
   },
   "scripts": {

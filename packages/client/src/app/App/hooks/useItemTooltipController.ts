@@ -4,7 +4,7 @@ import {
   type MouseEvent as ReactMouseEvent,
   type MutableRefObject,
 } from 'react';
-import type { TooltipLine, TooltipPosition } from '@realmfall/ui-react';
+import type { TooltipLine } from '@realmfall/ui-react/tooltip';
 import { itemOccupiesOffhand } from '@realmfall/core/game/content/items';
 import { isRecipePage } from '@realmfall/core/game/inventory';
 import {
@@ -13,7 +13,8 @@ import {
 } from '@realmfall/core/game/itemModifications';
 import type { GameState } from '@realmfall/core/game/stateTypes';
 import { rarityColor } from '../../../ui/rarity';
-import { getTooltipPlacementForRect } from '@realmfall/ui-react';
+import { getTooltipPlacementForRect } from '@realmfall/ui-react/tooltip-placement';
+import type { TooltipPosition } from '@realmfall/ui-react/tooltip';
 import type { TooltipItem, TooltipState } from '../types';
 import {
   loadItemTooltipModule as loadItemTooltipModuleChunk,

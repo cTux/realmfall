@@ -16,6 +16,10 @@
 - Provide Storybook stories for all components in this package.
 - Build outputs with Vite library mode.
 - Keep shared helper modules in `packages/ui/src/*` package-owned; do not re-export `packages/client/src/ui/*` helpers through this package.
+- Keep the root `@realmfall/ui-react` barrel for broad shared access, but add
+  narrow package subpaths for startup-adjacent consumers when a single primitive
+  or helper would otherwise pull a large shared barrel chunk onto the eager app
+  path.
 
 ## Add a new component
 
@@ -32,6 +36,18 @@
 11. Keep side effects in small helper functions or hooks near the component folder if behavior grows.
 12. Add or update tests if the component has domain behavior (not required for presentational-only components).
 13. Run `pnpm --filter @realmfall/ui-react dev:storybook` for visual review.
+14. When a consumer only needs one startup-facing primitive or helper, prefer a
+    dedicated export such as `@realmfall/ui-react/button`,
+    `@realmfall/ui-react/tooltip`, `@realmfall/ui-react/tooltip-placement`, or
+    `@realmfall/ui-react/ui-audio` instead of routing that consumer through the
+    root barrel.
+15. Apply the same narrow-subpath rule to deferred windows and world tooltip
+    helpers. Secondary UI code should import targeted entries such as
+    `@realmfall/ui-react/action-bar`, `@realmfall/ui-react/context-menu`,
+    `@realmfall/ui-react/dock-panel`, `@realmfall/ui-react/item-slot`,
+    `@realmfall/ui-react/formatters`, `@realmfall/ui-react/window`, and
+    `@realmfall/ui-react/window-label` instead of regrowing the shared root
+    barrel chunk through lazy windows.
 
 ## Local commands
 

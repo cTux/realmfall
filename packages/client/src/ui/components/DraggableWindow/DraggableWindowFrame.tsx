@@ -4,7 +4,7 @@ import type {
   ReactNode,
   RefObject,
 } from 'react';
-import { Button } from '@realmfall/ui-react';
+import { Button } from '@realmfall/ui-react/button';
 import { useUiAudio } from '../../../app/audio/UiAudioContext';
 import type { WindowPosition } from '../../../app/constants';
 import { t } from '../../../i18n';

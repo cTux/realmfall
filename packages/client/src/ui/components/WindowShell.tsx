@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react';
-import { WindowLabel } from '@realmfall/ui-react';
+import { WindowLabel } from '@realmfall/ui-react/window-label';
 import type { WindowLabelDefinition } from '../windowLabels';
 import { DraggableWindow } from './DraggableWindow';
 import type { DraggableWindowProps } from './DraggableWindow/types';

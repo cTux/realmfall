@@ -22,9 +22,12 @@ export function getSceneRenderTokens(
 ) {
   const playerCoordKey = coordKey(state.player.coord);
   const homeHexKey = coordKey(state.homeHex);
+  const bloodMoonChanged =
+    scene.derivedRenderBloodMoonActive !== state.bloodMoonActive;
   const renderInputsChanged =
     scene.derivedRenderVisibleTilesSource !== visibleTiles ||
     scene.derivedRenderEnemiesSource !== state.enemies ||
+    bloodMoonChanged ||
     scene.derivedRenderVisibleTileInputs === null;
   const visibleTileRenderInputs = renderInputsChanged
     ? getVisibleTileRenderInputs(state, visibleTiles)
