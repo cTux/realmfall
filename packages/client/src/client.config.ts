@@ -57,13 +57,6 @@ export const CLIENT_INTERFACE_SETTINGS = Object.freeze({
   },
 });
 
-export const CLIENT_BOOTSTRAP_SHELL = Object.freeze({
-  spinnerAnimationSeconds: 0.75,
-  spinnerBorderRadiusPx: 9999,
-  spinnerBorderWidthPx: 3,
-  spinnerSizeRem: 2,
-});
-
 export const CLIENT_INVENTORY_UI = Object.freeze({
   disabledFilterOpacity: 0.5,
 });

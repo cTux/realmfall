@@ -11,6 +11,9 @@
 - Keep `vite.config.ts` focused on top-level assembly. Move chunk routing, plugin wiring, local HTTPS certificate setup, and Vitest project definitions into neighboring `vite/*` helpers instead of regrowing one multi-responsibility config module.
 - Tune Vite's generic chunk-size warning so it does not compete with the repository's intentional lazy-loading strategy or known large shared chunks such as `state` and `pixi`.
 - Keep diagnostic or refresh-only startup chrome, such as version polling widgets, off the bootstrap path when a lazy client-side load preserves first interaction and gameplay behavior.
+- Keep bootstrap-only constants on tiny entry-safe modules when the broader
+  app config also imports icons, registries, or other heavy secondary UI
+  surfaces.
 - Keep destructive, reset-only, or rare maintenance flows off the bootstrap graph. If a path only runs from a settings action or similar secondary UI, prefer importing its heavy helpers at action time instead of wiring them into `App` startup.
 - Load bootstrap locales as compact data assets instead of eager application code when the app only needs a translation map before importing `App`.
 - When bootstrap code only needs shared translation helpers, import them from a
@@ -36,6 +39,10 @@
   state-facing content modules. Gameplay content should use stable icon ids and
   pool sizes; UI asset modules should resolve those ids to vendored SVG URLs
   before rendering masks or image tags.
+- Keep heavy shared UI asset families such as generated-equipment asset
+  resolvers off the root `@realmfall/ui-react` barrel. Expose them through
+  narrow package subpaths so startup-adjacent imports of shared primitives do
+  not link those asset modules by default.
 - Keep lazy debug mutation modules off eager gameplay barrels and startup-facing
   UI imports. If debug windows need shared constants or types, keep those in a
   tiny neighboring module instead of importing `stateDebug` statically.

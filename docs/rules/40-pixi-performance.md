@@ -34,7 +34,10 @@
 - Keep `pointermove` handlers focused on pointer-to-world translation, cache lookup, and lightweight state handoff. Expensive hover analysis such as pathfinding, enemy aggregation, or tooltip assembly should be throttled or precomputed when it becomes measurable on that path.
 - Keep hover-analysis worker sync payloads on a nearby active-world slice with
   precomputed reveal-radius inputs. Do not clone full `tiles`, `enemies`, or
-  `worlds` containers into the worker on every hover refresh.
+  `worlds` containers into the worker on every hover refresh. Sync only the
+  active hover-analysis backend during normal operation, and replay the latest
+  synced slice into the local fallback only when the worker path becomes
+  unavailable.
 - Split world-map interaction orchestration by responsibility. Keep hover analysis, click navigation, drag-pan state, zoom filtering, and shared pointer helpers in focused modules under `src/app/App/world/`, and keep `pixiWorldInteractions.ts` as the attachment/composition layer instead of letting one listener file own every interaction branch.
 - When static redraw invalidation needs enemy or structure presentation data, prefer carrying forward precomputed render inputs instead of repeating tile-level lookup work during both token derivation and render execution.
 - On Pixi bootstrap, block only on the world icon textures needed for the initial visible viewport. Warm the rest of the icon catalog in background idle slices so first paint is not tied to offscreen marker assets.

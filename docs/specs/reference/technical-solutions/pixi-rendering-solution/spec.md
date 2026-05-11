@@ -85,7 +85,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Hover-analysis caching now invalidates from gameplay-state versions that materially affect interaction resolution rather than from every broad `tiles` or `enemies` container identity change.
 - Hover-analysis worker sync now ships a capped nearby tile and enemy slice plus
   precomputed reveal-radius inputs, so pointer-hover refreshes avoid cloning
-  full world containers into the worker path.
+  full world containers into the worker path. The local fallback stays cold
+  while the worker path is healthy and replays the latest synced slice only if
+  hover analysis falls back after a worker error.
 - Player movement cooldown and revealed roaming dungeon enemy movement cooldowns render as outer arcs that touch the badge MP ring with no gap instead of as separate under-icon bars, and those arcs live on the same badge wrapper so they follow frame animation and movement exactly.
 
 ## Main Implementation Areas

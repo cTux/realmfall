@@ -12,7 +12,9 @@ This spec covers the static HTML metadata and crawler directives shipped with th
   browser can fetch the App chunk during locale loading, while `src/main.tsx`
   now also starts the runtime `import('./app/App')` work before locale and font
   readiness settle and keeps only the final live render gated behind those
-  prerequisites.
+  prerequisites. The bootstrap spinner itself reads from a dedicated
+  bootstrap-only config module, so the entry path does not need the broader
+  window-registry config just to paint loading chrome.
 - The production build publishes `robots.txt` from the Vite public asset path so crawlers receive an explicit allow rule instead of a missing-file response.
 - The shipped browser entry does not register a service worker or publish a web app manifest, keeping startup metadata focused on the playable tab experience instead of installable offline behavior.
 - Entry metadata remains lightweight and static so these crawl and preview signals do not depend on React booting before they become visible to user agents.

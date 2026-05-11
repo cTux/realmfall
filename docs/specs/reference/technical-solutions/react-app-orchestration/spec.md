@@ -17,6 +17,9 @@ This spec covers the top-level React hook composition and derived view-model pat
   font plus the active locale asset before rendering the live `App`, so startup
   overlaps module work without hydrating translated UI against missing locale
   data or an unready fallback face.
+- The bootstrap shell reads its spinner sizing and timing constants from a tiny
+  bootstrap-only config module instead of the broader window-registry config,
+  keeping entry-safe loading chrome detached from icon-heavy app wiring.
 - The optional browser performance harness records main-start, bootstrap-shell, i18n-loaded, app-module-loaded, app-render-scheduled, and app-ready marks when explicitly enabled, keeping startup milestone measurement available without changing normal app sessions.
 - When that harness is active, `App.tsx` wraps the app shell in a React Profiler and records commit timings through the shared harness; otherwise the entry component renders the shell directly.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
@@ -95,6 +98,11 @@ This spec covers the top-level React hook composition and derived view-model pat
   just to keep the voice bridge and home indicator up to date.
 - That loading chrome is reused for dungeon world entry and exit, so world switching blocks interaction behind the fullscreen shell overlay instead of opening a window-local spinner.
 - `AppShell` lazy-loads the desktop window surface separately from the canvas shell, keeping fixed and deferred window composition out of the first App chunk while the world canvas bootstraps.
+- Shared UI primitives used by the shell and fixed windows continue to import
+  from the `@realmfall/ui-react` root barrel, while generated-equipment asset
+  helpers stay on a dedicated `@realmfall/ui-react/generatedIconAssets`
+  subpath so startup-adjacent window chrome does not link that asset graph by
+  default.
 - `AppShell` mounts optional recorded-voice and background-music bridges only after the first keyboard, pointer, mouse, or touch activation, keeping their asset manifests and deferred background-music `howler` work out of the pre-interaction path while the lighter UI-audio bridge remains ready for document-level settings.
 - `AppShell` passes a memoized voice playback event slice to the recorded-voice bridge instead of the full `GameState`, limiting voice event checks to combat, log, HP, and status-effect changes.
 - `AppWindows` stays behind a memo boundary so unchanged window props do not

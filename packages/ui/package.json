@@ -8,7 +8,9 @@
   "module": "./src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./itemIcons": "./src/icons.ts",
     "./generatedIconPools": "./src/generatedIconPools.ts",
+    "./generatedIconAssets": "./src/generatedIconAssets.ts",
     "./i18n": "./src/i18n/index.ts",
     "./i18n/bootstrap": "./src/i18n/bootstrap.ts",
     "./loading-spinner": "./src/components/LoadingSpinner/LoadingSpinner.tsx"

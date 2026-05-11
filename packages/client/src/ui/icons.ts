@@ -10,7 +10,6 @@ import type {
   SkillName,
   StructureType,
 } from '@realmfall/core/game/stateTypes';
-import { EquipmentSlotId } from '@realmfall/core/game/content/ids';
 import playerIcon from '../assets/icons/visored-helm.svg';
 import enemyIcon from '../assets/icons/wolf-head.svg';
 import weaponIcon from '../assets/icons/plain-dagger.svg';
@@ -60,19 +59,12 @@ import gearsIcon from '../assets/icons/gears.svg';
 import padlockIcon from '../assets/icons/padlock.svg';
 import furnaceIcon from '../assets/icons/furnace.svg';
 import minerIcon from '../assets/icons/miner.svg';
-import { isRecipePage } from '@realmfall/core/game/inventory';
-import { resolveIconAsset } from './iconAssets';
-import { rarityColor } from './rarity';
 import {
-  DEFAULT_ITEM_BORDER_TINT,
-  getItemCategory,
-  getItemKindIcon,
-  getItemTintFallback,
-  isEquippableItemCategory,
-  ItemCategoryIconKey,
-  RECIPE_PAGE_TINT,
-} from '@realmfall/ui-react';
-import { GameTag } from '@realmfall/core/game/content/tags';
+  iconForItem as sharedIconForItem,
+  itemBorderColor as sharedItemBorderColor,
+  itemTint as sharedItemTint,
+} from '@realmfall/ui-react/itemIcons';
+import { resolveGameplayIconAsset } from './gameplayIconAssets';
 import { WORLD_RENDER_COLORS } from '../theme.config';
 
 export const Icons = {
@@ -142,32 +134,30 @@ export const SkillIcon: Record<SkillName, string> = {
 
 const DEFAULT_ENEMY_ICON = Icons.Enemy;
 const DEFAULT_ENEMY_TINT = WORLD_RENDER_COLORS.defaultEnemyIcon;
-const DEFAULT_ITEM_ICON = Icons.Artifact;
 
-export const ItemIcon: Record<EquipmentSlot, string> = {
-  [EquipmentSlotId.Weapon]: Icons.Weapon,
-  [EquipmentSlotId.Offhand]: Icons.Armor,
-  [EquipmentSlotId.Head]: Icons.Hood,
-  [EquipmentSlotId.Shoulders]: Icons.Armor,
-  [EquipmentSlotId.Chest]: Icons.Chest,
-  [EquipmentSlotId.Bracers]: Icons.Gauntlet,
-  [EquipmentSlotId.Hands]: Icons.Gauntlet,
-  [EquipmentSlotId.Belt]: Icons.Armor,
-  [EquipmentSlotId.Legs]: Icons.Chest,
-  [EquipmentSlotId.Feet]: Icons.Boots,
-  [EquipmentSlotId.RingLeft]: Icons.Artifact,
-  [EquipmentSlotId.RingRight]: Icons.Artifact,
-  [EquipmentSlotId.Amulet]: Icons.Artifact,
-  [EquipmentSlotId.Cloak]: Icons.Hood,
-  [EquipmentSlotId.Relic]: Icons.Orb,
-};
+function enrichItemWithConfiguredAppearance(item?: Item) {
+  if (!item || !item.itemKey) {
+    return item;
+  }
 
-const ITEM_KIND_ICON: Record<ItemCategoryIconKey, string> = {
-  weapon: Icons.Weapon,
-  armor: Icons.Armor,
-  artifact: Icons.Artifact,
-  consumable: Icons.Consumable,
-};
+  const configuredItem = getItemConfig(item);
+  if (!configuredItem) {
+    return item;
+  }
+
+  const configuredIcon = configuredItem.icon
+    ? (resolveGameplayIconAsset(configuredItem.icon) ?? configuredItem.icon)
+    : undefined;
+  const itemIcon = item.icon
+    ? (resolveGameplayIconAsset(item.icon) ?? item.icon)
+    : undefined;
+
+  return {
+    ...item,
+    icon: itemIcon ?? configuredIcon,
+    tint: item.tint ?? configuredItem.tint,
+  };
+}
 
 export function enemyIconFor(
   enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string,
@@ -184,31 +174,7 @@ export function enemyTint(enemy: Pick<Enemy, 'enemyTypeId' | 'name'> | string) {
 }
 
 export function iconForItem(item?: Item, slot?: EquipmentSlot) {
-  if (item && isRecipePage(item)) {
-    return resolveIconAsset(Icons.ScrollQuill);
-  }
-
-  const slotIcon = slot ? ItemIcon[slot] : undefined;
-  const itemSlotIcon = item?.slot ? ItemIcon[item.slot] : undefined;
-  const configuredItem = item ? getItemConfig(item) : undefined;
-  if (item?.icon) return resolveIconAsset(item.icon);
-  const configuredItemIcon =
-    item && (item.tags ?? []).includes(GameTag.ItemTotem)
-      ? Icons.Totem
-      : configuredItem?.icon;
-  const category = item ? getItemCategory(item) : undefined;
-  const kindIcon =
-    category && category !== 'resource'
-      ? ITEM_KIND_ICON[getItemKindIcon(category)]
-      : undefined;
-
-  return resolveIconAsset(
-    configuredItemIcon ??
-      itemSlotIcon ??
-      kindIcon ??
-      slotIcon ??
-      DEFAULT_ITEM_ICON,
-  );
+  return sharedIconForItem(enrichItemWithConfiguredAppearance(item), slot);
 }
 
 export function structureIconFor(structure: StructureType) {
@@ -220,16 +186,9 @@ export function structureTint(structure: StructureType) {
 }
 
 export function itemBorderColor(item?: Item) {
-  if (!item) return rarityColor('common');
-  return isEquippableItemCategory(getItemCategory(item))
-    ? rarityColor(item.rarity)
-    : DEFAULT_ITEM_BORDER_TINT;
+  return sharedItemBorderColor(enrichItemWithConfiguredAppearance(item));
 }
 
 export function itemTint(item?: Item) {
-  if (!item) return rarityColor('common');
-  if (isRecipePage(item)) return RECIPE_PAGE_TINT;
-  if (item.tint) return item.tint;
-
-  return getItemTintFallback(item) ?? DEFAULT_ITEM_BORDER_TINT;
+  return sharedItemTint(enrichItemWithConfiguredAppearance(item));
 }
