@@ -49,13 +49,14 @@ export class GameSettingsWindowContentTestkit {
 
   private confirmSpy: MockInstance<typeof window.confirm> | null = null;
   private mountedUi: Awaited<ReturnType<typeof mountUi>> | null = null;
+  private props: GameSettingsWindowContentProps;
   private readonly ready: Promise<void>;
 
   constructor(overrides: Partial<GameSettingsWindowContentProps> = {}) {
     ensureReactActEnvironment();
     vi.useFakeTimers();
 
-    const props: GameSettingsWindowContentProps = {
+    this.props = {
       audioSettings: DEFAULT_AUDIO_SETTINGS,
       gameplaySettings: DEFAULT_GAMEPLAY_SETTINGS,
       graphicsSettings: DEFAULT_GRAPHICS_SETTINGS,
@@ -66,11 +67,7 @@ export class GameSettingsWindowContentTestkit {
       ...overrides,
     };
 
-    this.ready = mountUi(<GameSettingsWindowContent {...props} />).then(
-      (ui) => {
-        this.mountedUi = ui;
-      },
-    );
+    this.ready = this.render();
   }
 
   readonly mock = {
@@ -116,6 +113,11 @@ export class GameSettingsWindowContentTestkit {
     openTab: async (tab: SettingsTab) => {
       await this.whenReady();
       await this.clickElement(this.findTab(tab));
+    },
+    rerender: async (
+      overrides: Partial<GameSettingsWindowContentProps> = {},
+    ) => {
+      await this.render(overrides);
     },
     save: async () => {
       await this.whenReady();
@@ -316,6 +318,16 @@ export class GameSettingsWindowContentTestkit {
       await this.whenReady();
       expect(this.onResetSaveArea).toHaveBeenCalledWith(areaId);
     },
+    saveActionsDisabled: async () => {
+      await this.whenReady();
+      expect(this.findSaveButtonRequired().disabled).toBe(true);
+      expect(this.findSaveAndReloadButtonRequired().disabled).toBe(true);
+    },
+    saveActionsEnabled: async () => {
+      await this.whenReady();
+      expect(this.findSaveButtonRequired().disabled).toBe(false);
+      expect(this.findSaveAndReloadButtonRequired().disabled).toBe(false);
+    },
     savedPayloadMatches: async (
       expectedPatch: DeepPartial<GameSettingsSavePayload>,
     ) => {
@@ -373,6 +385,20 @@ export class GameSettingsWindowContentTestkit {
     return this.mountedUi;
   }
 
+  private async render(
+    overrides: Partial<GameSettingsWindowContentProps> = {},
+  ) {
+    this.props = { ...this.props, ...overrides };
+    const node = <GameSettingsWindowContent {...this.props} />;
+
+    if (!this.mountedUi) {
+      this.mountedUi = await mountUi(node);
+      return;
+    }
+
+    await this.mountedUi.render(node);
+  }
+
   private translate(key: string) {
     return t(key);
   }
@@ -412,8 +438,22 @@ export class GameSettingsWindowContentTestkit {
     return this.findButton(this.translate('ui.settings.actions.saveReload'));
   }
 
+  private findSaveAndReloadButtonRequired() {
+    return requireElement(
+      this.findSaveAndReloadButton(),
+      'Expected save and reload button.',
+    ) as HTMLButtonElement;
+  }
+
   private findSaveButton() {
     return this.findButton(this.translate('ui.settings.actions.save'));
+  }
+
+  private findSaveButtonRequired() {
+    return requireElement(
+      this.findSaveButton(),
+      'Expected save button.',
+    ) as HTMLButtonElement;
   }
 
   private findSelect(label: string) {
