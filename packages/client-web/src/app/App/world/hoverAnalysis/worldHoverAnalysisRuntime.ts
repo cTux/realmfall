@@ -44,7 +44,10 @@ export function analyzeWorldHoverTarget(
     };
   }
 
-  const safePath = getSafePathToTile(state, target);
+  const safePath =
+    getHostileEnemyIds(state, target).length > 0
+      ? getSafePathToHostileStagingTile(state, target)
+      : getSafePathToTile(state, target);
   if (!safePath) {
     return EMPTY_WORLD_HOVER_ANALYSIS_RESULT;
   }
@@ -112,6 +115,41 @@ function getSafePathToTile(
   }
 
   return null;
+}
+
+function getSafePathToHostileStagingTile(
+  state: WorldHoverAnalysisState,
+  hostileTarget: HexCoord,
+): HexCoord[] | null {
+  const candidatePaths = hexNeighbors(hostileTarget)
+    .filter((coord) => getHostileEnemyIds(state, coord).length === 0)
+    .map((coord) => ({
+      coord,
+      path: getSafePathToTile(state, coord),
+    }))
+    .filter(
+      (
+        candidate,
+      ): candidate is {
+        coord: HexCoord;
+        path: HexCoord[];
+      } => candidate.path !== null && candidate.path.length > 0,
+    )
+    .sort((left, right) => {
+      const lengthDelta = left.path.length - right.path.length;
+      if (lengthDelta !== 0) {
+        return lengthDelta;
+      }
+
+      const qDelta = left.coord.q - right.coord.q;
+      if (qDelta !== 0) {
+        return qDelta;
+      }
+
+      return left.coord.r - right.coord.r;
+    });
+
+  return candidatePaths[0]?.path ?? null;
 }
 
 function getHostileEnemyIds(state: WorldHoverAnalysisState, coord: HexCoord) {

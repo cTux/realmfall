@@ -78,6 +78,31 @@ describe('analyzeWorldHoverTarget', () => {
     });
   });
 
+  it('returns the hostile staging path for a distant hostile target', () => {
+    const state = createBaseState();
+    state.tiles['2,0'] = {
+      ...state.tiles['2,0'],
+      enemyIds: ['hostile-target'],
+    };
+    state.enemies['hostile-target'] = {
+      id: 'hostile-target',
+      name: 'Hostile Target',
+      coord: { q: 2, r: 0 },
+      tier: 1,
+      hp: 8,
+      maxHp: 8,
+      attack: 1,
+      defense: 1,
+      xp: 0,
+      elite: false,
+    };
+
+    expect(analyzeWorldHoverTarget(state, { q: 2, r: 0 })).toEqual({
+      actionable: true,
+      safePath: [{ q: 1, r: 0 }],
+    });
+  });
+
   it('returns no actionability when game is over', () => {
     const state = createBaseState();
     state.gameOver = true;
