@@ -1,5 +1,7 @@
 import { resolve } from 'node:path';
 
+export const ELECTRON_STATIC_SERVER_PORT = 43110;
+
 export type RuntimeConfigInput = {
   appMode: 'development' | 'production';
   cwd: string;
@@ -29,6 +31,6 @@ export function resolveRuntimeConfig({
     rendererUrl:
       appMode === 'development'
         ? rendererDevUrl
-        : 'http://127.0.0.1:43110/index.html',
+        : `http://127.0.0.1:${ELECTRON_STATIC_SERVER_PORT}/index.html`,
   };
 }
