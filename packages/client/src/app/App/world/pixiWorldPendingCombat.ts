@@ -22,6 +22,30 @@ export interface PostCombatAutoStepTransition {
   pendingVictoryTransitionOffset: PendingVictoryTransitionOffset | null;
 }
 
+export interface PreviousPendingCombatSnapshot {
+  combatEngagement: {
+    autoStepOnVictory: boolean;
+    targetCoord: HexCoord | null;
+  } | null;
+  playerCoord: HexCoord;
+}
+
+export function createPreviousPendingCombatSnapshot(
+  game: GameState,
+): PreviousPendingCombatSnapshot {
+  const previousTargetCoord = game.combat?.engagement?.targetCoord;
+
+  return {
+    combatEngagement: game.combat?.engagement
+      ? {
+          autoStepOnVictory: game.combat.engagement.autoStepOnVictory,
+          targetCoord: previousTargetCoord ? { ...previousTargetCoord } : null,
+        }
+      : null,
+    playerCoord: { ...game.player.coord },
+  };
+}
+
 export function getPendingCombatUpdatePlan({
   combat,
   movementNowMs,
@@ -155,34 +179,34 @@ export function getPostCombatAutoStepTransition({
   app,
   game,
   nowMs,
-  previousGame,
+  previousSnapshot,
 }: {
   app: Application | null;
   game: GameState;
   nowMs: number;
-  previousGame: GameState;
+  previousSnapshot: PreviousPendingCombatSnapshot;
 }): PostCombatAutoStepTransition | null {
-  const previousEngagement = previousGame.combat?.engagement;
+  const previousEngagement = previousSnapshot.combatEngagement;
   if (
     !previousEngagement?.autoStepOnVictory ||
     previousEngagement.targetCoord === null ||
     game.combat !== null ||
     !sameCoord(game.player.coord, previousEngagement.targetCoord) ||
-    sameCoord(previousGame.player.coord, previousEngagement.targetCoord)
+    sameCoord(previousSnapshot.playerCoord, previousEngagement.targetCoord)
   ) {
     return null;
   }
 
   const carriedOffset = getPostCombatTransitionOffset({
     app,
-    previousGame,
+    previousSnapshot,
   });
 
   return {
     cooldownEndAtMs: nowMs + WORLD_MOVE_HEX_COOLDOWN_MS,
     pendingVictoryTransitionOffset: carriedOffset
       ? {
-          fromCoord: previousGame.player.coord,
+          fromCoord: previousSnapshot.playerCoord,
           offset: carriedOffset,
           toCoord: previousEngagement.targetCoord,
         }
@@ -192,12 +216,12 @@ export function getPostCombatAutoStepTransition({
 
 export function getPostCombatTransitionOffset({
   app,
-  previousGame,
+  previousSnapshot,
 }: {
   app: Application | null;
-  previousGame: GameState;
+  previousSnapshot: PreviousPendingCombatSnapshot;
 }) {
   void app;
-  void previousGame;
+  void previousSnapshot;
   return null;
 }

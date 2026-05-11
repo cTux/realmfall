@@ -51,6 +51,9 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - Non-gathering structure markers reuse the same badge-frame geometry as gathering/resource markers, but render that frame with a blue badge fill instead of the green resource-node fill.
 - Forgotten ground-loot markers now reuse the same green resource badge frame as gathering nodes while keeping their dedicated loot bob and tint animation.
 - `usePixiWorld` delays hostile-click and roaming-chase combat start until any full movement transition into the staging hex finishes, then stamps the combat-intro lunge and only auto-starts combat after that lunge duration completes.
+- `usePixiWorldPendingCombatLifecycle` keeps only the previous player coord plus
+  the prior auto-step engagement fields it needs for carryover detection,
+  instead of retaining the full previous `GameState` between renders.
 - `renderSceneCombatFeedback.ts` owns a render-only player lunge toward `combat.engagement.targetCoord`, using engagement staging and target coordinates plus combat-intro start time without mutating gameplay position, and it keeps the player visually held at that offset while combat remains active.
 - World movement transitions can carry a `playerOffsetAtStart` seed so a victory auto-step into a preserved hostile target continues from the held lunge offset through the normal full hex-slide duration instead of restarting from hex center.
 - The renderer consumes a bounded gameplay-authored `worldFloatingTextEvents` list and displays damage, critical-damage, and healing text above resolved player or hostile badge anchors, including defeated-enemy fallback anchors until the event lifetime expires.

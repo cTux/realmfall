@@ -138,7 +138,7 @@ describe('App world interaction performance', () => {
       });
     });
 
-    it('reuses the built nearby hover state slice when nearby inputs are unchanged', async () => {
+    it('skips hover refresh work when the nearby hover state is unchanged', async () => {
       await withMockedWorldHoverSource({
         async configureSource({
           createWorldHoverInteractions,
@@ -153,6 +153,10 @@ describe('App world interaction performance', () => {
             current: createEmptyWorldHoverSnapshot(1),
           };
           const hoverAnalysisVersionRef = { current: 1 };
+          hoverAnalysisCacheRef.current.set(
+            'persisted-hover',
+            createEmptyWorldHoverSnapshot(1),
+          );
 
           const controller = createWorldHoverInteractions({
             app: {
@@ -183,16 +187,43 @@ describe('App world interaction performance', () => {
             createWorkerWorldHoverAnalysisSource.mock.results[0]?.value;
           expect(source).toBeTruthy();
 
+          const initialVersion = hoverAnalysisVersionRef.current;
           source.syncState.mockClear();
           controller.refreshHoverAnalysis();
-          const firstState = source.syncState.mock.calls[0]?.[0];
-          expect(source.syncState).toHaveBeenCalledTimes(1);
+          expect(source.syncState).not.toHaveBeenCalled();
+          expect(hoverAnalysisVersionRef.current).toBe(initialVersion);
+          expect(hoverAnalysisCacheRef.current.size).toBe(1);
+
+          game.tiles = {
+            ...game.tiles,
+            '6,0': {
+              coord: { q: 6, r: 0 },
+              terrain: 'plains',
+              items: [],
+              enemyIds: ['far-enemy'],
+            },
+          };
+          game.enemies = {
+            ...game.enemies,
+            'far-enemy': {
+              id: 'far-enemy',
+              name: 'Far Enemy',
+              coord: { q: 6, r: 0 },
+              tier: 1,
+              hp: 10,
+              maxHp: 10,
+              attack: 1,
+              defense: 1,
+              xp: 0,
+              elite: false,
+            },
+          };
 
           source.syncState.mockClear();
           controller.refreshHoverAnalysis();
-          const secondState = source.syncState.mock.calls[0]?.[0];
-          expect(source.syncState).toHaveBeenCalledTimes(1);
-          expect(secondState).toBe(firstState);
+          expect(source.syncState).not.toHaveBeenCalled();
+          expect(hoverAnalysisVersionRef.current).toBe(initialVersion);
+          expect(hoverAnalysisCacheRef.current.size).toBe(1);
 
           controller.dispose();
         },

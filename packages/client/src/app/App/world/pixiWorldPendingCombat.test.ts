@@ -5,6 +5,7 @@ import type { GameState } from '@realmfall/core/game/stateTypes';
 import type { WorldMovementTransition } from './movement/worldMovementTransition';
 import {
   autoStartPendingCombat,
+  createPreviousPendingCombatSnapshot,
   getPendingCombatApproachDelayMs,
   getPendingCombatUpdatePlan,
   getPostCombatAutoStepTransition,
@@ -161,6 +162,7 @@ describe('pixiWorldPendingCombat', () => {
     const game = structuredClone(previousGame) as GameState;
     game.player.coord = { q: 1, r: 0 };
     game.combat = null;
+    const previousSnapshot = createPreviousPendingCombatSnapshot(previousGame);
 
     const transition = getPostCombatAutoStepTransition({
       app: {
@@ -171,24 +173,37 @@ describe('pixiWorldPendingCombat', () => {
       } as never,
       game,
       nowMs: 500,
-      previousGame,
+      previousSnapshot,
     });
 
     expect(transition?.cooldownEndAtMs).toBe(500 + 1000);
     expect(transition?.pendingVictoryTransitionOffset).toBeNull();
   });
 
+  it('captures only the previous player coord and auto-step engagement target for carryover', () => {
+    const previousGame = createPendingCombatGame();
+
+    expect(createPreviousPendingCombatSnapshot(previousGame)).toEqual({
+      combatEngagement: {
+        autoStepOnVictory: true,
+        targetCoord: { q: 1, r: 0 },
+      },
+      playerCoord: { q: 0, r: 0 },
+    });
+  });
+
   it('returns null when carryover prerequisites are missing', () => {
     const previousGame = createPendingCombatGame();
     const game = structuredClone(previousGame) as GameState;
     game.combat = null;
+    const previousSnapshot = createPreviousPendingCombatSnapshot(previousGame);
 
     expect(
       getPostCombatAutoStepTransition({
         app: null,
         game,
         nowMs: 500,
-        previousGame,
+        previousSnapshot,
       }),
     ).toBeNull();
   });

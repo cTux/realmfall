@@ -34,11 +34,20 @@ export function createVisibleWorldResolutionState(
   game: Pick<GameState, 'bloodMoonActive' | 'radius' | 'seed' | 'tiles'>,
   playerCoord: HexCoord,
 ): VisibleWorldResolutionState {
+  const resolvedTiles: GameState['tiles'] = {};
+  for (const coord of hexesInRange(playerCoord, game.radius)) {
+    const key = hexKey(coord);
+    const tile = game.tiles[key];
+    if (tile) {
+      resolvedTiles[key] = tile;
+    }
+  }
+
   return {
     bloodMoonActive: game.bloodMoonActive,
     playerCoord,
     radius: game.radius,
-    resolvedTiles: game.tiles,
+    resolvedTiles,
     seed: game.seed,
   };
 }
