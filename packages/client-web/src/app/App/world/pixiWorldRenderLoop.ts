@@ -84,6 +84,8 @@ export function createWorldRenderFrame({
 }) {
   let lastReachableWarmPlayerCoord = { ...gameRef.current.player.coord };
   let lastReachableWarmRadius = gameRef.current.radius;
+  let lastPublishedWorldTimeMs = worldTimeMsRef.current;
+  let lastPublishedWorldTickWallClockMs = performance.now();
 
   return () => {
     const currentGame = gameRef.current;
@@ -93,6 +95,10 @@ export function createWorldRenderFrame({
     const currentHoveredMove = hoveredMoveRef.current;
     const currentHoveredSafePath = hoveredSafePathRef.current;
     const wallClockMs = performance.now();
+    if (worldTimeMsRef.current !== lastPublishedWorldTimeMs) {
+      lastPublishedWorldTimeMs = worldTimeMsRef.current;
+      lastPublishedWorldTickWallClockMs = wallClockMs;
+    }
     const animationMs = pausedRef.current
       ? (pausedAnimationMsRef.current ?? wallClockMs)
       : wallClockMs;
@@ -237,6 +243,10 @@ export function createWorldRenderFrame({
             endAtMs: movementCooldownEndAtMs,
             nowMs: wallClockMs,
           };
+    const combatFeedbackWorldTimeMs = pausedRef.current
+      ? lastPublishedWorldTimeMs
+      : lastPublishedWorldTimeMs +
+        Math.max(0, wallClockMs - lastPublishedWorldTickWallClockMs);
     renderScene(
       app,
       currentGame,
@@ -254,6 +264,7 @@ export function createWorldRenderFrame({
             showClouds,
             cloudTransparency,
             showTerrainBackgrounds,
+            combatFeedbackWorldTimeMs,
             idleAnimationMs,
             worldTimeMs: worldTimeMsRef.current,
             worldRenderFps,
@@ -263,6 +274,7 @@ export function createWorldRenderFrame({
             showClouds,
             cloudTransparency,
             showTerrainBackgrounds,
+            combatFeedbackWorldTimeMs,
             idleAnimationMs,
             worldTimeMs: worldTimeMsRef.current,
             worldRenderFps,

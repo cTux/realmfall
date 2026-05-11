@@ -1,6 +1,7 @@
 import { createGame } from '@realmfall/core/game/stateFactory';
 import { getPlayerCombatStats } from '@realmfall/core/game/stateSelectors';
 import { getVisibleTiles } from '@realmfall/core/game/stateSelectors';
+import { getWorldRenderFrameMs } from './renderCadence';
 import { getWorldHexSize } from './renderSceneMath';
 import {
   collectDescendants,
@@ -160,6 +161,74 @@ describe('renderScene combat feedback', () => {
 
     expect(lifestealText).toBeDefined();
     expect(getTextFill(lifestealText!)).toBe(HEALING_COLOR);
+  });
+
+  it('advances floating text smoothly between published world clock ticks', async () => {
+    const { renderScene } = await import('./renderScene');
+    const game = createGame(2, 'render-scene-floating-text-smooth-progress');
+    const app = createMockApp();
+
+    game.worldFloatingTextEvents = [
+      {
+        id: 'player-heal',
+        anchor: {
+          kind: 'player',
+          coord: { ...game.player.coord },
+        },
+        amount: 9,
+        createdAtMs: 200,
+        kind: 'healing',
+      },
+    ];
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        combatFeedbackWorldTimeMs: 240,
+        worldRenderFps: 120,
+        worldTimeMs: 200,
+      } as never,
+    );
+
+    const initialText = getVisibleFloatingTexts(app).find(
+      (text) => text.text === '9',
+    );
+
+    expect(initialText).toBeDefined();
+
+    const initialY = initialText!.position.y;
+    const initialAlpha = initialText!.alpha;
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      getWorldRenderFrameMs(120),
+      null,
+      {
+        combatFeedbackWorldTimeMs: 248,
+        worldRenderFps: 120,
+        worldTimeMs: 200,
+      } as never,
+    );
+
+    const progressedText = getVisibleFloatingTexts(app).find(
+      (text) => text.text === '9',
+    );
+
+    expect(progressedText).toBeDefined();
+    expect(progressedText!.position.y).toBeLessThan(initialY);
+    expect(progressedText!.alpha).toBeLessThan(initialAlpha);
   });
 
   it('does not apply lifesteal from the per-hit player on-hit helper', async () => {
@@ -1017,6 +1086,7 @@ function getVisibleFloatingTexts(app: ReturnType<typeof createMockApp>) {
 }
 
 type FloatingTextNode = {
+  alpha: number;
   position: { x: number; y: number };
   scale: { x: number; y: number };
   style: unknown;
@@ -1030,6 +1100,7 @@ function isFloatingTextNode(value: unknown): value is FloatingTextNode {
   }
 
   return (
+    'alpha' in value &&
     'position' in value &&
     'scale' in value &&
     'style' in value &&

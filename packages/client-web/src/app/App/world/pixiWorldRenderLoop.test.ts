@@ -223,6 +223,48 @@ describe('pixiWorldRenderLoop', () => {
     performanceNowSpy.mockRestore();
   });
 
+  it('samples a continuous render-world timestamp between published world clock ticks', () => {
+    let now = 1_000;
+    const performanceNowSpy = vi
+      .spyOn(performance, 'now')
+      .mockImplementation(() => now);
+    const renderScene = vi.fn();
+    const worldTimeMsRef = { current: 2_000 };
+    const renderFrame = createWorldRenderFrame({
+      app: {} as never,
+      renderScene,
+      gameRef: { current: { player: { coord: { q: 0, r: 0 } } } } as never,
+      visibleTilesRef: {
+        current: [{ coord: { q: 0, r: 0 }, terrain: 'plains' }],
+      } as never,
+      selectedRef: { current: { q: 0, r: 0 } } as never,
+      hoveredMoveRef: { current: null },
+      hoveredSafePathRef: { current: null },
+      showTerrainBackgroundsRef: { current: true },
+      worldRenderFpsRef: { current: 120 },
+      pausedRef: { current: false },
+      pausedAnimationMsRef: { current: null },
+      worldTimeMsRef,
+      renderInvalidationRef: { current: 0 },
+      lastRenderSnapshotRef: { current: createInitialWorldRenderSnapshot() },
+    } as never);
+
+    renderFrame();
+    now = 1_008;
+    renderFrame();
+
+    expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[0]?.[8]).toMatchObject({
+      worldTimeMs: 2_000,
+    });
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+      combatFeedbackWorldTimeMs: 2_008,
+      worldTimeMs: 2_000,
+    });
+
+    performanceNowSpy.mockRestore();
+  });
+
   it('re-renders when live cloud settings change', () => {
     const performanceNowSpy = vi.spyOn(performance, 'now').mockReturnValue(0);
     const renderScene = vi.fn();

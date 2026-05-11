@@ -40,13 +40,13 @@ interface HostileMarkerAnchorSet {
 }
 
 export function getCombatFeedbackRenderToken({
+  renderWorldTimeMs,
   state,
   worldRenderFrameMs,
-  worldTimeMs,
 }: {
+  renderWorldTimeMs: number;
   state: GameState;
   worldRenderFrameMs: number;
-  worldTimeMs: number;
 }) {
   let token = 2166136261;
   let hasFeedback = false;
@@ -58,7 +58,7 @@ export function getCombatFeedbackRenderToken({
   }
 
   for (const event of state.worldFloatingTextEvents) {
-    const ageMs = worldTimeMs - event.createdAtMs;
+    const ageMs = renderWorldTimeMs - event.createdAtMs;
     if (ageMs < 0 || ageMs > WORLD_FLOATING_TEXT_LIFETIME_MS) {
       continue;
     }

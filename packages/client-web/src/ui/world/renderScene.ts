@@ -137,6 +137,7 @@ export function renderScene(
       animationMs: frameState.idleAnimationMs,
       animatedRenderToken: frameState.animatedRenderToken,
       app,
+      combatFeedbackWorldTimeMs: frameState.combatFeedbackWorldTimeMs,
       cloudTransparency: frameState.cloudTransparency,
       cloudInputs: frameState.cloudInputs,
       fullscreenVisualEffects: frameState.fullscreenVisualEffects,

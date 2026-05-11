@@ -34,6 +34,7 @@ import { WorldIcons } from './worldIcons';
 
 interface RenderAnimatedSceneOptions {
   app: Application;
+  combatFeedbackWorldTimeMs: number;
   scene: SceneCache;
   animationMs: number;
   animatedRenderToken: string;
@@ -70,6 +71,7 @@ interface RenderAnimatedSceneOptions {
 
 export function renderAnimatedScene({
   app,
+  combatFeedbackWorldTimeMs,
   scene,
   animationMs,
   animatedRenderToken,
@@ -154,13 +156,13 @@ export function renderAnimatedScene({
   });
   renderDungeonEnemyMovementCooldowns({
     scene,
+    renderWorldTimeMs: combatFeedbackWorldTimeMs,
     enemyIconSize,
     movementTransitionRevealState,
     playerCoord,
     revealRadius,
     visibleTileRenderInputs,
     worldKind,
-    worldTimeMs,
   });
   renderSceneCombatFeedback({
     enemyIconSize,
@@ -172,7 +174,7 @@ export function renderAnimatedScene({
     scene,
     state,
     visibleTileRenderInputs,
-    worldTimeMs,
+    worldTimeMs: combatFeedbackWorldTimeMs,
   });
 
   renderCloudLayer(

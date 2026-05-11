@@ -47,6 +47,7 @@ import { WORLD_MAP_CLOUD_PARALLAX_FACTOR } from './renderSceneShared';
 import type { VisibleWorldTile } from './visibleWorldTiles';
 
 export interface RenderSceneOptions {
+  combatFeedbackWorldTimeMs?: number;
   cloudTransparency?: number;
   idleAnimationMs?: number;
   showTerrainBackgrounds?: boolean;
@@ -61,6 +62,7 @@ export interface RenderSceneOptions {
 export interface RenderSceneFrameState {
   app: Application;
   animationMs: number;
+  combatFeedbackWorldTimeMs: number;
   idleAnimationMs: number;
   worldTimeMinutes: number;
   worldTimeMs: number;
@@ -133,6 +135,8 @@ export function getRenderSceneFrameState({
     options.worldRenderFps ?? DEFAULT_WORLD_RENDER_FPS,
   );
   const worldTimeMs = options.worldTimeMs ?? state.worldTimeMs;
+  const combatFeedbackWorldTimeMs =
+    options.combatFeedbackWorldTimeMs ?? worldTimeMs;
   const currentWorld = getActiveWorld(state);
   const currentWorldKind: WorldKind = currentWorld?.kind ?? 'surface';
   const currentWorldId = currentWorld?.id ?? state.surfaceWorldId;
@@ -238,9 +242,9 @@ export function getRenderSceneFrameState({
     `atmosphere:${Math.floor(animationMs / worldRenderFrameMs)}`,
     getMovementCooldownRenderToken(movementCooldown, worldRenderFrameMs),
     getCombatFeedbackRenderToken({
+      renderWorldTimeMs: combatFeedbackWorldTimeMs,
       state,
       worldRenderFrameMs,
-      worldTimeMs,
     }),
     showClouds ? 'clouds:on' : 'clouds:off',
     `cloudTransparency:${cloudTransparency}`,
@@ -288,6 +292,7 @@ export function getRenderSceneFrameState({
   return {
     app,
     animationMs,
+    combatFeedbackWorldTimeMs,
     idleAnimationMs,
     worldTimeMinutes,
     worldTimeMs,
