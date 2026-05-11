@@ -19,9 +19,9 @@
   the worker boundary even though only the visible frontier is needed to decide
   which coords remain unresolved.
 - Primary files:
-  - `packages/client/src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`
-  - `packages/client/src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.test.ts`
-  - `packages/client/src/app/App/world/tileResolution/worldTileResolutionCoordinator.test.ts`
+  - `packages/client-web/src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.ts`
+  - `packages/client-web/src/app/App/world/tileResolution/useWorldTileResolutionLifecycle.test.ts`
+  - `packages/client-web/src/app/App/world/tileResolution/worldTileResolutionCoordinator.test.ts`
 - Acceptance:
   - `resolvedTiles` in the coordinator sync payload only includes keys from the
     currently visible radius around `playerCoord`.
@@ -40,11 +40,11 @@
 - Cost: redundant worker sync, redundant hover invalidation, and avoidable
   pointer replay on a user-facing path.
 - Primary files:
-  - `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
-  - `packages/client/src/app/App/world/pixiWorldHoverInteractions.ts`
-  - `packages/client/src/app/App/world/usePixiWorldHoverLifecycle.ts`
-  - `packages/client/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
-  - `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.test.ts`
+  - `packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
+  - `packages/client-web/src/app/App/world/pixiWorldHoverInteractions.ts`
+  - `packages/client-web/src/app/App/world/usePixiWorldHoverLifecycle.ts`
+  - `packages/client-web/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
+  - `packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.test.ts`
 - Acceptance:
   - repeated refreshes with unchanged nearby hover-analysis state do not
     resync the worker and do not clear the hover cache
@@ -64,10 +64,10 @@
   and weaker guarantees about what actually invalidates the post-combat seed
   logic.
 - Primary files:
-  - `packages/client/src/app/App/usePixiWorld.ts`
-  - `packages/client/src/app/App/world/usePixiWorldPendingCombatLifecycle.ts`
-  - `packages/client/src/app/App/world/pixiWorldPendingCombat.ts`
-  - `packages/client/src/app/App/world/pixiWorldPendingCombat.test.ts`
+  - `packages/client-web/src/app/App/usePixiWorld.ts`
+  - `packages/client-web/src/app/App/world/usePixiWorldPendingCombatLifecycle.ts`
+  - `packages/client-web/src/app/App/world/pixiWorldPendingCombat.ts`
+  - `packages/client-web/src/app/App/world/pixiWorldPendingCombat.test.ts`
   - `docs/specs/reference/technical-solutions/pixi-rendering-solution/spec.md` if wording needs clarification
 - Acceptance:
   - the retained previous-state ref carries only the previous player coord and

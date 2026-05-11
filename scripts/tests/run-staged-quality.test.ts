@@ -11,9 +11,11 @@ import {
 
 describe('run-staged-quality helpers', () => {
   it('treats runtime JSON sources as related test inputs', () => {
-    expect(isVitestRelatedFile('packages/client/game.config.ts')).toBe(true);
+    expect(isVitestRelatedFile('packages/client-web/game.config.ts')).toBe(
+      true,
+    );
     expect(
-      isVitestRelatedFile('packages/client/src/i18n/locales/en.json'),
+      isVitestRelatedFile('packages/client-web/src/i18n/locales/en.json'),
     ).toBe(true);
   });
 
@@ -24,25 +26,27 @@ describe('run-staged-quality helpers', () => {
 
   it('keeps staged Oxlint and Stylelint selectors narrow', () => {
     expect(isLintFile('scripts/run-staged-quality.helpers.mjs')).toBe(true);
-    expect(isLintFile('packages/client/src/i18n/locales/en.json')).toBe(false);
+    expect(isLintFile('packages/client-web/src/i18n/locales/en.json')).toBe(
+      false,
+    );
     expect(
-      isSrcStyleFile('packages/client/src/ui/components/App/styles.scss'),
+      isSrcStyleFile('packages/client-web/src/ui/components/App/styles.scss'),
     ).toBe(true);
     expect(isSrcStyleFile('styles.scss')).toBe(false);
   });
 
   it('keeps shared test trigger files explicit', () => {
     expect(FULL_TEST_TRIGGER_FILES.has('package.json')).toBe(false);
-    expect(FULL_TEST_TRIGGER_FILES.has('packages/client/game.config.ts')).toBe(
-      false,
-    );
-    expect(FULL_TEST_TRIGGER_FILES.has('packages/client/vite.config.ts')).toBe(
-      true,
-    );
+    expect(
+      FULL_TEST_TRIGGER_FILES.has('packages/client-web/game.config.ts'),
+    ).toBe(false);
+    expect(
+      FULL_TEST_TRIGGER_FILES.has('packages/client-web/vite.config.ts'),
+    ).toBe(true);
   });
 
   it('extracts lowercase extensions consistently', () => {
-    expect(getExtension('packages/client/src/i18n/locales/EN.JSON')).toBe(
+    expect(getExtension('packages/client-web/src/i18n/locales/EN.JSON')).toBe(
       '.json',
     );
     expect(getExtension('scripts/run-staged-quality')).toBe('');
@@ -74,17 +78,17 @@ describe('run-staged-quality helpers', () => {
       false,
     );
     expect(shouldRunFullTestSuite(['package.json'], scriptDiff)).toBe(true);
-    expect(shouldRunFullTestSuite(['packages/client/vite.config.ts'], '')).toBe(
-      true,
-    );
+    expect(
+      shouldRunFullTestSuite(['packages/client-web/vite.config.ts'], ''),
+    ).toBe(true);
   });
 
   it('chunks staged file arguments before Windows process limits are hit', () => {
     const fixedArgs = ['--filter', '@realmfall/client-web', 'exec', 'prettier'];
     const fileArgs = [
-      'E:/repo/packages/client/src/game/one.ts',
-      'E:/repo/packages/client/src/game/two.ts',
-      'E:/repo/packages/client/src/game/three.ts',
+      'E:/repo/packages/client-web/src/game/one.ts',
+      'E:/repo/packages/client-web/src/game/two.ts',
+      'E:/repo/packages/client-web/src/game/three.ts',
     ];
 
     expect(chunkFilesByArgumentLength(fixedArgs, fileArgs, 130)).toEqual([

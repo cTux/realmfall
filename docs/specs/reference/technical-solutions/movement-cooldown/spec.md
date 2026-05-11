@@ -23,7 +23,7 @@ This spec covers the client-side movement request boundary, real-time cooldown q
 ## Main Implementation Areas
 
 - `packages/common/src/worldMovement.ts`
-- `packages/client/src/app/App/world/movement/*`
-- `packages/client/src/app/App/usePixiWorld.ts`
-- `packages/client/src/app/App/world/pixiWorldRenderLoop.ts`
-- `packages/client/src/ui/world/renderScene.ts`
+- `packages/client-web/src/app/App/world/movement/*`
+- `packages/client-web/src/app/App/usePixiWorld.ts`
+- `packages/client-web/src/app/App/world/pixiWorldRenderLoop.ts`
+- `packages/client-web/src/ui/world/renderScene.ts`

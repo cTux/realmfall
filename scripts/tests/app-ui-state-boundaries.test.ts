@@ -4,10 +4,10 @@ import { fileURLToPath } from 'node:url';
 import { describe, expect, it } from 'vitest';
 
 const CLIENT_SRC_ROOT = fileURLToPath(
-  new URL('../../packages/client/src', import.meta.url),
+  new URL('../../packages/client-web/src', import.meta.url),
 );
 const CLIENT_GAME_ROOT = fileURLToPath(
-  new URL('../../packages/client/src/game', import.meta.url),
+  new URL('../../packages/client-web/src/game', import.meta.url),
 );
 
 function collectSourceFiles(root: string, files: string[] = []) {

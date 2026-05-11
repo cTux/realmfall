@@ -2,8 +2,8 @@ import process from 'node:process';
 import {
   spawnManagedChild,
   terminateProcessTreeSync,
-} from '../packages/client/scripts/managed-child-process.mjs';
-import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
+} from '../packages/client-web/scripts/managed-child-process.mjs';
+import { createPnpmInvocation } from '../packages/client-web/scripts/pnpm-command.mjs';
 
 export function createWorkspaceServiceInvocations(
   serviceDefinitions,

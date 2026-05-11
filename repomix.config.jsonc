@@ -43,9 +43,9 @@
       "repomix-output.*",
       "docs/specs/**",
       "docs/implementation-notes/**",
-      "packages/client/public/assets/**",
-      "packages/client/src/assets/**",
-      "packages/client/src/i18n/locales/**",
+      "packages/client-web/public/assets/**",
+      "packages/client-web/src/assets/**",
+      "packages/client-web/src/i18n/locales/**",
       "**/*.{svg,png,jpg,jpeg,webp,gif,mp3,wav,ogg,ttf,woff,woff2}"
     ]
   },

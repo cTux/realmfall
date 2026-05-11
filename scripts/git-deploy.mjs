@@ -17,8 +17,8 @@ import {
   getDeployWorktreeBranchName,
   parseCliArgs,
 } from './git-deploy.helpers.mjs';
-import { spawnManagedChild } from '../packages/client/scripts/managed-child-process.mjs';
-import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
+import { spawnManagedChild } from '../packages/client-web/scripts/managed-child-process.mjs';
+import { createPnpmInvocation } from '../packages/client-web/scripts/pnpm-command.mjs';
 
 const repositoryRoot = fileURLToPath(new URL('..', import.meta.url));
 const distDirectory = join(repositoryRoot, 'packages', 'client', 'dist');

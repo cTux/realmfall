@@ -1,12 +1,12 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import sharp from 'sharp';
-import { TERRAINS } from '../../packages/client/src/game/types';
+import { TERRAINS } from '../../packages/client-web/src/game/types';
 import {
   WORLD_TERRAIN_ATLAS_COLUMNS,
   WORLD_TERRAIN_ATLAS_OUTPUTS,
   WORLD_TERRAIN_ATLAS_SOURCES,
-} from '../packages/client/scripts/world-terrain-atlas.config.mjs';
+} from '../packages/client-web/scripts/world-terrain-atlas.config.mjs';
 
 interface WorldTerrainAtlasManifest {
   columns: number;
@@ -39,7 +39,7 @@ describe('world terrain atlas pipeline', () => {
       existsSync(
         join(
           process.cwd(),
-          'packages/client/scripts/build-world-terrain-atlas.mjs',
+          'packages/client-web/scripts/build-world-terrain-atlas.mjs',
         ),
       ),
     ).toBe(true);

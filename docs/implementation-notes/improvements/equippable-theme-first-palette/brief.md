@@ -27,7 +27,7 @@ Canonical references:
 ## Implementation Direction
 
 - Keep the tint logic centralized in
-  `packages/client/src/ui/icons.ts`.
+  `packages/client-web/src/ui/icons.ts`.
 - Replace the current broad `getEquippableTint` fallback switch with a shared
   palette helper that:
   - resolves an expansion theme family from the item key when possible
@@ -42,10 +42,10 @@ Canonical references:
 
 ## Verification Direction
 
-- Extend `packages/client/src/ui/uiItemSlotColors.test.tsx` to cover
+- Extend `packages/client-web/src/ui/uiItemSlotColors.test.tsx` to cover
   representative expansion themes such as `ashen`, `dawn`, `storm`, and `void`
   with low-split variation across multiple slot families.
-- Extend `packages/client/src/ui/helpers.test.tsx` to cover generic
+- Extend `packages/client-web/src/ui/helpers.test.tsx` to cover generic
   non-set equippables and the neutral fallback path for unknown gear.
 - Keep recipe-page and non-equippable assertions intact so the previous
   inventory color rules remain covered.
@@ -58,10 +58,10 @@ Canonical references:
 
 ## Canonical References
 
-- `packages/client/src/ui/icons.ts`
-- `packages/client/src/ui/uiItemSlotColors.test.tsx`
-- `packages/client/src/ui/helpers.test.tsx`
-- `packages/ui/src/components/ItemSlot/ItemSlotButton.stories.tsx`
+- `packages/client-web/src/ui/icons.ts`
+- `packages/client-web/src/ui/uiItemSlotColors.test.tsx`
+- `packages/client-web/src/ui/helpers.test.tsx`
+- `packages/ui-react/src/components/ItemSlot/ItemSlotButton.stories.tsx`
 - `docs/specs/reference/gameplay-features/inventory-and-economy/spec.md`
 - `docs/specs/reference/gameplay-features/items-loot-and-equipment/spec.md`
 - `docs/rules/30-react-ui.md`

@@ -16,11 +16,11 @@
 
 ## Findings
 
-1. `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts` uses `JSON.stringify` for every hovered-slice tile and enemy signature during refresh checks. That makes each hover-analysis invalidation walk allocate and serialize the full nearby slice before the worker sync decision is even made.
+1. `packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts` uses `JSON.stringify` for every hovered-slice tile and enemy signature during refresh checks. That makes each hover-analysis invalidation walk allocate and serialize the full nearby slice before the worker sync decision is even made.
 
-2. `packages/client/src/app/App/world/pixiWorldHoverInteractions.ts` refreshes hover analysis by dispatching a synthetic `pointermove` event back through the canvas listener stack. The controller already has the pointer coordinates and the local processing path, so the extra DOM event path adds avoidable work and couples refresh logic to input dispatch.
+2. `packages/client-web/src/app/App/world/pixiWorldHoverInteractions.ts` refreshes hover analysis by dispatching a synthetic `pointermove` event back through the canvas listener stack. The controller already has the pointer coordinates and the local processing path, so the extra DOM event path adds avoidable work and couples refresh logic to input dispatch.
 
-3. `packages/client/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx` derives `dirty` by stringifying four settings objects on every render. That is unnecessary churn in an interactive settings surface and scales poorly as the settings schema grows.
+3. `packages/client-web/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx` derives `dirty` by stringifying four settings objects on every render. That is unnecessary churn in an interactive settings surface and scales poorly as the settings schema grows.
 
 ## Confirmed Current State
 

@@ -1,6 +1,6 @@
 import process from 'node:process';
 import { pathToFileURL } from 'node:url';
-import { createPnpmInvocation } from '../packages/client/scripts/pnpm-command.mjs';
+import { createPnpmInvocation } from '../packages/client-web/scripts/pnpm-command.mjs';
 import {
   createWorkspaceServiceInvocations,
   runWorkspaceCommand,

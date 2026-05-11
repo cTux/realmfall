@@ -7,33 +7,33 @@
 | 1     | `P1`     | Hover-analysis active-backend sync    | Stop rebuilding and cloning the same nearby hover snapshot into both the worker path and the local fallback on every hover refresh. | Focused hover-analysis tests plus client typecheck |
 | 2     | `P1`     | Shared UI generated-icon export split | Keep the shared UI root barrel free of generated-icon asset imports so startup-adjacent consumers do not pull that graph eagerly.   | Client build plus manifest inspection              |
 | 3     | `P2`     | Bootstrap-shell config split          | Keep the bootstrap spinner config on a tiny entry-safe module instead of the window-registry module.                                | Client build plus preload inspection               |
-| 4     | `P3`     | Canonical item-icon helper path       | Remove duplicated item-icon fallback logic between `packages/client` and `packages/ui`.                                             | Focused icon helper tests plus client typecheck    |
+| 4     | `P3`     | Canonical item-icon helper path       | Remove duplicated item-icon fallback logic between `packages/client-web` and `packages/ui-react`.                                   | Focused icon helper tests plus client typecheck    |
 
 ## Re-verified Candidate
 
-| Candidate           | Current status            | Result                                                                                                                                     |
-| ------------------- | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| Pixi typecheck gate | Rechecked on May 11, 2026 | `pnpm typecheck` passes at the repo root and in `packages/client`, so no implementation fix is queued unless the failure reproduces again. |
+| Candidate           | Current status            | Result                                                                                                                                         |
+| ------------------- | ------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
+| Pixi typecheck gate | Rechecked on May 11, 2026 | `pnpm typecheck` passes at the repo root and in `packages/client-web`, so no implementation fix is queued unless the failure reproduces again. |
 
 ## Fix 1: Hover-Analysis Active-Backend Sync
 
 ### Current problem
 
-- `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
+- `packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
   rebuilds a nearby tiles-and-enemies snapshot for every hover-analysis sync.
-- `packages/client/src/app/App/world/hoverAnalysis/createWorkerWorldHoverAnalysisSource.ts`
+- `packages/client-web/src/app/App/world/hoverAnalysis/createWorkerWorldHoverAnalysisSource.ts`
   sends that snapshot into both the local source and the worker-backed source
   even when the worker path is healthy.
-- `packages/client/src/app/App/world/pixiWorldHoverInteractions.ts` refreshes
+- `packages/client-web/src/app/App/world/pixiWorldHoverInteractions.ts` refreshes
   the hover-analysis source eagerly on hover reset and world refresh, so the
   double sync sits on a user-facing path.
 
 ### Owned scope
 
-- `packages/client/src/app/App/world/hoverAnalysis/createWorkerWorldHoverAnalysisSource.ts`
-- `packages/client/src/app/App/world/hoverAnalysis/createLocalWorldHoverAnalysisSource.ts`
-- `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
-- `packages/client/src/app/App/world/pixiWorldHoverInteractions.ts`
+- `packages/client-web/src/app/App/world/hoverAnalysis/createWorkerWorldHoverAnalysisSource.ts`
+- `packages/client-web/src/app/App/world/hoverAnalysis/createLocalWorldHoverAnalysisSource.ts`
+- `packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
+- `packages/client-web/src/app/App/world/pixiWorldHoverInteractions.ts`
 - Any focused hover-analysis tests that cover worker fallback behavior
 
 ### Planned change
@@ -62,7 +62,7 @@
 - Add or extend a focused test covering worker failure and fallback replay of
   the latest synced state.
 - Keep any hover-analysis unit coverage green for worker and local sources.
-- `pnpm --filter @realmfall/client-web test:node -- packages/client/src/app/App/world/hoverAnalysis`
+- `pnpm --filter @realmfall/client-web test:node -- packages/client-web/src/app/App/world/hoverAnalysis`
 - `pnpm --filter @realmfall/client-web typecheck`
 
 ### Durable docs to update with this fix
@@ -81,28 +81,28 @@
 
 ### Current problem
 
-- `packages/ui/src/index.ts` re-exports generated-icon asset helpers from the
+- `packages/ui-react/src/index.ts` re-exports generated-icon asset helpers from the
   shared root barrel.
 - Any client code that imports unrelated shared UI helpers from
   `@realmfall/ui-react` causes the barrel module to traverse that generated-icon
   export edge during module linking.
-- `packages/client/src/ui/generatedIconAssets.ts` currently reaches those asset
+- `packages/client-web/src/ui/generatedIconAssets.ts` currently reaches those asset
   exports through the root barrel, which defeats a clean startup boundary.
 
 ### Owned scope
 
-- `packages/ui/src/index.ts`
-- `packages/ui/package.json`
-- `packages/client/src/ui/generatedIconAssets.ts`
+- `packages/ui-react/src/index.ts`
+- `packages/ui-react/package.json`
+- `packages/client-web/src/ui/generatedIconAssets.ts`
 - Any tests that assert the shared UI export surface or generated-icon behavior
 
 ### Planned change
 
 1. Add a dedicated package subpath for generated-icon asset helpers in
-   `packages/ui/package.json`.
+   `packages/ui-react/package.json`.
 2. Move client generated-icon imports to that narrow subpath instead of the
    shared root barrel.
-3. Remove generated-icon asset re-exports from `packages/ui/src/index.ts` so
+3. Remove generated-icon asset re-exports from `packages/ui-react/src/index.ts` so
    fixed-window, tooltip, and bootstrap-adjacent imports of
    `@realmfall/ui-react` no longer pull the generated-icon asset module by
    default.
@@ -121,9 +121,9 @@
 
 - Keep generated-icon tests green.
 - `pnpm --filter @realmfall/ui-react test`
-- `pnpm --filter @realmfall/client-web test:node -- packages/client/src/ui/generatedIconAssets.test.ts`
+- `pnpm --filter @realmfall/client-web test:node -- packages/client-web/src/ui/generatedIconAssets.test.ts`
 - `pnpm --filter @realmfall/client-web build`
-- Inspect `packages/client/dist/.vite/manifest.json` and confirm the shared UI
+- Inspect `packages/client-web/dist/.vite/manifest.json` and confirm the shared UI
   root path no longer drags the generated-icon asset module into startup-adjacent
   chunks.
 
@@ -142,16 +142,16 @@
 
 ### Current problem
 
-- `packages/client/src/main.tsx` imports `CLIENT_BOOTSTRAP_SHELL` from
-  `packages/client/src/client.config.ts`.
+- `packages/client-web/src/main.tsx` imports `CLIENT_BOOTSTRAP_SHELL` from
+  `packages/client-web/src/client.config.ts`.
 - `client.config.ts` also imports the window-registry icon set and other
   app-side constants, which widens the entry graph for a bootstrap spinner that
   only needs a few numeric values.
 
 ### Owned scope
 
-- `packages/client/src/main.tsx`
-- `packages/client/src/client.config.ts`
+- `packages/client-web/src/main.tsx`
+- `packages/client-web/src/client.config.ts`
 - Any new tiny config module created for bootstrap-only constants
 - Bootstrap tests or manifest checks if they need adjustment
 
@@ -174,8 +174,8 @@
 ### Verification
 
 - `pnpm --filter @realmfall/client-web build`
-- Inspect `packages/client/dist/index.html` and
-  `packages/client/dist/.vite/manifest.json` for the bootstrap preload graph.
+- Inspect `packages/client-web/dist/index.html` and
+  `packages/client-web/dist/.vite/manifest.json` for the bootstrap preload graph.
 - Keep any existing bootstrap tests green.
 
 ### Durable docs to update with this fix
@@ -193,25 +193,25 @@
 
 ### Current problem
 
-- `packages/client/src/ui/icons.ts` duplicates item-slot fallback, category
+- `packages/client-web/src/ui/icons.ts` duplicates item-slot fallback, category
   fallback, recipe-page handling, and tint helpers that already exist in
-  similar form in `packages/ui/src/icons.ts`.
+  similar form in `packages/ui-react/src/icons.ts`.
 - The duplication keeps two item-icon decision paths aligned by convention
   instead of by one shared implementation surface.
 
 ### Owned scope
 
-- `packages/ui/src/icons.ts`
-- `packages/ui/src/index.ts` or a dedicated export subpath if needed
-- `packages/client/src/ui/icons.ts`
+- `packages/ui-react/src/icons.ts`
+- `packages/ui-react/src/index.ts` or a dedicated export subpath if needed
+- `packages/client-web/src/ui/icons.ts`
 - Any tests covering shared item-icon helper behavior in either package
 
 ### Planned change
 
 1. Decide on one shared helper surface for item-icon fallback, border color,
-   and tint behavior in `packages/ui`.
+   and tint behavior in `packages/ui-react`.
 2. Export that helper through a narrow, intentional path.
-3. Refactor `packages/client/src/ui/icons.ts` to keep client-only enemy,
+3. Refactor `packages/client-web/src/ui/icons.ts` to keep client-only enemy,
    structure, and skill icon concerns local while delegating item-icon fallback
    logic to the shared helper.
 4. Remove duplicated constants and fallback branches that become redundant after
@@ -232,7 +232,7 @@
 - Keep client tooltip, item-slot, and recipe-book tests green where they depend
   on icon resolution.
 - `pnpm --filter @realmfall/ui-react test`
-- `pnpm --filter @realmfall/client-web test:jsdom -- packages/client/src/ui/uiTooltipItemContent.test.tsx packages/client/src/ui/uiRecipeBook.test.tsx packages/client/src/ui/uiWindowStaticMarkup.test.tsx`
+- `pnpm --filter @realmfall/client-web test:jsdom -- packages/client-web/src/ui/uiTooltipItemContent.test.tsx packages/client-web/src/ui/uiRecipeBook.test.tsx packages/client-web/src/ui/uiWindowStaticMarkup.test.tsx`
 - `pnpm --filter @realmfall/client-web typecheck`
 
 ### Durable docs to update with this fix

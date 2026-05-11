@@ -11,14 +11,14 @@ Active fixes in this workspace:
   fixed-window and bootstrap-adjacent imports do not eagerly load that asset
   graph.
 - `P2` Move bootstrap-shell constants out of the icon-heavy
-  `packages/client/src/client.config.ts` entry so `main.tsx` does not widen the
+  `packages/client-web/src/client.config.ts` entry so `main.tsx` does not widen the
   startup preload set.
 - `P3` Consolidate duplicate item-icon lookup logic between the client and the
   shared UI package into one canonical helper path.
 
 Re-verified candidate from the review:
 
-- `pnpm typecheck` is green at both the repo root and `packages/client` on
+- `pnpm typecheck` is green at both the repo root and `packages/client-web` on
   May 11, 2026, so the earlier Pixi import-resolution failure is not queued as
   an implementation fix in this workspace.
 

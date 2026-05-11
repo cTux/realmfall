@@ -10,12 +10,12 @@ Reduce avoidable work on the client interaction path and keep the repo's perform
 
 **Problem**
 
-`packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts` currently serializes each nearby tile and enemy to decide whether hover-analysis state changed. That pushes full-object string allocation into a path that can run repeatedly while the world is active.
+`packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts` currently serializes each nearby tile and enemy to decide whether hover-analysis state changed. That pushes full-object string allocation into a path that can run repeatedly while the world is active.
 
 **Files**
 
-- Modify: `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
-- Modify: `packages/client/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
+- Modify: `packages/client-web/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
+- Modify: `packages/client-web/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
 - Add or modify targeted hover-analysis tests if a narrower unit file is better
 
 **Implementation plan**
@@ -42,12 +42,12 @@ pnpm --filter @realmfall/client-web exec vitest run --project jsdom src/app/App/
 
 **Problem**
 
-`packages/client/src/app/App/world/pixiWorldHoverInteractions.ts` calls `canvas.dispatchEvent(new PointerEvent('pointermove', ...))` during `refreshHoverAnalysis()`. The controller already owns the hover pointer state and `processPointerMove`, so the redispatch burns DOM/listener work and obscures the real refresh path.
+`packages/client-web/src/app/App/world/pixiWorldHoverInteractions.ts` calls `canvas.dispatchEvent(new PointerEvent('pointermove', ...))` during `refreshHoverAnalysis()`. The controller already owns the hover pointer state and `processPointerMove`, so the redispatch burns DOM/listener work and obscures the real refresh path.
 
 **Files**
 
-- Modify: `packages/client/src/app/App/world/pixiWorldHoverInteractions.ts`
-- Modify: `packages/client/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
+- Modify: `packages/client-web/src/app/App/world/pixiWorldHoverInteractions.ts`
+- Modify: `packages/client-web/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
 
 **Implementation plan**
 
@@ -70,12 +70,12 @@ pnpm --filter @realmfall/client-web exec vitest run --project jsdom src/app/App/
 
 **Problem**
 
-`packages/client/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx` recomputes `dirty` by stringifying four settings objects every render. The comparison is deterministic today, but the work is unnecessary and ties correctness to object-serialization shape.
+`packages/client-web/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx` recomputes `dirty` by stringifying four settings objects every render. The comparison is deterministic today, but the work is unnecessary and ties correctness to object-serialization shape.
 
 **Files**
 
-- Modify: `packages/client/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx`
-- Modify or add: `packages/client/src/ui/components/GameSettingsWindow/__tests__/*`
+- Modify: `packages/client-web/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx`
+- Modify or add: `packages/client-web/src/ui/components/GameSettingsWindow/__tests__/*`
 
 **Implementation plan**
 
@@ -89,7 +89,7 @@ pnpm --filter @realmfall/client-web exec vitest run --project jsdom src/app/App/
 5. Verify with:
 
 ```bash
-pnpm --filter @realmfall/client-web exec vitest run --project jsdom packages/client/src/ui/components/GameSettingsWindow/__tests__
+pnpm --filter @realmfall/client-web exec vitest run --project jsdom packages/client-web/src/ui/components/GameSettingsWindow/__tests__
 ```
 
 If the package-level test glob is too broad, run only the touched test file.
