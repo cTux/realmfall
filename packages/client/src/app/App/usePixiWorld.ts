@@ -45,7 +45,10 @@ import {
 } from './world/usePixiWorldPendingCombatLifecycle';
 import { usePixiWorldQueuedTravelSuppression } from './world/usePixiWorldQueuedTravelSuppression';
 import { usePixiWorldRenderSettingsSync } from './world/usePixiWorldRenderSettingsSync';
-import type { PendingVictoryTransitionOffset } from './world/pixiWorldPendingCombat';
+import {
+  createPreviousPendingCombatSnapshot,
+  type PendingVictoryTransitionOffset,
+} from './world/pixiWorldPendingCombat';
 
 const DEFAULT_WORLD_MAP_CAMERA: WorldMapCameraState = {
   zoom: 1,
@@ -118,7 +121,7 @@ export function usePixiWorld({
     useRef<WorldHoverAnalysisController | null>(null);
   const hoverAnalysisVersionRef = useRef(0);
   const hoverSnapshotRef = useRef<WorldHoverSnapshot>(undefined!);
-  const previousGameRef = useRef(game);
+  const previousGameRef = useRef(createPreviousPendingCombatSnapshot(game));
   const showCloudsRef = useRef(showClouds);
   const cloudTransparencyRef = useRef(
     normalizeCloudTransparency(cloudTransparency),

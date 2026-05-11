@@ -12,10 +12,12 @@ import type { GameplayTransitionSource } from '../gameplay/gameplayTransitionSou
 import type { WorldMovementTransition } from './movement/worldMovementTransition';
 import type { WorldMovementController } from './pixiWorldLifecycleTypes';
 import {
+  createPreviousPendingCombatSnapshot,
   getPendingCombatUpdatePlan,
   getPostCombatAutoStepTransition,
   stampPendingCombatIntro,
   type PendingVictoryTransitionOffset,
+  type PreviousPendingCombatSnapshot,
 } from './pixiWorldPendingCombat';
 
 interface UsePixiWorldPendingCombatSeedLifecycleArgs {
@@ -24,7 +26,7 @@ interface UsePixiWorldPendingCombatSeedLifecycleArgs {
   movementCooldownEndAtRef: MutableRefObject<number | null>;
   movementControllerRef: MutableRefObject<WorldMovementController | null>;
   pendingVictoryTransitionOffsetRef: MutableRefObject<PendingVictoryTransitionOffset | null>;
-  previousGameRef: MutableRefObject<GameState>;
+  previousGameRef: MutableRefObject<PreviousPendingCombatSnapshot>;
   renderInvalidationRef: MutableRefObject<number>;
 }
 
@@ -49,12 +51,12 @@ export function usePixiWorldPendingCombatSeedLifecycle({
   renderInvalidationRef,
 }: UsePixiWorldPendingCombatSeedLifecycleArgs): void {
   useEffect(() => {
-    const previousGame = previousGameRef.current;
+    const previousSnapshot = previousGameRef.current;
     const postCombatAutoStepTransition = getPostCombatAutoStepTransition({
       app: appRef.current,
       game,
       nowMs: performance.now(),
-      previousGame,
+      previousSnapshot,
     });
 
     if (postCombatAutoStepTransition) {
@@ -73,7 +75,7 @@ export function usePixiWorldPendingCombatSeedLifecycle({
       }
     }
 
-    previousGameRef.current = game;
+    previousGameRef.current = createPreviousPendingCombatSnapshot(game);
   }, [
     appRef,
     game,
@@ -225,7 +227,7 @@ export function usePixiWorldPendingCombatLifecycle({
   paused: boolean;
   pendingVictoryTransitionOffsetRef: MutableRefObject<PendingVictoryTransitionOffset | null>;
   playerCoord: HexCoord;
-  previousGameRef: MutableRefObject<GameState>;
+  previousGameRef: MutableRefObject<PreviousPendingCombatSnapshot>;
   renderInvalidationRef: MutableRefObject<number>;
   setGame: Dispatch<SetStateAction<GameState>>;
   worldTimeMsRef: MutableRefObject<number>;
