@@ -19,6 +19,7 @@
 - When `AppShell` only needs shell-local slices such as home-indicator inputs or
   recorded-voice playback state, pass a dedicated shell contract instead of the
   full `GameState`.
+- Keep audio-bridge-only state on a sibling or narrower child boundary instead of bundling it into broad shell props. Combat log and voice playback updates should not force unrelated shell UI such as the home indicator, dock, or loading chrome through the same render path.
 - Keep `useAppRuntime` composition-first. When shortcut availability or window wiring starts expanding inside it, move those branches into focused neighbors such as `useAppShortcutRuntime` and `useAppWindowRuntime` instead of letting one orchestration hook own every nested argument object directly.
 - Keep `useAppWindowRuntime` responsible for adapting grouped controller, settings, gameplay-view, and transition slices into window view and action inputs so `useAppRuntime` does not rebuild another large window-facing argument object inline.
 - When multiple deferred windows share the same entered, mounted, timeout, and snapshot-retention lifecycle, extract that lifecycle into a focused local hook under `src/app/App/hooks` and keep `useWindowTransitions` as a thin composition layer over the shared helper.
