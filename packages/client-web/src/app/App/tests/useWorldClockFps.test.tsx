@@ -1,37 +1,57 @@
-import React, { act, forwardRef, useImperativeHandle, useRef } from 'react';
+import React, {
+  act,
+  forwardRef,
+  useImperativeHandle,
+  useRef,
+  type SetStateAction,
+} from 'react';
 import { createRoot, type Root } from 'react-dom/client';
+import { getWorldTimeMinutesFromTimestamp } from '@realmfall/core/game/worldTime';
+import { useWorldClockTime } from '../worldClockStore';
 import { useWorldClockFps } from './useWorldClockFpsTestkit';
 
 interface ClockHarnessHandle {
   getWorldTimeMs: () => number;
+  getPublishedWorldTimeMs: () => number;
+  setWorldTimeMs: (nextWorldTimeMs: SetStateAction<number>) => void;
 }
 
 const onWorldMinuteChange = vi.fn();
 const onWorldSecondChange = vi.fn();
 
-const ClockHarness = forwardRef<ClockHarnessHandle, { paused: boolean }>(
-  function ClockHarness({ paused }: { paused: boolean }, ref) {
-    const worldTimeMsRef = useRef(1_000);
-    const worldTimeTickRef = useRef<number | null>(null);
-    const lastDisplayedWorldSecondRef = useRef(1);
+const ClockHarness = forwardRef<
+  ClockHarnessHandle,
+  { initialWorldTimeMs: number; paused: boolean }
+>(function ClockHarness({ initialWorldTimeMs, paused }, ref) {
+  const worldTimeMsRef = useRef(initialWorldTimeMs);
+  const publishedWorldTimeMs = useWorldClockTime();
+  const worldTimeTickRef = useRef<number | null>(null);
+  const lastDisplayedWorldSecondRef = useRef(
+    Math.floor(initialWorldTimeMs / 1_000),
+  );
 
-    useWorldClockFps({
-      initialWorldTimeMs: 1_000,
-      paused,
-      worldTimeMsRef,
-      worldTimeTickRef,
-      lastDisplayedWorldSecondRef,
-      onWorldMinuteChange,
-      onWorldSecondChange,
-    });
+  const { setWorldTimeMs } = useWorldClockFps({
+    initialWorldTimeMs,
+    paused,
+    worldTimeMsRef,
+    worldTimeTickRef,
+    lastDisplayedWorldSecondRef,
+    onWorldMinuteChange,
+    onWorldSecondChange,
+  });
 
-    useImperativeHandle(ref, () => ({
+  useImperativeHandle(
+    ref,
+    () => ({
       getWorldTimeMs: () => worldTimeMsRef.current,
-    }));
+      getPublishedWorldTimeMs: () => publishedWorldTimeMs,
+      setWorldTimeMs,
+    }),
+    [publishedWorldTimeMs, setWorldTimeMs],
+  );
 
-    return null;
-  },
-);
+  return null;
+});
 
 function setDocumentVisibilityState(state: 'hidden' | 'visible') {
   Object.defineProperty(document, 'visibilityState', {
@@ -44,6 +64,24 @@ describe('useWorldClockFps', () => {
   let host: HTMLDivElement;
   let root: Root;
   let harnessRef: React.RefObject<ClockHarnessHandle | null>;
+
+  async function renderClockHarness({
+    initialWorldTimeMs = 1_000,
+    paused = false,
+  }: {
+    initialWorldTimeMs?: number;
+    paused?: boolean;
+  } = {}) {
+    await act(async () => {
+      root.render(
+        <ClockHarness
+          ref={harnessRef}
+          initialWorldTimeMs={initialWorldTimeMs}
+          paused={paused}
+        />,
+      );
+    });
+  }
 
   beforeAll(() => {
     (
@@ -63,10 +101,6 @@ describe('useWorldClockFps', () => {
     document.body.appendChild(host);
     root = createRoot(host);
     harnessRef = React.createRef<ClockHarnessHandle>();
-
-    await act(async () => {
-      root.render(<ClockHarness ref={harnessRef} paused={false} />);
-    });
   });
 
   afterEach(async () => {
@@ -76,14 +110,45 @@ describe('useWorldClockFps', () => {
     host.remove();
   });
 
-  it('pauses the world clock while the tab is hidden and resumes on return', async () => {
+  it('publishes second changes at the next boundary without requestAnimationFrame churn', async () => {
+    const requestAnimationFrameSpy = vi.spyOn(window, 'requestAnimationFrame');
+
+    await renderClockHarness({ initialWorldTimeMs: 59_250 });
+
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(59_250);
+    expect(onWorldSecondChange).not.toHaveBeenCalled();
+    expect(onWorldMinuteChange).not.toHaveBeenCalled();
+    expect(requestAnimationFrameSpy).not.toHaveBeenCalled();
+
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_000);
+      await vi.advanceTimersByTimeAsync(749);
     });
 
-    const visibleWorldTime = harnessRef.current?.getWorldTimeMs() ?? 0;
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(59_250);
+    expect(onWorldSecondChange).not.toHaveBeenCalled();
+    expect(onWorldMinuteChange).not.toHaveBeenCalled();
 
-    expect(visibleWorldTime).toBeGreaterThan(1_000);
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+
+    expect(harnessRef.current?.getWorldTimeMs()).toBe(60_000);
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(60_000);
+    expect(onWorldSecondChange).toHaveBeenCalledTimes(1);
+    expect(onWorldMinuteChange).toHaveBeenCalledWith(
+      getWorldTimeMinutesFromTimestamp(60_000),
+    );
+    expect(requestAnimationFrameSpy).not.toHaveBeenCalled();
+  });
+
+  it('pauses the world clock while the tab is hidden and resumes on return', async () => {
+    await renderClockHarness({ initialWorldTimeMs: 1_250 });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(1_250);
 
     await act(async () => {
       setDocumentVisibilityState('hidden');
@@ -93,45 +158,95 @@ describe('useWorldClockFps', () => {
 
     const hiddenWorldTime = harnessRef.current?.getWorldTimeMs() ?? 0;
 
-    expect(hiddenWorldTime).toBe(visibleWorldTime);
+    expect(hiddenWorldTime).toBe(1_650);
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(1_250);
 
     await act(async () => {
       setDocumentVisibilityState('visible');
       document.dispatchEvent(new Event('visibilitychange'));
-      await vi.advanceTimersByTimeAsync(1_000);
+      await vi.advanceTimersByTimeAsync(349);
     });
 
-    expect(harnessRef.current?.getWorldTimeMs() ?? 0).toBeGreaterThan(
-      hiddenWorldTime,
-    );
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(1_250);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+
+    expect(harnessRef.current?.getWorldTimeMs()).toBe(2_000);
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(2_000);
+  });
+
+  it('keeps explicit world time jumps aligned to the next published second boundary', async () => {
+    await renderClockHarness({ initialWorldTimeMs: 1_250 });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(400);
+    });
+
+    await act(async () => {
+      harnessRef.current?.setWorldTimeMs(2_250);
+    });
+
+    expect(harnessRef.current?.getWorldTimeMs()).toBe(2_250);
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(2_250);
+    expect(onWorldSecondChange).not.toHaveBeenCalled();
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(749);
+    });
+
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(2_250);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+
+    expect(harnessRef.current?.getWorldTimeMs()).toBe(3_000);
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(3_000);
+    expect(onWorldSecondChange).toHaveBeenCalledTimes(1);
   });
 
   it('pauses the world clock while the game pause state is active and resumes afterward', async () => {
+    await renderClockHarness({ initialWorldTimeMs: 1_250 });
+
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_000);
+      await vi.advanceTimersByTimeAsync(400);
     });
 
-    const activeWorldTime = harnessRef.current?.getWorldTimeMs() ?? 0;
-
     await act(async () => {
-      root.render(<ClockHarness ref={harnessRef} paused />);
+      root.render(
+        <ClockHarness ref={harnessRef} initialWorldTimeMs={1_250} paused />,
+      );
     });
     await act(async () => {
       await vi.advanceTimersByTimeAsync(2_000);
     });
 
     const pausedWorldTime = harnessRef.current?.getWorldTimeMs() ?? 0;
-    expect(pausedWorldTime).toBe(activeWorldTime);
+    expect(pausedWorldTime).toBe(1_650);
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(1_250);
 
     await act(async () => {
-      root.render(<ClockHarness ref={harnessRef} paused={false} />);
+      root.render(
+        <ClockHarness
+          ref={harnessRef}
+          initialWorldTimeMs={1_250}
+          paused={false}
+        />,
+      );
     });
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_000);
+      await vi.advanceTimersByTimeAsync(349);
     });
 
-    expect(harnessRef.current?.getWorldTimeMs() ?? 0).toBeGreaterThan(
-      pausedWorldTime,
-    );
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(1_250);
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(1);
+    });
+
+    expect(harnessRef.current?.getWorldTimeMs()).toBe(2_000);
+    expect(harnessRef.current?.getPublishedWorldTimeMs()).toBe(2_000);
   });
 });

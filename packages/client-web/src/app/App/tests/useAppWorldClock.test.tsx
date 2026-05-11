@@ -91,11 +91,11 @@ describe('useAppWorldClock', () => {
     host.remove();
   });
 
-  it('keeps ordinary live clock ticks out of React game state', async () => {
+  it('does not rerender React game state before the next published second boundary', async () => {
     const initialRenderCount = harnessRef.current?.getRenderCount() ?? 0;
 
     await act(async () => {
-      await vi.advanceTimersByTimeAsync(1_000);
+      await vi.advanceTimersByTimeAsync(999);
     });
 
     expect(harnessRef.current?.getRenderCount()).toBe(initialRenderCount);

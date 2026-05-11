@@ -19,6 +19,16 @@ interface UseWorldClockFpsOptions {
   onWorldSecondChange?: () => void;
 }
 
+const WORLD_SECOND_MS = 1_000;
+
+function getDelayUntilNextWorldSecond(worldTimeMs: number) {
+  const elapsedIntoSecond = worldTimeMs % WORLD_SECOND_MS;
+
+  return elapsedIntoSecond === 0
+    ? WORLD_SECOND_MS
+    : WORLD_SECOND_MS - elapsedIntoSecond;
+}
+
 export function useWorldClockFps({
   initialWorldTimeMs,
   paused,
@@ -31,6 +41,9 @@ export function useWorldClockFps({
   const lastWorldTimeMinutesRef = useRef(
     getWorldTimeMinutesFromTimestamp(initialWorldTimeMs),
   );
+  const timeoutIdRef = useRef<number | null>(null);
+  const runningRef = useRef(false);
+  const rescheduleClockRef = useRef<(timestamp: number) => void>(() => {});
   const syncWorldTime = useEffectEvent((nextWorldTimeMs: number) => {
     const nextWorldTimeMinutes =
       getWorldTimeMinutesFromTimestamp(nextWorldTimeMs);
@@ -46,48 +59,98 @@ export function useWorldClockFps({
     setWorldClockTime(initialWorldTimeMs);
   }, [initialWorldTimeMs]);
 
-  useEffect(() => {
-    let frameId = 0;
-    let running = false;
+  const syncElapsedWorldTime = useEffectEvent((timestamp: number) => {
+    const lastTick = worldTimeTickRef.current;
 
-    const updateHud = (timestamp: number) => {
-      if (!running) {
+    if (lastTick == null) {
+      worldTimeTickRef.current = timestamp;
+      return;
+    }
+
+    worldTimeMsRef.current += timestamp - lastTick;
+    worldTimeTickRef.current = timestamp;
+  });
+
+  const syncDisplayedWorldSecond = useEffectEvent(() => {
+    const displayedWorldSecond = Math.floor(
+      worldTimeMsRef.current / WORLD_SECOND_MS,
+    );
+
+    if (displayedWorldSecond === lastDisplayedWorldSecondRef.current) {
+      return;
+    }
+
+    lastDisplayedWorldSecondRef.current = displayedWorldSecond;
+    syncWorldTime(worldTimeMsRef.current);
+  });
+
+  useEffect(() => {
+    const clearPendingTick = () => {
+      const timeoutId = timeoutIdRef.current;
+
+      if (timeoutId == null) {
         return;
       }
 
-      const lastTick = worldTimeTickRef.current;
-      if (lastTick != null) {
-        worldTimeMsRef.current += timestamp - lastTick;
-      }
-      worldTimeTickRef.current = timestamp;
+      window.clearTimeout(timeoutId);
+      timeoutIdRef.current = null;
+    };
 
-      const displayedWorldSecond = Math.floor(worldTimeMsRef.current / 1000);
-      if (displayedWorldSecond !== lastDisplayedWorldSecondRef.current) {
-        lastDisplayedWorldSecondRef.current = displayedWorldSecond;
-        syncWorldTime(worldTimeMsRef.current);
+    const scheduleNextTick = () => {
+      clearPendingTick();
+
+      if (!runningRef.current) {
+        return;
       }
 
-      frameId = window.requestAnimationFrame(updateHud);
+      const delayMs = getDelayUntilNextWorldSecond(worldTimeMsRef.current);
+      timeoutIdRef.current = window.setTimeout(() => {
+        if (!runningRef.current) {
+          return;
+        }
+
+        syncElapsedWorldTime(Date.now());
+        syncDisplayedWorldSecond();
+        scheduleNextTick();
+      }, delayMs);
     };
 
     const stopClock = () => {
-      running = false;
-      worldTimeTickRef.current = null;
+      clearPendingTick();
 
-      if (frameId !== 0) {
-        window.cancelAnimationFrame(frameId);
-        frameId = 0;
+      if (runningRef.current) {
+        syncElapsedWorldTime(Date.now());
       }
+
+      runningRef.current = false;
+      worldTimeTickRef.current = null;
     };
 
     const startClock = () => {
-      if (running || paused || document.visibilityState === 'hidden') {
+      if (
+        runningRef.current ||
+        paused ||
+        document.visibilityState === 'hidden'
+      ) {
         return;
       }
 
-      running = true;
-      worldTimeTickRef.current = null;
-      frameId = window.requestAnimationFrame(updateHud);
+      runningRef.current = true;
+      worldTimeTickRef.current = Date.now();
+      scheduleNextTick();
+    };
+
+    rescheduleClockRef.current = (timestamp: number) => {
+      if (
+        !runningRef.current ||
+        paused ||
+        document.visibilityState === 'hidden'
+      ) {
+        return;
+      }
+
+      worldTimeTickRef.current = timestamp;
+      scheduleNextTick();
     };
 
     const handleVisibilityChange = () => {
@@ -104,6 +167,7 @@ export function useWorldClockFps({
     }
     document.addEventListener('visibilitychange', handleVisibilityChange);
     return () => {
+      rescheduleClockRef.current = () => {};
       stopClock();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -111,19 +175,26 @@ export function useWorldClockFps({
 
   const setWorldTimeMs = useCallback(
     (nextWorldTimeMs: SetStateAction<number>) => {
+      const now = Date.now();
+
+      if (runningRef.current && worldTimeTickRef.current != null) {
+        syncElapsedWorldTime(now);
+      }
+
       const resolvedWorldTimeMs =
         typeof nextWorldTimeMs === 'function'
           ? nextWorldTimeMs(worldTimeMsRef.current)
           : nextWorldTimeMs;
       worldTimeMsRef.current = resolvedWorldTimeMs;
       lastDisplayedWorldSecondRef.current = Math.floor(
-        resolvedWorldTimeMs / 1000,
+        resolvedWorldTimeMs / WORLD_SECOND_MS,
       );
       lastWorldTimeMinutesRef.current =
         getWorldTimeMinutesFromTimestamp(resolvedWorldTimeMs);
       setWorldClockTime(resolvedWorldTimeMs);
+      rescheduleClockRef.current(now);
     },
-    [lastDisplayedWorldSecondRef, worldTimeMsRef],
+    [lastDisplayedWorldSecondRef, worldTimeMsRef, worldTimeTickRef],
   );
 
   return {
