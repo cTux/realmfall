@@ -29,6 +29,9 @@ export function syncCombatEncounterEnemies(state: GameState) {
     liveCombatEnemyIds.map((enemyId) => hexKey(state.enemies[enemyId]!.coord)),
   );
   if (combatEnemyIds.some((enemyId) => !state.enemies[enemyId])) {
+    // When encounter enemies disappear during sync, we must also normalize any
+    // tile that still carries their pre-sync ids; surviving enemy hexes plus the
+    // combat hex are not enough to prevent stale ghost/untargetable enemies.
     for (const [tileKey, tile] of Object.entries(state.tiles)) {
       if (
         tile.enemyIds.some((enemyId) => involvedCombatEnemyIds.has(enemyId))
