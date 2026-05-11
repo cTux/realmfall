@@ -24,6 +24,7 @@ const DEFAULT_DEVICE_PIXEL_RATIO = globalThis.devicePixelRatio;
 
 class ResizeObserverMock {
   observe() {}
+  unobserve() {}
   disconnect() {}
 }
 

@@ -5,11 +5,34 @@ import {
   getPlayerOverview,
   getRecipeBookEntries,
 } from '@realmfall/core/game/stateSelectors';
-import type { GameState, Item, LogKind } from '@realmfall/core/game/stateTypes';
+import type {
+  GameState,
+  Item,
+  LogKind,
+  Skill,
+} from '@realmfall/core/game/stateTypes';
 import { t } from '../../i18n';
 import { resolveBackgroundMusicMood } from '../audio/backgroundMusic';
 import type { HexInteractAction } from './AppWindows.viewTypes';
 import { useHexGameplayView } from './hooks/useHexGameplayView';
+
+const EMPTY_FILTERED_LOGS: GameState['logs'] = [];
+const EMPTY_RECIPES: ReturnType<typeof getRecipeBookEntries> = [];
+const EMPTY_RECIPE_SKILL_LEVELS: Record<Skill, number> = createSkillRecord(
+  () => 0,
+);
+
+interface UseAppGameViewDemand {
+  logs: boolean;
+  recipes: boolean;
+  hexTownStock: boolean;
+}
+
+const FULL_APP_GAME_VIEW_DEMAND: UseAppGameViewDemand = {
+  logs: true,
+  recipes: true,
+  hexTownStock: true,
+};
 
 interface UseAppGameViewOptions {
   activeWorldId: GameState['activeWorldId'];
@@ -25,6 +48,7 @@ interface UseAppGameViewOptions {
   selectedHexItemModificationItem: Item | null;
   selectedHexItemReforgeStatIndex: number | null;
   tiles: GameState['tiles'];
+  viewDemand?: UseAppGameViewDemand;
   worlds: GameState['worlds'];
   worldDayIndex: number;
 }
@@ -43,6 +67,7 @@ export function useAppGameView({
   selectedHexItemModificationItem,
   selectedHexItemReforgeStatIndex,
   tiles,
+  viewDemand = FULL_APP_GAME_VIEW_DEMAND,
   worlds,
   worldDayIndex,
 }: UseAppGameViewOptions) {
@@ -60,17 +85,26 @@ export function useAppGameView({
     selectedHexItemModificationItem,
     selectedHexItemReforgeStatIndex,
     tiles,
+    viewDemand: {
+      hexTownStock: viewDemand.hexTownStock,
+    },
     worlds,
     worldDayIndex,
   });
   const heroOverview = useMemo(() => getPlayerOverview(player), [player]);
   const recipes = useMemo(
-    () => getRecipeBookEntries(learnedRecipeIds, favoriteRecipeIds),
-    [learnedRecipeIds, favoriteRecipeIds],
+    () =>
+      viewDemand.recipes
+        ? getRecipeBookEntries(learnedRecipeIds, favoriteRecipeIds)
+        : EMPTY_RECIPES,
+    [favoriteRecipeIds, learnedRecipeIds, viewDemand.recipes],
   );
   const recipeSkillLevels = useMemo(
-    () => createSkillRecord((skill) => skills[skill].level),
-    [skills],
+    () =>
+      viewDemand.recipes
+        ? createSkillRecord((skill) => skills[skill].level)
+        : EMPTY_RECIPE_SKILL_LEVELS,
+    [skills, viewDemand.recipes],
   );
   const inventoryCountsByItemKey = useMemo(
     () =>
@@ -85,8 +119,11 @@ export function useAppGameView({
     [inventory],
   );
   const filteredLogs = useMemo(
-    () => logs.filter((entry) => logFilters[entry.kind]),
-    [logFilters, logs],
+    () =>
+      viewDemand.logs
+        ? logs.filter((entry) => logFilters[entry.kind])
+        : EMPTY_FILTERED_LOGS,
+    [logFilters, logs, viewDemand.logs],
   );
   const firstClaimedHex = useMemo(() => {
     const playerClaims = getPlayerClaimedTiles({ tiles });

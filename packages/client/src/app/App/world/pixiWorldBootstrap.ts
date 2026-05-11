@@ -2,8 +2,8 @@ import type { MutableRefObject } from 'react';
 import type { Application } from 'pixi.js';
 import type { TooltipPosition } from '@realmfall/ui-react';
 import type { GameState, HexCoord } from '@realmfall/core/game/stateTypes';
-import { CLIENT_WORLD_VIEWPORT } from '../../../client.config';
 import { APP_BACKGROUND_COLORS } from '../../../theme.config';
+import { CLIENT_WORLD_VIEWPORT } from '../../worldViewport.config';
 import type { VisibleWorldTile } from '../../../ui/world/visibleWorldTiles';
 import type { WorldMapCameraState } from '../../../ui/world/worldMapCamera';
 import {

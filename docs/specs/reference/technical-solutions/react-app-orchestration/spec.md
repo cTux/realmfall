@@ -17,16 +17,27 @@ This spec covers the top-level React hook composition and derived view-model pat
   font plus the active locale asset before rendering the live `App`, so startup
   overlaps module work without hydrating translated UI against missing locale
   data or an unready fallback face.
-- The bootstrap shell reads its spinner sizing and timing constants from a tiny
-  bootstrap-only config module instead of the broader window-registry config,
-  keeping entry-safe loading chrome detached from icon-heavy app wiring.
+- The bootstrap shell reads interface-setting defaults and world viewport
+  minimums from tiny entry-safe modules instead of the broader
+  window-registry config, keeping startup settings normalization and initial
+  Pixi sizing detached from icon-heavy app wiring.
 - The optional browser performance harness records main-start, bootstrap-shell, i18n-loaded, app-module-loaded, app-render-scheduled, and app-ready marks when explicitly enabled, keeping startup milestone measurement available without changing normal app sessions.
 - When that harness is active, `App.tsx` wraps the app shell in a React Profiler and records commit timings through the shared harness; otherwise the entry component renders the shell directly.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
-- Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
-- `useAppGameView` computes the current tile, filtered logs, town stock, recipe visibility, claim status, the player overview snapshot, and other UI-ready derived values.
+- Bootstrap-loaded settings modules keep lightweight metadata such as voice
+  actor ids separate from lazily indexed voice asset catalogs so optional
+  gameplay voice clips stay behind the lazy audio bridge boundary.
+- `useAppGameView` computes the current tile, claim status, the player overview
+  snapshot, and other UI-ready derived values, while demand-scoping deferred
+  log and recipe slices behind explicit window visibility.
 - This keeps presentational components mostly declarative.
 - `useHexGameplayView` owns tile-facing gameplay derivation such as current-tile state, combat enemies at the focused hex or preserved encounter target, territory actions, home-setting availability inputs, and item-modification readiness so `useAppGameView` can stay centered on broader hero, recipe, and log view slices.
+- `useAppRuntime` derives a narrow `viewDemand` contract from window visibility
+  and passes it into the view hooks so hidden log, recipe, and hex town-stock
+  windows can skip their deferred selector work without changing shared
+  gameplay-facing slices.
+- `useHexGameplayView` keeps shared tile-facing state eager, but town-stock
+  derivation runs only when the hex window currently needs that slice.
 - `useHexGameplayView` also derives the active world kind, so the same `dungeon` structure can surface `Enter dungeon` on the surface and `Leave dungeon` inside a dungeon world.
 - Combat-facing systems and effects that only need survivability or speed values read `getPlayerCombatStats` instead of routing through the broader hero overview helper.
 - A canonical window registry backs window visibility resets, default positions, dock composition, dock icons, hotkey derivation, deferred-window order, mounted-window derivation, and persistence normalization so app wiring does not repeat the same window inventory in multiple modules.
@@ -103,7 +114,12 @@ This spec covers the top-level React hook composition and derived view-model pat
   helpers stay on a dedicated `@realmfall/ui-react/generatedIconAssets`
   subpath so startup-adjacent window chrome does not link that asset graph by
   default.
-- `AppShell` mounts optional recorded-voice and background-music bridges only after the first keyboard, pointer, mouse, or touch activation, keeping their asset manifests and deferred background-music `howler` work out of the pre-interaction path while the lighter UI-audio bridge remains ready for document-level settings.
+- `AppShell` mounts the optional background-music bridge only after the first
+  keyboard, pointer, mouse, or touch activation, and mounts the recorded-voice
+  bridge only when that activation has happened and recorded voice can actually
+  play under the current audio settings. This keeps optional voice setup and
+  clip indexing off the pre-interaction path for users who have voice muted,
+  voice volume at zero, or every recorded-voice trigger disabled.
 - `AppShell` passes a memoized voice playback event slice to the recorded-voice bridge instead of the full `GameState`, limiting voice event checks to combat, log, HP, and status-effect changes.
 - `AppWindows` stays behind a memo boundary so unchanged window props do not
   rerender the dock, fixed windows, and deferred window composition on

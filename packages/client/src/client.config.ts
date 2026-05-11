@@ -9,7 +9,6 @@ import backpackIcon from './assets/game-icons/delapouite/backpack.svg';
 import enemyIcon from './assets/icons/wolf-head.svg';
 import gearsIcon from './assets/icons/gears.svg';
 import toolboxIcon from './assets/game-icons/delapouite/toolbox.svg';
-import { DEFAULT_INTERFACE_FONT_FAMILY } from './app/interfaceFonts';
 
 export interface WindowPosition {
   x: number;
@@ -22,40 +21,6 @@ export type WindowMountSource =
   | 'windowShown'
   | 'lootTransition'
   | 'combatTransition';
-
-export const CLIENT_WORLD_VIEWPORT = Object.freeze({
-  minimumHeight: 480,
-  minimumWidth: 640,
-});
-
-export const CLIENT_INTERFACE_SETTINGS = Object.freeze({
-  defaults: {
-    fontFamily: DEFAULT_INTERFACE_FONT_FAMILY,
-    fontSize: 100,
-    interfaceScale: 100,
-    language: 'en' as const,
-    showTooltipTags: true,
-    windowTransparency: 0,
-  },
-  percentScaleDivisor: 100,
-  ranges: {
-    fontSize: {
-      max: 150,
-      min: 75,
-      step: 1,
-    },
-    interfaceScale: {
-      max: 150,
-      min: 75,
-      step: 1,
-    },
-    windowTransparency: {
-      max: 100,
-      min: 0,
-      step: 1,
-    },
-  },
-});
 
 export const CLIENT_INVENTORY_UI = Object.freeze({
   disabledFilterOpacity: 0.5,

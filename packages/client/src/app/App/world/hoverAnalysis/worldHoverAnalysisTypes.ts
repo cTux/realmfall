@@ -15,6 +15,17 @@ export interface WorldHoverAnalysisState {
   tiles: Record<string, Tile>;
 }
 
+export interface WorldHoverAnalysisStateInputs {
+  activeWorldId: GameState['activeWorldId'];
+  combat: GameState['combat'];
+  gameOver: boolean;
+  player: HexCoord;
+  radius: GameState['radius'];
+  revealRadius: number;
+  enemies: Record<string, Enemy>;
+  tiles: Record<string, Tile>;
+}
+
 export interface WorldHoverAnalysisResult {
   actionable: boolean;
   safePath: HexCoord[] | null;
@@ -29,6 +40,38 @@ export interface WorldHoverAnalysisSource {
 export interface WorldHoverAnalysisWorker {
   analyze(target: HexCoord): Promise<WorldHoverAnalysisResult>;
   syncState(state: WorldHoverAnalysisState): Promise<void>;
+}
+
+export function getWorldHoverAnalysisStateInputs(
+  state: GameState,
+): WorldHoverAnalysisStateInputs {
+  return {
+    activeWorldId: state.activeWorldId,
+    combat: state.combat,
+    gameOver: state.gameOver,
+    player: state.player.coord,
+    radius: state.radius,
+    revealRadius: getCurrentWorldRevealRadius(state),
+    enemies: state.enemies,
+    tiles: state.tiles,
+  };
+}
+
+export function isSameWorldHoverAnalysisStateInputs(
+  a: WorldHoverAnalysisStateInputs,
+  b: WorldHoverAnalysisStateInputs,
+) {
+  return (
+    a.activeWorldId === b.activeWorldId &&
+    a.combat === b.combat &&
+    a.gameOver === b.gameOver &&
+    a.player.q === b.player.q &&
+    a.player.r === b.player.r &&
+    a.radius === b.radius &&
+    a.revealRadius === b.revealRadius &&
+    a.enemies === b.enemies &&
+    a.tiles === b.tiles
+  );
 }
 
 export function buildWorldHoverAnalysisState(
