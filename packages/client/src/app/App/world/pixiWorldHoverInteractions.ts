@@ -303,33 +303,6 @@ export function createWorldHoverInteractions({
     hoverAnalysisCacheRef.current.size > 0 ||
     pendingHoverAnalysis !== null;
 
-  const refreshHoverAnalysis = () => {
-    if (!shouldSyncHoverAnalysisState()) {
-      return;
-    }
-
-    if (!syncHoverAnalysisState()) {
-      return;
-    }
-
-    invalidatePendingHoverAnalysis();
-    hoverAnalysisVersionRef.current += 1;
-    hoverAnalysisCacheRef.current.clear();
-
-    const hoverPointer = hoverPointerRef.current;
-    if (hoverPointer == null || hoverFrameRef.current !== null) {
-      return;
-    }
-
-    canvas.dispatchEvent(
-      new PointerEvent('pointermove', {
-        bubbles: true,
-        clientX: hoverPointer.clientX,
-        clientY: hoverPointer.clientY,
-      }),
-    );
-  };
-
   const processPointerMove = (clientX: number, clientY: number) => {
     const scenePoint = getScenePoint(clientX, clientY);
     const hexSize = getWorldHexSize(app.screen, gameRef.current.radius);
@@ -485,6 +458,35 @@ export function createWorldHoverInteractions({
       });
   };
 
+  const reprocessCurrentHoverPointer = () => {
+    const hoverPointer = hoverPointerRef.current;
+    if (!hoverPointer) {
+      return;
+    }
+
+    processPointerMove(hoverPointer.clientX, hoverPointer.clientY);
+  };
+
+  const refreshHoverAnalysis = () => {
+    if (!shouldSyncHoverAnalysisState()) {
+      return;
+    }
+
+    if (!syncHoverAnalysisState()) {
+      return;
+    }
+
+    invalidatePendingHoverAnalysis();
+    hoverAnalysisVersionRef.current += 1;
+    hoverAnalysisCacheRef.current.clear();
+
+    if (hoverPointerRef.current == null || hoverFrameRef.current !== null) {
+      return;
+    }
+
+    reprocessCurrentHoverPointer();
+  };
+
   const queuePointerMove = (
     event: Pick<PointerEvent, 'clientX' | 'clientY'>,
   ) => {
@@ -498,12 +500,7 @@ export function createWorldHoverInteractions({
 
     hoverFrameRef.current = window.requestAnimationFrame(() => {
       hoverFrameRef.current = null;
-      const hoverPointer = hoverPointerRef.current;
-      if (!hoverPointer) {
-        return;
-      }
-
-      processPointerMove(hoverPointer.clientX, hoverPointer.clientY);
+      reprocessCurrentHoverPointer();
     });
   };
 

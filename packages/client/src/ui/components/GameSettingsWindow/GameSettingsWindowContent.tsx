@@ -39,6 +39,83 @@ type BusyAction =
   | { areaId: ResettableSaveAreaId; kind: 'reset' }
   | null;
 
+const areGraphicsSettingsEqual = (
+  left: GraphicsSettings,
+  right: GraphicsSettings,
+) =>
+  left.preset === right.preset &&
+  left.resolutionCap === right.resolutionCap &&
+  left.worldRenderFps === right.worldRenderFps &&
+  left.showClouds === right.showClouds &&
+  left.cloudTransparency === right.cloudTransparency &&
+  left.antialias === right.antialias &&
+  left.autoDensity === right.autoDensity &&
+  left.clearBeforeRender === right.clearBeforeRender &&
+  left.preserveDrawingBuffer === right.preserveDrawingBuffer &&
+  left.premultipliedAlpha === right.premultipliedAlpha &&
+  left.showTerrainBackgrounds === right.showTerrainBackgrounds &&
+  left.useContextAlpha === right.useContextAlpha;
+
+const areAudioSoundEffectsEqual = (
+  left: AudioSettings['soundEffects'],
+  right: AudioSettings['soundEffects'],
+) =>
+  left.click === right.click &&
+  left.error === right.error &&
+  left.hover === right.hover &&
+  left.notify === right.notify &&
+  left.pop === right.pop &&
+  left.success === right.success &&
+  left.swoosh === right.swoosh &&
+  left.toggle === right.toggle &&
+  left.warning === right.warning;
+
+const areAudioVoiceEventsEqual = (
+  left: AudioSettings['voice']['events'],
+  right: AudioSettings['voice']['events'],
+) =>
+  left.combatAttack === right.combatAttack &&
+  left.combatEnd === right.combatEnd &&
+  left.combatExertion === right.combatExertion &&
+  left.playerDamaged === right.playerDamaged &&
+  left.playerDeath === right.playerDeath;
+
+const areAudioVoiceSettingsEqual = (
+  left: AudioSettings['voice'],
+  right: AudioSettings['voice'],
+) =>
+  left.actorId === right.actorId &&
+  areAudioVoiceEventsEqual(left.events, right.events);
+
+const areAudioSettingsEqual = (left: AudioSettings, right: AudioSettings) =>
+  left.musicMuted === right.musicMuted &&
+  left.muted === right.muted &&
+  left.respectReducedMotion === right.respectReducedMotion &&
+  areAudioSoundEffectsEqual(left.soundEffects, right.soundEffects) &&
+  left.musicVolume === right.musicVolume &&
+  left.uiVolume === right.uiVolume &&
+  left.voiceVolume === right.voiceVolume &&
+  left.theme === right.theme &&
+  areAudioVoiceSettingsEqual(left.voice, right.voice);
+
+const areInterfaceSettingsEqual = (
+  left: InterfaceSettings,
+  right: InterfaceSettings,
+) =>
+  left.language === right.language &&
+  left.fontFamily === right.fontFamily &&
+  left.fontSize === right.fontSize &&
+  left.interfaceScale === right.interfaceScale &&
+  left.showTooltipTags === right.showTooltipTags &&
+  left.windowTransparency === right.windowTransparency;
+
+const areGameplaySettingsEqual = (
+  left: GameplaySettings,
+  right: GameplaySettings,
+) =>
+  left.autoGatherResources === right.autoGatherResources &&
+  left.autoLoot === right.autoLoot;
+
 export function GameSettingsWindowContent({
   audioSettings,
   gameplaySettings,
@@ -77,12 +154,10 @@ export function GameSettingsWindowContent({
   }, [gameplaySettings]);
 
   const dirty =
-    JSON.stringify(draftGraphicsSettings) !==
-      JSON.stringify(graphicsSettings) ||
-    JSON.stringify(draftAudioSettings) !== JSON.stringify(audioSettings) ||
-    JSON.stringify(draftInterfaceSettings) !==
-      JSON.stringify(interfaceSettings) ||
-    JSON.stringify(draftGameplaySettings) !== JSON.stringify(gameplaySettings);
+    !areGraphicsSettingsEqual(draftGraphicsSettings, graphicsSettings) ||
+    !areAudioSettingsEqual(draftAudioSettings, audioSettings) ||
+    !areInterfaceSettingsEqual(draftInterfaceSettings, interfaceSettings) ||
+    !areGameplaySettingsEqual(draftGameplaySettings, gameplaySettings);
 
   const savePayload = {
     audio: draftAudioSettings,

@@ -3,31 +3,33 @@
 ## Scope
 
 - Repo: `realmfall`
-- Audit focus: production bundle shape, Pixi world render invalidation, shared UI import boundaries, and opt-in diagnostics on the client path
-- Evidence gathered from source review plus a fresh `pnpm --filter @realmfall/client-web build`
+- Audit focus: client runtime hot paths, Pixi world interaction overhead, settings-window rerender churn, and current production bundle shape
+- Evidence gathered from source review plus a fresh `pnpm --filter @realmfall/client-web build` on 2026-05-11
 
 ## Current Build Snapshot
 
-- `assets/js/pixi-DXyMWTIn.js`: `514.32 kB`
-- `assets/js/state-BTb75btc.js`: `391.46 kB`
-- `assets/js/gameplayIconAssets-CzJkRgpN.js`: `170.11 kB`
-- `assets/js/App-BHxRAorD.js`: `112.96 kB`
-- `assets/js/src-B90VH21a.js`: `65.83 kB`
-- `assets/js/renderScene-DUF92y9R.js`: `40.41 kB`
-- `assets/js/performanceHarness-DPeeMHph.js`: `2.95 kB`
+- `assets/js/pixi-DXyMWTIn.js`: `514.32 kB` (`146.96 kB` gzip)
+- `assets/js/state-5Ye1ezI2.js`: `391.46 kB` (`93.58 kB` gzip)
+- `assets/js/gameplayIconAssets-CbQ2bwfk.js`: `170.11 kB` (`67.15 kB` gzip)
+- `assets/js/App-CzwqEOPN.js`: `114.64 kB` (`35.02 kB` gzip)
+- `assets/js/renderScene-K_noZBn-.js`: `40.42 kB` (`13.73 kB` gzip)
 
 ## Findings
 
-1. `packages/client/src/app/App/selectors/reuseVisibleTilesIfUnchanged.ts` reuses the previous visible-tile array when item payload changes but item count does not. That keeps stale tile objects alive and can suppress the render invalidation that should follow a resolved tile update.
+1. `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts` uses `JSON.stringify` for every hovered-slice tile and enemy signature during refresh checks. That makes each hover-analysis invalidation walk allocate and serialize the full nearby slice before the worker sync decision is even made.
 
-2. `packages/client/src/ui/world/renderSceneTokens.ts` only refreshes cached `visibleTileRenderInputs` when `visibleTiles` or `state.enemies` change by reference. The helper behind those inputs also depends on `bloodMoonActive`, so moon-state transitions can reuse stale unresolved-enemy render data.
+2. `packages/client/src/app/App/world/pixiWorldHoverInteractions.ts` refreshes hover analysis by dispatching a synthetic `pointermove` event back through the canvas listener stack. The controller already has the pointer coordinates and the local processing path, so the extra DOM event path adds avoidable work and couples refresh logic to input dispatch.
 
-3. `packages/client/src/app/App/App.tsx`, `packages/client/src/app/App/components/AppShell.tsx`, and `packages/client/src/ui/world/renderScene.ts` import `performanceHarness` eagerly even though `packages/client/src/main.tsx` already treats the harness as opt-in. The current boundary is therefore not actually zero-cost on the normal path.
+3. `packages/client/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx` derives `dirty` by stringifying four settings objects on every render. That is unnecessary churn in an interactive settings surface and scales poorly as the settings schema grows.
 
-4. Eager client files import simple primitives and tooltip helpers from the root `@realmfall/ui-react` barrel. The current bundle shows that this pulls in the large shared `src-B90VH21a.js` chunk and even `generatedIconAssets` through the barrel, which is unnecessary for the initial App path.
+## Confirmed Current State
 
-5. Deferred windows and world tooltip code continue to use the same root barrel, so the shared UI chunk fan-in remains wider than it needs to be even after the eager-path migration.
+- The eager performance-harness import issue from the earlier audit is no longer present on the normal app path.
+- The root `@realmfall/ui-react` eager-path bundle issue from the earlier audit is no longer present in `AppShell`; the current app entry imports narrow shared UI subpaths.
+- The large `state` chunk remains, but the current audit did not find a single low-risk split worth mixing into this pass. Treat that as a separate architecture project instead of a tactical fix.
 
-## Non-Goal For This Pass
+## Recommended Fix Order
 
-- The `state` chunk is large, but the audit did not find a single low-risk split that can shrink it without a broader gameplay-loading redesign. Keep that as a later architecture project rather than mixing it into the targeted fixes below.
+1. Optimize hover-analysis slice diffing so worker refresh checks stay cheap.
+2. Remove synthetic-event redispatch from hover refresh and keep the work inside the controller.
+3. Replace settings dirty-check stringification with explicit equality helpers.

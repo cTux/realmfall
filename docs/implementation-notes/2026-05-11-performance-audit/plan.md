@@ -1,305 +1,111 @@
 # Client Performance Audit Implementation Plan
 
-> **For agentic workers:** delegate implementation one task at a time with a tight handoff. Do not plan, document, or commit in the worker. Main thread owns review, docs, verification, and commits.
+> **For agentic workers:** implement only the assigned code and tests. Do not update docs, do not create commits, and do not broaden scope without escalating back to the main thread.
 
-**Goal:** fix the incorrect world-render reuse paths and remove avoidable client bundle fan-in from opt-in diagnostics and the shared UI root barrel.
+## Goal
 
-**Architecture:** treat world invalidation and bundle shape as separate concerns. First fix correctness in the visible-tile and render-token caches so render reuse remains safe. Then reduce eager client imports by introducing narrow UI subpath exports and a tiny runtime-safe performance bridge that preserves the current opt-in harness behavior without pulling the full harness into normal runtime chunks.
+Reduce avoidable work on the client interaction path and keep the repo's performance notes aligned with the current codebase.
 
-**Tech Stack:** TypeScript, React 19, Vite 8, Vitest 4, Pixi.js 8, pnpm workspaces
+## Improvement 1: Replace `JSON.stringify` hover-slice diffing
 
----
+**Problem**
 
-### Task 1: Fix visible-tile reuse when tile item payload changes
+`packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts` currently serializes each nearby tile and enemy to decide whether hover-analysis state changed. That pushes full-object string allocation into a path that can run repeatedly while the world is active.
 
-**Files:**
+**Files**
 
-- Modify: `packages/client/src/app/App/selectors/reuseVisibleTilesIfUnchanged.ts`
-- Modify: `packages/client/src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts`
+- Modify: `packages/client/src/app/App/world/hoverAnalysis/worldHoverAnalysisTypes.ts`
+- Modify: `packages/client/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
+- Add or modify targeted hover-analysis tests if a narrower unit file is better
 
-- [ ] **Step 1: Add a failing regression test for same-length item changes**
+**Implementation plan**
 
-Add a test that keeps the same tile coord, terrain, structure, and item count, but swaps either the item id or quantity so the selector must return `nextVisibleTiles` instead of reusing `previousVisibleTiles`.
-
-- [ ] **Step 2: Add a failing regression test for changed item quantity with stable array length**
-
-Keep the tile item array length at `1`, change only the quantity, and assert that the selector returns the new array.
-
-- [ ] **Step 3: Expand the visible-tile reuse key to cover item payload**
-
-Update `getVisibleWorldTileRenderKey` so it includes a stable item payload segment instead of only `tile.items.length`.
-
-Implementation direction:
-
-```ts
-const itemKey = tile.items
-  .map((item) => [item.id, item.itemKey ?? item.name, item.quantity].join(':'))
-  .join(',');
-```
-
-Then include `itemKey` in the returned array before `.join('|')`.
-
-- [ ] **Step 4: Run the narrow regression suite**
-
-Run:
+1. Replace the current full-object signature helpers with targeted structural fingerprints.
+2. Keep the fingerprint fields limited to data that affects hover analysis:
+   - tile coord, terrain, structure, unknown/requested state, enemy ids, and any pathfinding-relevant claim or blocker state
+   - enemy id, coord, hp, maxHp, elite/tier, and any other fields the hover runtime actually consumes
+3. Preserve the current nearby-slice boundary. This task is about cheaper diffing, not a broader hover-state redesign.
+4. Add regression coverage that proves:
+   - far-away tile or enemy mutations do not trigger a sync
+   - nearby actionable changes do trigger a sync
+5. Verify with:
 
 ```bash
-pnpm --filter @realmfall/client-web exec vitest run --project node src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts
+pnpm --filter @realmfall/client-web exec vitest run --project jsdom src/app/App/tests/App.worldInteractionPerformance.test.tsx
 ```
 
-Expected: the new regression cases pass and the existing reuse tests stay green.
+**Commit**
 
-- [ ] **Step 5: Commit**
+`perf: reduce hover analysis refresh diff cost`
 
-```bash
-git add packages/client/src/app/App/selectors/reuseVisibleTilesIfUnchanged.ts packages/client/src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts
-git commit -m "fix: invalidate reused visible tiles on item changes"
-```
+## Improvement 2: Remove synthetic `pointermove` redispatch from hover refresh
 
-### Task 2: Refresh cached world render inputs when blood-moon state changes
+**Problem**
 
-**Files:**
+`packages/client/src/app/App/world/pixiWorldHoverInteractions.ts` calls `canvas.dispatchEvent(new PointerEvent('pointermove', ...))` during `refreshHoverAnalysis()`. The controller already owns the hover pointer state and `processPointerMove`, so the redispatch burns DOM/listener work and obscures the real refresh path.
 
-- Modify: `packages/client/src/ui/world/renderSceneTokens.ts`
-- Modify: `packages/client/src/ui/world/renderSceneReuse.test.ts` or `packages/client/src/ui/world/renderSceneCacheInvalidation.test.ts`
+**Files**
 
-- [ ] **Step 1: Add a failing regression test for unresolved-enemy render inputs across a blood-moon toggle**
-
-Build one scene cache, reuse the same `visibleTiles` reference, toggle `bloodMoonActive`, and assert that the recalculated visible-tile render inputs change instead of reusing the previous cached inputs.
-
-- [ ] **Step 2: Extend the render-input cache invalidation condition**
-
-Update `renderInputsChanged` so it also invalidates when `scene.derivedRenderBloodMoonActive !== state.bloodMoonActive`.
-
-Implementation shape:
-
-```ts
-const renderInputsChanged =
-  scene.derivedRenderVisibleTilesSource !== visibleTiles ||
-  scene.derivedRenderEnemiesSource !== state.enemies ||
-  scene.derivedRenderVisibleTileInputs === null ||
-  scene.derivedRenderBloodMoonActive !== state.bloodMoonActive;
-```
-
-- [ ] **Step 3: Keep the existing derived token flow intact**
-
-Do not change the token algorithm beyond the invalidation boundary. The point is to recompute `visibleTileRenderInputs` when the moon-state dependency changes, not to redesign the token format.
-
-- [ ] **Step 4: Run the focused renderer test file**
-
-Run:
-
-```bash
-pnpm --filter @realmfall/client-web exec vitest run --project node src/ui/world/renderSceneReuse.test.ts
-```
-
-If the new case lands in a different file, run that specific file instead.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/client/src/ui/world/renderSceneTokens.ts packages/client/src/ui/world/renderSceneReuse.test.ts
-git commit -m "fix: refresh cached world render inputs on moon-state changes"
-```
-
-### Task 3: Keep performance instrumentation fully opt-in on the normal runtime path
-
-**Files:**
-
-- Add: `packages/client/src/performance/performanceBridge.ts`
-- Modify: `packages/client/src/main.tsx`
-- Modify: `packages/client/src/app/App/App.tsx`
-- Modify: `packages/client/src/app/App/components/AppShell.tsx`
-- Modify: `packages/client/src/ui/world/renderScene.ts`
-- Modify: `packages/client/src/performance/performanceHarness.test.ts`
-- Add or modify: a lightweight source-policy test under `packages/client/scripts/` or `scripts/tests/` that prevents eager `performanceHarness` imports outside `main.tsx`
-
-- [ ] **Step 1: Add a tiny bridge that talks directly to `window.__REALMFALL_PERF__`**
-
-The bridge should expose:
-
-```ts
-isPerformanceHarnessActive()
-recordStartupMark(name: string)
-recordReactCommit(...)
-recordPixiRenderCounts(counts)
-```
-
-Each function must return immediately when the harness is absent.
-
-- [ ] **Step 2: Move eager runtime imports to the bridge**
-
-Update `App.tsx`, `AppShell.tsx`, and `renderScene.ts` to import from `performanceBridge` instead of `performanceHarness`.
-
-- [ ] **Step 3: Keep `main.tsx` as the only place that runtime-loads the real harness**
-
-Do not change the opt-in query-param and local-storage behavior. `main.tsx` should continue to own `import('./performance/performanceHarness')`.
-
-- [ ] **Step 4: Add a guard test for the import boundary**
-
-Add a source-policy test that fails when any eager runtime file outside `main.tsx` imports `performanceHarness` directly.
-
-- [ ] **Step 5: Run the focused verification**
-
-Run:
-
-```bash
-pnpm --filter @realmfall/client-web exec vitest run --project node src/performance/performanceHarness.test.ts
-pnpm --filter @realmfall/client-web build
-```
-
-Expected: tests pass, build passes, and the manifest no longer shows `App` or `renderScene` importing `performanceHarness`.
-
-- [ ] **Step 6: Commit**
-
-```bash
-git add packages/client/src/performance/performanceBridge.ts packages/client/src/main.tsx packages/client/src/app/App/App.tsx packages/client/src/app/App/components/AppShell.tsx packages/client/src/ui/world/renderScene.ts packages/client/src/performance/performanceHarness.test.ts
-git commit -m "refactor: keep performance instrumentation opt-in"
-```
-
-### Task 4: Add narrow UI subpath exports and move eager App-path imports off the root barrel
-
-**Files:**
-
-- Modify: `packages/ui/package.json`
-- Add as needed: lightweight re-export files under `packages/ui/src/` for the new subpaths
-- Modify: `packages/client/src/app/App/components/AppShell.tsx`
-- Modify: `packages/client/src/app/App/usePixiWorldHover.ts`
 - Modify: `packages/client/src/app/App/world/pixiWorldHoverInteractions.ts`
-- Modify: `packages/client/src/app/App/hooks/useItemTooltipController.ts`
-- Modify: any other eager App-path file that still uses `@realmfall/ui-react` at runtime
-- Modify: `docs/rules/50-build-and-bundle.md`
-- Modify: `packages/ui/README.md`
-- Add or modify: a source-policy test that blocks root-barrel runtime imports on the eager App path
+- Modify: `packages/client/src/app/App/tests/App.worldInteractionPerformance.test.tsx`
 
-- [ ] **Step 1: Introduce narrow UI package exports**
+**Implementation plan**
 
-Add subpaths for the primitives and helpers actually used on the eager path, for example:
-
-```json
-"./button": "./src/components/Button/Button.tsx",
-"./loading-spinner": "./src/components/LoadingSpinner/LoadingSpinner.tsx",
-"./tooltip": "./src/components/Tooltip/index.ts",
-"./tooltip-placement": "./src/tooltipPlacement.ts"
-```
-
-Only add the subpaths needed by the current migration.
-
-- [ ] **Step 2: Migrate eager runtime imports**
-
-Examples:
-
-```ts
-import { Button } from '@realmfall/ui-react/button';
-import { LoadingSpinner } from '@realmfall/ui-react/loading-spinner';
-import {
-  syncFollowCursorTooltipPosition,
-  type TooltipPosition,
-} from '@realmfall/ui-react/tooltip';
-import { getTooltipPlacementForRect } from '@realmfall/ui-react/tooltip-placement';
-```
-
-- [ ] **Step 3: Add a source-policy guard**
-
-Fail the test when eager App-path runtime files import from `@realmfall/ui-react` instead of the narrow subpaths. Allow `import type` only where the runtime stays clean, or migrate those types too if that is simpler.
-
-- [ ] **Step 4: Update docs for the recurring bundle rule**
-
-Document that bootstrap and eager App-path code must prefer narrow `@realmfall/ui-react/*` subpaths over the root barrel to avoid pulling the shared barrel chunk into startup.
-
-- [ ] **Step 5: Run verification**
-
-Run:
+1. Extract a small internal helper that schedules or performs hover reprocessing directly from cached pointer coordinates.
+2. Reuse that helper from both `queuePointerMove()` and `refreshHoverAnalysis()`.
+3. Keep the existing requestAnimationFrame throttling behavior for ordinary pointer moves.
+4. Avoid changing external controller behavior or tooltip semantics.
+5. Add coverage that proves refresh no longer depends on synthetic canvas pointer events.
+6. Verify with:
 
 ```bash
-pnpm --filter @realmfall/ui-react typecheck
-pnpm --filter @realmfall/client-web typecheck
-pnpm --filter @realmfall/client-web exec vitest run --project node scripts/bootstrap-bundle-policy.test.ts
-pnpm --filter @realmfall/client-web build
+pnpm --filter @realmfall/client-web exec vitest run --project jsdom src/app/App/tests/App.worldInteractionPerformance.test.tsx
 ```
 
-Expected: build passes, and `assets/js/App-*.js` no longer imports `src-B90VH21a.js`.
+**Commit**
 
-- [ ] **Step 6: Commit**
+`perf: refresh hover analysis without redispatching pointer events`
+
+## Improvement 3: Replace settings dirty-check stringification
+
+**Problem**
+
+`packages/client/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx` recomputes `dirty` by stringifying four settings objects every render. The comparison is deterministic today, but the work is unnecessary and ties correctness to object-serialization shape.
+
+**Files**
+
+- Modify: `packages/client/src/ui/components/GameSettingsWindow/GameSettingsWindowContent.tsx`
+- Modify or add: `packages/client/src/ui/components/GameSettingsWindow/__tests__/*`
+
+**Implementation plan**
+
+1. Add explicit equality helpers for graphics, audio, interface, and gameplay settings.
+2. Keep the comparisons narrow and field-based so future schema changes are visible in code review.
+3. Use those helpers to derive `dirty` without serialization.
+4. Add or update tests to cover:
+   - unchanged drafts stay clean
+   - a single-field change marks the form dirty
+   - resetting props back to the current saved value clears dirty state
+5. Verify with:
 
 ```bash
-git add packages/ui/package.json packages/ui/src packages/client/src/app/App/components/AppShell.tsx packages/client/src/app/App/usePixiWorldHover.ts packages/client/src/app/App/world/pixiWorldHoverInteractions.ts packages/client/src/app/App/hooks/useItemTooltipController.ts docs/rules/50-build-and-bundle.md packages/ui/README.md
-git commit -m "refactor: narrow eager ui imports on the app path"
+pnpm --filter @realmfall/client-web exec vitest run --project jsdom packages/client/src/ui/components/GameSettingsWindow/__tests__
 ```
 
-### Task 5: Finish the shared UI import migration for deferred windows and world tooltips
+If the package-level test glob is too broad, run only the touched test file.
 
-**Files:**
+**Commit**
 
-- Modify: `packages/client/src/app/App/components/AppFixedWindows.tsx`
-- Modify: `packages/client/src/ui/components/WindowShell.tsx`
-- Modify: `packages/client/src/ui/components/WindowLoadingState.tsx`
-- Modify: `packages/client/src/ui/components/WindowHeaderActionButton.tsx`
-- Modify: `packages/client/src/ui/components/InventoryWindow/InventoryWindowContent.tsx`
-- Modify: `packages/client/src/ui/components/HexInfoWindow/HexInfoWindowContent.tsx`
-- Modify: `packages/client/src/ui/components/EquipmentWindow/EquipmentWindowContent.tsx`
-- Modify: `packages/client/src/ui/components/RecipeBookWindow/RecipeBookWindowContent.tsx`
-- Modify: `packages/client/src/ui/components/RecipeBookWindow/RecipeBookVirtualRow.tsx`
-- Modify: `packages/client/src/ui/components/GameSettingsWindow/*`
-- Modify: `packages/client/src/ui/components/EntityStatusPanel/EntityStatusPanel.tsx`
-- Modify: `packages/client/src/ui/world/worldTooltips.ts`
-- Modify: `packages/ui/package.json` again only if Task 4 did not add every required subpath yet
-- Extend: the source-policy test from Task 4
+`perf: replace settings dirty-check stringification`
 
-- [ ] **Step 1: Add any missing subpaths for deferred-window primitives**
+## Documentation updates
 
-Likely additions:
+Main thread only:
 
-```json
-"./action-bar": "./src/components/ActionBar/index.ts",
-"./context-menu": "./src/components/ContextMenu/index.ts",
-"./dock-panel": "./src/components/DockPanel/index.ts",
-"./item-slot": "./src/components/ItemSlot/index.ts",
-"./window-label": "./src/components/WindowLabel/index.ts",
-"./formatters": "./src/formatters.ts",
-"./tooltips": "./src/tooltips.ts"
-```
+1. Keep this implementation note current as findings are completed.
+2. Update `docs/rules/40-pixi-performance.md` with the recurring hover-refresh guidance once Improvement 1 and 2 land.
+3. Update `docs/rules/30-react-ui.md` with the recurring settings-comparison guidance once Improvement 3 lands.
 
-- [ ] **Step 2: Migrate deferred window and tooltip files**
+## Non-goal for this pass
 
-Replace root-barrel runtime imports with the new subpaths, keeping behavior identical.
-
-- [ ] **Step 3: Extend the policy test to cover the deferred runtime surface**
-
-Include `packages/client/src/ui/components` and `packages/client/src/ui/world/worldTooltips.ts`, excluding Storybook-only files if needed.
-
-- [ ] **Step 4: Run verification**
-
-Run:
-
-```bash
-pnpm --filter @realmfall/client-web typecheck
-pnpm --filter @realmfall/client-web exec vitest run --project node scripts/bootstrap-bundle-policy.test.ts
-pnpm --filter @realmfall/client-web build
-```
-
-Expected: build passes and the shared UI barrel chunk shrinks or disappears from deferred chunks that no longer need it.
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add packages/ui/package.json packages/client/src/app/App/components/AppFixedWindows.tsx packages/client/src/ui/components packages/client/src/ui/world/worldTooltips.ts
-git commit -m "refactor: narrow deferred ui imports across client windows"
-```
-
-## Verification Checklist
-
-- `pnpm --filter @realmfall/client-web exec vitest run --project node src/app/App/tests/reuseVisibleTilesIfUnchanged.test.ts`
-- `pnpm --filter @realmfall/client-web exec vitest run --project node src/ui/world/renderSceneReuse.test.ts`
-- `pnpm --filter @realmfall/client-web exec vitest run --project node src/performance/performanceHarness.test.ts`
-- `pnpm --filter @realmfall/client-web typecheck`
-- `pnpm --filter @realmfall/ui-react typecheck`
-- `pnpm --filter @realmfall/client-web build`
-
-## Commit Order
-
-1. `fix: invalidate reused visible tiles on item changes`
-2. `fix: refresh cached world render inputs on moon-state changes`
-3. `refactor: keep performance instrumentation opt-in`
-4. `refactor: narrow eager ui imports on the app path`
-5. `refactor: narrow deferred ui imports across client windows`
+- The large eager `state` chunk remains a candidate for later architectural work, but this pass does not include a gameplay-module loading redesign.

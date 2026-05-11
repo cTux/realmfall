@@ -2,6 +2,7 @@ import {
   getWorldHexSize,
   tileToPoint,
 } from '../../../ui/world/renderSceneMath';
+import { WORLD_REVEAL_RADIUS } from '@realmfall/core/game/config';
 import { createGame } from '@realmfall/core/game/stateFactory';
 import { createWorldClickHandler } from './pixiWorldClickNavigationTestkit';
 
@@ -421,18 +422,24 @@ describe('createWorldClickHandler', () => {
     );
   });
 
-  it('ignores unrevealed distant clicks before pathfinding', async () => {
+  it('ignores unrevealed distant clicks before tile lookup or movement', async () => {
     const pathfindingModule =
       await import('@realmfall/core/game/statePathfinding');
+    const worldQueryModule =
+      await import('@realmfall/core/game/stateWorldQueries');
     const getSafePathToTileSpy = vi.spyOn(
       pathfindingModule,
       'getSafePathToTile',
     );
+    const getResolvedTileAtSpy = vi.spyOn(
+      worldQueryModule,
+      'getResolvedTileAt',
+    );
     const game = createGame(3, 'unrevealed-safe-path-click');
     const movementController = createMovementController();
-    delete game.tiles['2,0'];
+    const distantCoord = { q: WORLD_REVEAL_RADIUS + 2, r: 0 };
     const safePathPoint = tileToPoint(
-      { q: 2, r: 0 },
+      distantCoord,
       app.screen.width / 2,
       app.screen.height / 2,
       getWorldHexSize(app.screen, game.radius),
@@ -452,9 +459,13 @@ describe('createWorldClickHandler', () => {
     try {
       handleClick(320, 240);
 
+      expect(getResolvedTileAtSpy).not.toHaveBeenCalled();
       expect(getSafePathToTileSpy).not.toHaveBeenCalled();
+      expect(movementController.queueHostileApproach).not.toHaveBeenCalled();
       expect(movementController.replaceQueuedPath).not.toHaveBeenCalled();
+      expect(movementController.startHostileEngagement).not.toHaveBeenCalled();
     } finally {
+      getResolvedTileAtSpy.mockRestore();
       getSafePathToTileSpy.mockRestore();
     }
   });
