@@ -8,7 +8,7 @@ import {
   type InterfaceFontFamily,
 } from './interfaceFonts';
 import { createSettingsSectionStore } from './settingsSectionStore';
-import { CLIENT_INTERFACE_SETTINGS } from '../client.config';
+import { CLIENT_INTERFACE_SETTINGS } from './interfaceSettings.config';
 
 export type InterfaceLanguage = 'en';
 
