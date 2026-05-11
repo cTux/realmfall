@@ -277,7 +277,7 @@ describe('pixiWorldRenderLoop', () => {
     performanceNowSpy.mockRestore();
   });
 
-  it('uses a lower animated cadence for idle frames', () => {
+  it('re-renders idle frames at the selected world render FPS while keeping the lower idle animation cadence', () => {
     let now = 0;
     const performanceNowSpy = vi
       .spyOn(performance, 'now')
@@ -307,16 +307,20 @@ describe('pixiWorldRenderLoop', () => {
     now = 10;
     renderFrame();
 
-    expect(renderScene).toHaveBeenCalledTimes(1);
+    expect(renderScene).toHaveBeenCalledTimes(2);
+    expect(renderScene.mock.calls[1]?.[6]).toBe(1 * getWorldRenderFrameMs(120));
+    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+      idleAnimationMs: 0,
+      worldRenderFps: 120,
+    });
 
     now = 34;
     renderFrame();
 
-    expect(renderScene).toHaveBeenCalledTimes(2);
-    expect(renderScene.mock.calls[1]?.[6]).toBe(
-      1 * getWorldRenderFrameMs(WORLD_ANIMATION_FPS),
-    );
-    expect(renderScene.mock.calls[1]?.[8]).toMatchObject({
+    expect(renderScene).toHaveBeenCalledTimes(3);
+    expect(renderScene.mock.calls[2]?.[6]).toBe(4 * getWorldRenderFrameMs(120));
+    expect(renderScene.mock.calls[2]?.[8]).toMatchObject({
+      idleAnimationMs: 1 * getWorldRenderFrameMs(WORLD_ANIMATION_FPS),
       worldRenderFps: 120,
     });
 

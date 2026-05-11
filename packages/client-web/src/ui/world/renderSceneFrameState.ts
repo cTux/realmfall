@@ -48,6 +48,7 @@ import type { VisibleWorldTile } from './visibleWorldTiles';
 
 export interface RenderSceneOptions {
   cloudTransparency?: number;
+  idleAnimationMs?: number;
   showTerrainBackgrounds?: boolean;
   showClouds?: boolean;
   queuedPath?: HexCoord[] | null;
@@ -60,6 +61,7 @@ export interface RenderSceneOptions {
 export interface RenderSceneFrameState {
   app: Application;
   animationMs: number;
+  idleAnimationMs: number;
   worldTimeMinutes: number;
   worldTimeMs: number;
   selected: HexCoord;
@@ -154,6 +156,7 @@ export function getRenderSceneFrameState({
   const playerIconSize = hexSize * 0.95;
   const terrainArtSize = hexSize * 2;
   const showClouds = options.showClouds ?? true;
+  const idleAnimationMs = options.idleAnimationMs ?? animationMs;
   const cloudTransparency = normalizeRenderCloudTransparency(
     options.cloudTransparency,
   );
@@ -162,7 +165,7 @@ export function getRenderSceneFrameState({
   const movementCooldown = options.movementCooldown ?? null;
   const movementTransition = options.movementTransition ?? null;
 
-  syncDungeonEnemyMovementTransitions(scene, state, animationMs);
+  syncDungeonEnemyMovementTransitions(scene, state, idleAnimationMs);
 
   const movementTransitionOffset = getMovementTransitionOffset(
     movementTransition,
@@ -212,7 +215,7 @@ export function getRenderSceneFrameState({
     scene.screenHeight !== app.screen.height;
   const fullscreenVisualEffects = getFullscreenVisualEffectsState(
     state,
-    animationMs,
+    idleAnimationMs,
   );
   const staticRenderBaseToken = getAnimatedRenderToken(
     {
@@ -221,17 +224,18 @@ export function getRenderSceneFrameState({
       harvestMoonActive: state.harvestMoonActive,
       seed: state.seed,
     },
-    animationMs,
+    idleAnimationMs,
     fullscreenVisualEffects.renderToken,
     worldRenderFrameMs,
   );
   const playerIconTransitionRenderToken = getSceneIconTransitionRenderToken(
     scene.iconTransitionsByKey,
-    animationMs,
+    idleAnimationMs,
     PLAYER_ICON_TRANSITION_KEY,
   );
   const animatedRenderTokenParts = [
     staticRenderBaseToken,
+    `atmosphere:${Math.floor(animationMs / worldRenderFrameMs)}`,
     getMovementCooldownRenderToken(movementCooldown, worldRenderFrameMs),
     getCombatFeedbackRenderToken({
       state,
@@ -257,7 +261,7 @@ export function getRenderSceneFrameState({
     scene,
     state,
     displayVisibleTiles,
-    animationMs,
+    idleAnimationMs,
     worldRenderFrameMs,
   );
   const visibleEnemyBadgeRenderToken = getVisibleEnemyBadgeRenderToken(
@@ -267,7 +271,7 @@ export function getRenderSceneFrameState({
   const worldMarkerIconTransitionRenderToken =
     getSceneIconTransitionRenderToken(
       scene.iconTransitionsByKey,
-      animationMs,
+      idleAnimationMs,
       WORLD_MARKER_ICON_TRANSITION_KEY_PREFIX,
     );
   let staticRenderToken =
@@ -284,6 +288,7 @@ export function getRenderSceneFrameState({
   return {
     app,
     animationMs,
+    idleAnimationMs,
     worldTimeMinutes,
     worldTimeMs,
     selected,

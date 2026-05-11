@@ -134,7 +134,7 @@ export function renderScene(
 
   if (phasePlan.shouldRenderAnimated && phasePlan.lightingState) {
     renderAnimatedScene({
-      animationMs,
+      animationMs: frameState.idleAnimationMs,
       animatedRenderToken: frameState.animatedRenderToken,
       app,
       cloudTransparency: frameState.cloudTransparency,

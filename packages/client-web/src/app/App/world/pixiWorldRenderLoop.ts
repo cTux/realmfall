@@ -100,10 +100,12 @@ export function createWorldRenderFrame({
     const worldRenderFrameMs = getWorldRenderFrameMs(worldRenderFps);
     const animatedWorldRenderFrameMs =
       getWorldRenderFrameMs(WORLD_ANIMATION_FPS);
-    const animationBucket = Math.floor(
+    const animationBucket = Math.floor(animationMs / worldRenderFrameMs);
+    const frameAnimationMs = animationBucket * worldRenderFrameMs;
+    const idleAnimationBucket = Math.floor(
       animationMs / animatedWorldRenderFrameMs,
     );
-    const animatedFrameMs = animationBucket * animatedWorldRenderFrameMs;
+    const idleAnimationMs = idleAnimationBucket * animatedWorldRenderFrameMs;
     const lastRenderSnapshot = lastRenderSnapshotRef.current;
     const invalidationToken = renderInvalidationRef.current;
     const iconTextureVersion = getWorldIconTextureVersion();
@@ -242,7 +244,7 @@ export function createWorldRenderFrame({
       currentSelected,
       currentHoveredMove,
       getWorldTimeMinutesFromTimestamp(worldTimeMsRef.current),
-      animatedFrameMs,
+      frameAnimationMs,
       currentHoveredSafePath,
       movementCooldown || currentMovementTransition
         ? {
@@ -252,6 +254,7 @@ export function createWorldRenderFrame({
             showClouds,
             cloudTransparency,
             showTerrainBackgrounds,
+            idleAnimationMs,
             worldTimeMs: worldTimeMsRef.current,
             worldRenderFps,
           }
@@ -260,6 +263,7 @@ export function createWorldRenderFrame({
             showClouds,
             cloudTransparency,
             showTerrainBackgrounds,
+            idleAnimationMs,
             worldTimeMs: worldTimeMsRef.current,
             worldRenderFps,
           },

@@ -14,10 +14,58 @@ import {
   MockText,
   setupRenderSceneTestEnvironment,
 } from './renderSceneTestkit';
+import { getWorldRenderFrameMs } from './renderCadence';
 
 setupRenderSceneTestEnvironment();
 
 describe('renderScene atmosphere', () => {
+  it('re-renders celestial layers on the selected world render cadence without advancing the idle animation clock', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createGame(2, 'render-scene-celestial-redraw-cadence');
+    const app = createMockApp();
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        idleAnimationMs: 0,
+        worldRenderFps: 120,
+      },
+    );
+    const scene = getSceneCache(app as never);
+    const initialAnimatedToken = scene.animatedRenderToken;
+    const initialCloudYPositions = getCloudLayer(app).children.map(
+      (child) => (child as { y: number }).y,
+    );
+
+    renderScene(
+      app as never,
+      game,
+      getVisibleTiles(game),
+      game.player.coord,
+      null,
+      12 * 60,
+      2 * getWorldRenderFrameMs(120),
+      null,
+      {
+        idleAnimationMs: 0,
+        worldRenderFps: 120,
+      },
+    );
+
+    expect(scene.animatedRenderToken).not.toBe(initialAnimatedToken);
+    expect(
+      getCloudLayer(app).children.map((child) => (child as { y: number }).y),
+    ).toEqual(initialCloudYPositions);
+  });
+
   it('renders a red fullscreen warning when player HP drops below 30%', async () => {
     const { renderScene } = await import('./renderScene');
     const { getSceneCache } = await import('./renderSceneCache');
