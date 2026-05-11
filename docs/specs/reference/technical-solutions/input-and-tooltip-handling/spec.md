@@ -18,6 +18,14 @@ This spec covers canvas-pointer world interaction and the shared tooltip system.
   active backend receives synced nearby-world state during normal operation. If
   the worker path fails, the latest synced slice is replayed into the local
   fallback before analysis continues.
+- Hover-refresh invalidation skips worker sync entirely when there is no active
+  hover pointer, cached hover target, cached hover entry, or pending hover
+  analysis request, so unrelated world updates do not rebuild the nearby-world
+  slice while hover is idle.
+- Nearby-world hover-analysis state is rebuilt only when the active-world hover
+  inputs change. Repeated refreshes with the same `tiles`, `enemies`, combat,
+  reveal radius, player coord, and active world reuse the previously built
+  worker payload instead of cloning a fresh slice on every refresh.
 - Tooltips are managed through the shared app tooltip store.
 - Tooltip builders use locale keys and shared label helpers for their visible copy instead of hardcoded English fragments.
 - Tooltip assembly is split by domain under `src/ui/tooltips/`, with `itemTooltips.ts`, `abilityTooltips.ts`, and `entityTooltips.ts` owning the gameplay-specific line builders while `src/ui/tooltips.ts` remains the shared import surface for UI consumers.

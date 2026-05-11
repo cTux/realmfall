@@ -96,7 +96,6 @@ export function usePixiWorldHoverLifecycle({
     game.activeWorldId,
     game.radius,
     game.tiles,
-    game.turn,
   ]);
 
   useEffect(() => {

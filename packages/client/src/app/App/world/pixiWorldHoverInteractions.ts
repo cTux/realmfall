@@ -33,7 +33,13 @@ import {
   type WorldMovementTransition,
 } from './movement/worldMovementTransition';
 import { createWorkerWorldHoverAnalysisSource } from './hoverAnalysis/createWorkerWorldHoverAnalysisSource';
-import { buildWorldHoverAnalysisState } from './hoverAnalysis/worldHoverAnalysisTypes';
+import {
+  buildWorldHoverAnalysisState,
+  getWorldHoverAnalysisStateInputs,
+  isSameWorldHoverAnalysisStateInputs,
+  type WorldHoverAnalysisState,
+  type WorldHoverAnalysisStateInputs,
+} from './hoverAnalysis/worldHoverAnalysisTypes';
 
 type EnemyWorldTooltip =
   typeof import('../../../ui/world/worldTooltips').enemyWorldTooltip;
@@ -102,10 +108,28 @@ export function createWorldHoverInteractions({
     cacheKey: string;
     token: number;
   } | null = null;
+  let builtWorldHoverAnalysisState: WorldHoverAnalysisState | null = null;
+  let builtWorldHoverAnalysisStateInputs: WorldHoverAnalysisStateInputs | null =
+    null;
 
   const syncHoverAnalysisState = () => {
+    const game = gameRef.current;
+    const nextInputs = getWorldHoverAnalysisStateInputs(game);
+
+    if (
+      builtWorldHoverAnalysisState === null ||
+      builtWorldHoverAnalysisStateInputs === null ||
+      !isSameWorldHoverAnalysisStateInputs(
+        builtWorldHoverAnalysisStateInputs,
+        nextInputs,
+      )
+    ) {
+      builtWorldHoverAnalysisState = buildWorldHoverAnalysisState(game);
+      builtWorldHoverAnalysisStateInputs = nextInputs;
+    }
+
     void hoverAnalysisSource
-      .syncState(buildWorldHoverAnalysisState(gameRef.current))
+      .syncState(builtWorldHoverAnalysisState)
       .catch((error: unknown) => {
         console.error(error);
       });
@@ -262,6 +286,8 @@ export function createWorldHoverInteractions({
   };
 
   const resetHoverAnalysis = () => {
+    builtWorldHoverAnalysisState = null;
+    builtWorldHoverAnalysisStateInputs = null;
     syncHoverAnalysisState();
     invalidatePendingHoverAnalysis();
     hoverAnalysisVersionRef.current += 1;
@@ -269,16 +295,18 @@ export function createWorldHoverInteractions({
     clearHoverState();
   };
 
-  const refreshHoverAnalysis = () => {
-    syncHoverAnalysisState();
+  const shouldSyncHoverAnalysisState = () =>
+    hoverPointerRef.current !== null ||
+    hoverSnapshotRef.current.target !== null ||
+    hoverAnalysisCacheRef.current.size > 0 ||
+    pendingHoverAnalysis !== null;
 
-    if (
-      hoverAnalysisCacheRef.current.size === 0 &&
-      hoverSnapshotRef.current.target === null &&
-      hoverPointerRef.current === null
-    ) {
+  const refreshHoverAnalysis = () => {
+    if (!shouldSyncHoverAnalysisState()) {
       return;
     }
+
+    syncHoverAnalysisState();
 
     invalidatePendingHoverAnalysis();
     hoverAnalysisVersionRef.current += 1;

@@ -1,7 +1,11 @@
 import { WORLD_REVEAL_RADIUS } from '@realmfall/core/game/config';
 import { createGame } from '@realmfall/core/game/state';
 import type { Enemy } from '@realmfall/core/game/stateTypes';
-import { buildWorldHoverAnalysisState } from './worldHoverAnalysisTypes';
+import {
+  buildWorldHoverAnalysisState,
+  getWorldHoverAnalysisStateInputs,
+  isSameWorldHoverAnalysisStateInputs,
+} from './worldHoverAnalysisTypes';
 
 describe('buildWorldHoverAnalysisState', () => {
   it('syncs only a nearby hover analysis slice', () => {
@@ -63,5 +67,23 @@ describe('buildWorldHoverAnalysisState', () => {
     expect(hoverState.tiles).not.toHaveProperty('6,0');
     expect(hoverState.enemies).toHaveProperty('near-enemy');
     expect(hoverState.enemies).not.toHaveProperty('far-enemy');
+  });
+
+  it('recognizes unchanged nearby hover-analysis state inputs', () => {
+    const game = createGame(4, 'hover-analysis-input-snapshot');
+    const firstInputs = getWorldHoverAnalysisStateInputs(game);
+    const secondInputs = getWorldHoverAnalysisStateInputs(game);
+
+    expect(isSameWorldHoverAnalysisStateInputs(firstInputs, secondInputs)).toBe(
+      true,
+    );
+
+    const thirdInputs = {
+      ...getWorldHoverAnalysisStateInputs(game),
+      gameOver: !game.gameOver,
+    };
+    expect(isSameWorldHoverAnalysisStateInputs(firstInputs, thirdInputs)).toBe(
+      false,
+    );
   });
 });
