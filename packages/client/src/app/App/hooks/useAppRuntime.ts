@@ -55,6 +55,18 @@ export function useAppRuntime() {
     worldTimeMsRef: bootstrap.worldTimeMsRef,
     worldTimeTickRef: bootstrap.worldTimeTickRef,
   });
+  const viewDemand = useMemo(
+    () => ({
+      logs: controllerState.windowShown.log,
+      recipes: controllerState.windowShown.recipes,
+      hexTownStock: controllerState.windowShown.hexInfo,
+    }),
+    [
+      controllerState.windowShown.hexInfo,
+      controllerState.windowShown.log,
+      controllerState.windowShown.recipes,
+    ],
+  );
   const gameView = useAppGameView({
     activeWorldId: bootstrap.game.activeWorldId,
     bloodMoonActive: bootstrap.game.bloodMoonActive,
@@ -72,6 +84,7 @@ export function useAppRuntime() {
     selectedHexItemReforgeStatIndex:
       controllerState.selectedHexItemReforgeStatIndex,
     tiles: bootstrap.game.tiles,
+    viewDemand,
     worlds: bootstrap.game.worlds,
     worldDayIndex: getWorldDayIndex(bootstrap.game.worldTimeMs),
   });

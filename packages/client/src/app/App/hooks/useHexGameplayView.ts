@@ -29,6 +29,16 @@ import { isGatheringStructure } from '@realmfall/core/game/world';
 import { t } from '../../../i18n';
 import type { HexInteractAction } from '../AppWindows.viewTypes';
 
+const EMPTY_TOWN_STOCK: ReturnType<typeof getTownStockForDay> = [];
+
+interface HexGameplayViewDemand {
+  hexTownStock: boolean;
+}
+
+const FULL_HEX_GAMEPLAY_VIEW_DEMAND: HexGameplayViewDemand = {
+  hexTownStock: true,
+};
+
 interface UseHexGameplayViewOptions {
   activeWorldId?: GameState['activeWorldId'];
   bloodMoonActive: GameState['bloodMoonActive'];
@@ -41,6 +51,7 @@ interface UseHexGameplayViewOptions {
   selectedHexItemModificationItem: Item | null;
   selectedHexItemReforgeStatIndex: number | null;
   tiles: GameState['tiles'];
+  viewDemand?: HexGameplayViewDemand;
   worlds?: GameState['worlds'];
   worldDayIndex: number;
 }
@@ -66,6 +77,7 @@ export function useHexGameplayView({
   selectedHexItemModificationItem,
   selectedHexItemReforgeStatIndex,
   tiles,
+  viewDemand = FULL_HEX_GAMEPLAY_VIEW_DEMAND,
   worlds,
   worldDayIndex,
 }: UseHexGameplayViewOptions) {
@@ -136,15 +148,22 @@ export function useHexGameplayView({
   );
   const townStock = useMemo(
     () =>
-      resolvedCurrentTile
+      viewDemand.hexTownStock && resolvedCurrentTile
         ? getTownStockForDay({
             player: { coord },
             seed,
             tiles,
             worldDayIndex,
           })
-        : [],
-    [coord, resolvedCurrentTile, seed, tiles, worldDayIndex],
+        : EMPTY_TOWN_STOCK,
+    [
+      coord,
+      resolvedCurrentTile,
+      seed,
+      tiles,
+      viewDemand.hexTownStock,
+      worldDayIndex,
+    ],
   );
   const combatEnemies = useMemo(
     () =>
