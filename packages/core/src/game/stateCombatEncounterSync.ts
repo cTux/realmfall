@@ -15,6 +15,8 @@ import { buildTileForState, normalizeStructureState } from './world';
 export function syncCombatEncounterEnemies(state: GameState) {
   if (!state.combat) return;
 
+  const combatEnemyIds = getCombatEncounterEnemyIds(state.combat);
+  const involvedCombatEnemyIds = new Set(combatEnemyIds);
   const activeEnemyIds = state.combat.enemyIds.filter((enemyId) =>
     Boolean(state.enemies[enemyId]),
   );
@@ -26,6 +28,15 @@ export function syncCombatEncounterEnemies(state: GameState) {
   const involvedTileKeys = new Set(
     liveCombatEnemyIds.map((enemyId) => hexKey(state.enemies[enemyId]!.coord)),
   );
+  if (combatEnemyIds.some((enemyId) => !state.enemies[enemyId])) {
+    for (const [tileKey, tile] of Object.entries(state.tiles)) {
+      if (
+        tile.enemyIds.some((enemyId) => involvedCombatEnemyIds.has(enemyId))
+      ) {
+        involvedTileKeys.add(tileKey);
+      }
+    }
+  }
   involvedTileKeys.add(hexKey(getCombatEncounterCoord(state.combat)));
 
   for (const tileKey of involvedTileKeys) {

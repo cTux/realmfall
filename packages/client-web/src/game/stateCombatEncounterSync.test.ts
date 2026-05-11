@@ -97,6 +97,78 @@ describe('combat encounter sync', () => {
     });
   });
 
+  it('cleans a defeated enemy tile while another encounter enemy survives elsewhere', () => {
+    const game = createGame(3, 'combat-sync-stale-tile');
+    const stagingCoord = { q: 0, r: 0 };
+    const removedEnemyCoord = { q: 1, r: 0 };
+    const survivingEnemyCoord = { q: 2, r: 0 };
+    const removedEnemyId = 'enemy-1,0-0';
+    const survivingEnemyId = 'enemy-2,0-0';
+
+    game.player.coord = { ...stagingCoord };
+    game.tiles['0,0'] = {
+      coord: stagingCoord,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [],
+    };
+    game.tiles['1,0'] = {
+      coord: removedEnemyCoord,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [removedEnemyId],
+    };
+    game.tiles['2,0'] = {
+      coord: survivingEnemyCoord,
+      terrain: 'plains',
+      items: [],
+      structure: undefined,
+      enemyIds: [survivingEnemyId],
+    };
+    game.enemies[survivingEnemyId] = {
+      id: survivingEnemyId,
+      enemyTypeId: 'wolf',
+      name: 'Wolf',
+      coord: survivingEnemyCoord,
+      tier: 1,
+      hp: 10,
+      maxHp: 10,
+      attack: 1,
+      defense: 0,
+      xp: 1,
+      elite: false,
+    };
+    game.combat = {
+      coord: stagingCoord,
+      enemyIds: [removedEnemyId, survivingEnemyId],
+      started: true,
+      engagement: {
+        autoStepOnVictory: false,
+        engageMode: 'enemy-chase',
+        originCoord: { ...stagingCoord },
+        stagingCoord: { ...stagingCoord },
+        targetCoord: { ...survivingEnemyCoord },
+      },
+      player: createCombatActorState(0, ['kick']),
+      enemies: {
+        [removedEnemyId]: createCombatActorState(0, ['kick']),
+        [survivingEnemyId]: createCombatActorState(0, ['kick']),
+      },
+      enemyStateById: {
+        [removedEnemyId]: {},
+        [survivingEnemyId]: {},
+      },
+    };
+
+    syncCombatEncounterEnemies(game);
+
+    expect(game.tiles['1,0']?.enemyIds).toEqual([]);
+    expect(game.tiles['2,0']?.enemyIds).toEqual([survivingEnemyId]);
+    expect(game.combat?.enemyIds).toEqual([survivingEnemyId]);
+  });
+
   it('cleans the engagement target tile after the last chased enemy dies', () => {
     const game = createGame(3, 'combat-sync-chase-target');
     const stagingCoord = { q: 0, r: 0 };
