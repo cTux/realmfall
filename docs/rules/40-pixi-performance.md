@@ -38,6 +38,8 @@
   active hover-analysis backend during normal operation, and replay the latest
   synced slice into the local fallback only when the worker path becomes
   unavailable.
+- Keep hover-refresh diff inputs targeted to fields the hover runtime actually reads. Do not use broad object serialization such as `JSON.stringify(tile)` or `JSON.stringify(enemy)` across the nearby slice just to decide whether the worker needs a refreshed state sync.
+- When the hover controller already owns the latest pointer coordinates, refresh hover analysis by reprocessing that cached pointer directly instead of redispatching a synthetic DOM `pointermove` event through the full canvas listener stack.
 - Split world-map interaction orchestration by responsibility. Keep hover analysis, click navigation, drag-pan state, zoom filtering, and shared pointer helpers in focused modules under `src/app/App/world/`, and keep `pixiWorldInteractions.ts` as the attachment/composition layer instead of letting one listener file own every interaction branch.
 - When static redraw invalidation needs enemy or structure presentation data, prefer carrying forward precomputed render inputs instead of repeating tile-level lookup work during both token derivation and render execution.
 - On Pixi bootstrap, block only on the world icon textures needed for the initial visible viewport. Warm the rest of the icon catalog in background idle slices so first paint is not tied to offscreen marker assets.
