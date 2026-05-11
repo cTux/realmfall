@@ -12,6 +12,8 @@ This spec covers the shipped Electron desktop shell that hosts the existing web 
 - `packages/client-electron/src/window.ts` centralizes the BrowserWindow sizing and hardened renderer settings, including `contextIsolation`, disabled renderer `nodeIntegration`, the preload path, and Electron sandboxing.
 - `packages/client-electron/src/staticServer.ts` serves the built `packages/client-web/dist` bundle on localhost so the renderer keeps its HTTP-origin assumptions for locale assets and `version.json`.
 - `packages/client-electron/src/preload.ts` exposes a minimal isolated bridge and does not enable renderer Node integration.
+- `packages/client-electron/scripts/stage-renderer.mjs` stages the built web client into `packages/client-electron/dist/client-web` before packaging so installed builds can serve the renderer without depending on the repository layout.
+- `packages/client-electron/electron-builder.config.mjs` and `packages/client-electron/scripts/dist-win.mjs` define the Windows NSIS packaging path, with installer output written to a timestamped subdirectory under `packages/client-electron/release/`.
 - The Electron package does not yet implement filesystem-backed saves or Steam Cloud sync.
 
 ## Main Implementation Areas

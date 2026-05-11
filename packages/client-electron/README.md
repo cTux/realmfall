@@ -11,6 +11,8 @@
 
 - `pnpm --filter @realmfall/client-electron dev`
 - `pnpm --filter @realmfall/client-electron build`
+- `pnpm --filter @realmfall/client-electron build:app`
+- `pnpm --filter @realmfall/client-electron dist:win`
 - `pnpm --filter @realmfall/client-electron start`
 - `pnpm --filter @realmfall/client-electron typecheck`
 - `pnpm --filter @realmfall/client-electron lint`
@@ -20,6 +22,7 @@
 
 - Phase one is intentionally `client-web` as-is inside Electron.
 - The desktop shell serves the built web client over localhost so the renderer keeps its existing HTTP-origin expectations for locale assets and `version.json`.
+- `dist:win` builds `@realmfall/client-web`, compiles the Electron shell, stages the renderer bundle into `dist/client-web`, and emits the Windows installer `.exe` into a timestamped subdirectory under `release/`.
 - Future local save files and Steam Cloud sync are planned follow-on work, not part of the initial shell.
 
 ## Related Docs

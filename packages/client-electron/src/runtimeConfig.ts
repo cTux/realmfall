@@ -1,10 +1,12 @@
+import { existsSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
 import { resolve } from 'node:path';
 
 export const ELECTRON_STATIC_SERVER_PORT = 43110;
 
 export type RuntimeConfigInput = {
   appMode: 'development' | 'production';
-  cwd: string;
+  cwd?: string;
   rendererDevUrl?: string;
 };
 
@@ -20,9 +22,11 @@ export function resolveRuntimeConfig({
   cwd,
   rendererDevUrl = 'https://localhost:5173',
 }: RuntimeConfigInput): RuntimeConfig {
-  const packageRoot = cwd;
-  const repoRoot = resolve(packageRoot, '../..');
-  const clientWebDistPath = resolve(repoRoot, 'packages/client-web/dist');
+  const packageRoot = cwd ?? fileURLToPath(new URL('..', import.meta.url));
+  const stagedClientWebDistPath = resolve(packageRoot, 'dist/client-web');
+  const clientWebDistPath = existsSync(stagedClientWebDistPath)
+    ? stagedClientWebDistPath
+    : resolve(packageRoot, '../client-web/dist');
 
   return {
     clientWebDistPath,
