@@ -5,25 +5,24 @@ performance audit for the client app.
 
 Active fixes in this workspace:
 
-- `P1` Keep bootstrap i18n imports off the broad `@realmfall/ui-react` barrel so
-  the deferred `App` entry does not preload the large shared state chunk.
-- `P1` Reduce React rerender breadth through `AppShell` and `AppWindows` by
-  removing whole-`GameState` shell props and preserving memo boundaries.
-- `P1` Replace whole-`GameState` Pixi frame bailouts with a narrower render
-  snapshot keyed to world-facing inputs.
-- `P2` Move gameplay icon definitions to stable ids so workers and gameplay
-  state do not import raw SVG asset URLs.
-- `P2` Narrow hover-analysis worker sync payloads so hover pathfinding does not
-  clone broad gameplay state into the worker on every relevant world update.
-- `P3` Restore the lazy debug split by removing static `stateDebug` coupling
-  from the core state barrel and non-lazy UI paths.
+- `P1` Shorten the startup critical path by removing eager translation
+  materialization from the `App` import graph where needed and overlapping
+  `App` module loading with locale and font readiness.
+- `P1` Keep Pixi first paint blocked only on icon textures needed for the first
+  visible world frame instead of also preloading the reachable-ring icon set on
+  the bootstrap path.
+- `P1` Separate animated-world redraw cadence from the selected Pixi ticker FPS
+  so stable scenes do not rerender animated layers on every 60 FPS wakeup.
+- `P1` Narrow tile-resolution lifecycle sync dependencies so unrelated
+  `GameState` clones do not re-run visible-frontier coordinator sync work.
 
 Canonical references to update with the shipped behavior:
 
 - [Internationalization Spec](../../../specs/reference/technical-solutions/internationalization/spec.md)
 - [React App Orchestration Spec](../../../specs/reference/technical-solutions/react-app-orchestration/spec.md)
+- [Browser Entry Metadata Spec](../../../specs/reference/technical-solutions/browser-entry-metadata/spec.md)
 - [Pixi Rendering Solution Spec](../../../specs/reference/technical-solutions/pixi-rendering-solution/spec.md)
-- [Content Ids And Tags Spec](../../../specs/reference/technical-solutions/content-ids-and-tags/spec.md)
+- [Async World Tile Resolution Spec](../../../specs/reference/technical-solutions/async-world-tile-resolution/spec.md)
 - [Build And Bundle Rules](../../../rules/50-build-and-bundle.md)
 - [React UI Rules](../../../rules/30-react-ui.md)
 - [Pixi Rules](../../../rules/40-pixi-performance.md)

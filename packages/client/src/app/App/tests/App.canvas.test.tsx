@@ -275,18 +275,18 @@ describe('App canvas setup', () => {
     host.remove();
   });
 
-  it('preloads initial visible icons before Pixi init and warms the full catalog after boot', async () => {
+  it('preloads only initial visible icons before Pixi init and warms the full catalog after boot', async () => {
     loadEncryptedState.mockResolvedValue(null);
 
     const { host, root } = await renderApp();
     await flushLazyModules();
 
     expect(getVisibleWorldIconAssetIds).toHaveBeenCalled();
-    expect(getReachableWorldIconAssetIds).toHaveBeenCalled();
+    expect(getReachableWorldIconAssetIds).not.toHaveBeenCalled();
     expect(ensureWorldIconTexturesLoaded).toHaveBeenCalledWith([
       'visible-start-icon',
-      'move-buffer-icon',
     ]);
+    expect(warmWorldIconTexturesInBackground).toHaveBeenCalledWith();
     expect(warmWorldIconTexturesInBackground).toHaveBeenCalledTimes(1);
 
     await act(async () => {

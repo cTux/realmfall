@@ -2,6 +2,7 @@ import type { ResolvedWorldTilePayload } from '@realmfall/common';
 import {
   useCallback,
   useEffect,
+  useMemo,
   useRef,
   type Dispatch,
   type MutableRefObject,
@@ -27,6 +28,19 @@ export type VisibleWorldResolutionState = Pick<
 export interface TileResolutionCoordinator {
   dispose(): Promise<void>;
   syncVisibleCoords(state: VisibleWorldResolutionState): Promise<void>;
+}
+
+export function createVisibleWorldResolutionState(
+  game: Pick<GameState, 'bloodMoonActive' | 'radius' | 'seed' | 'tiles'>,
+  playerCoord: HexCoord,
+): VisibleWorldResolutionState {
+  return {
+    bloodMoonActive: game.bloodMoonActive,
+    playerCoord,
+    radius: game.radius,
+    resolvedTiles: game.tiles,
+    seed: game.seed,
+  };
 }
 
 interface VisibleWorldTileBuildArgs {
@@ -100,6 +114,15 @@ export function useWorldTileResolutionLifecycle({
   );
   const reuseVisibleTilesRef = useRef<ReuseVisibleTiles>((_, next) => next);
   const visibleTilesRef = useRef<VisibleWorldTile[]>(undefined!);
+  const { bloodMoonActive, radius, seed, tiles } = game;
+  const coordinatorSyncState = useMemo(
+    () =>
+      createVisibleWorldResolutionState(
+        { bloodMoonActive, radius, seed, tiles },
+        playerCoord,
+      ),
+    [bloodMoonActive, radius, seed, tiles, playerCoord],
+  );
 
   const rebuildVisibleTiles = useCallback(
     ({
@@ -219,7 +242,18 @@ export function useWorldTileResolutionLifecycle({
 
       resolutionCoordinatorRef.current = coordinator;
       try {
-        await syncTileResolutionCoordinator(coordinator, gameRef.current);
+        await syncTileResolutionCoordinator(
+          coordinator,
+          createVisibleWorldResolutionState(
+            {
+              bloodMoonActive: gameRef.current.bloodMoonActive,
+              radius: gameRef.current.radius,
+              seed: gameRef.current.seed,
+              tiles: gameRef.current.tiles,
+            },
+            gameRef.current.player.coord,
+          ),
+        );
       } catch (error) {
         if (!disposed) {
           console.error(error);
@@ -279,20 +313,12 @@ export function useWorldTileResolutionLifecycle({
       return;
     }
 
-    void syncTileResolutionCoordinator(coordinator, game).catch(
+    void syncTileResolutionCoordinator(coordinator, coordinatorSyncState).catch(
       (error: unknown) => {
         console.error(error);
       },
     );
-  }, [
-    enabled,
-    game,
-    game.bloodMoonActive,
-    game.radius,
-    game.seed,
-    game.tiles,
-    playerCoord,
-  ]);
+  }, [enabled, coordinatorSyncState]);
 
   return {
     visibleTilesRef,
@@ -335,18 +361,9 @@ export function mergeResolvedWorldTilePayloads({
 
 export function syncTileResolutionCoordinator(
   coordinator: TileResolutionCoordinator,
-  game: Pick<
-    GameState,
-    'bloodMoonActive' | 'player' | 'radius' | 'seed' | 'tiles'
-  >,
+  state: VisibleWorldResolutionState,
 ) {
-  return coordinator.syncVisibleCoords({
-    bloodMoonActive: game.bloodMoonActive,
-    playerCoord: game.player.coord,
-    radius: game.radius,
-    resolvedTiles: game.tiles,
-    seed: game.seed,
-  });
+  return coordinator.syncVisibleCoords(state);
 }
 
 function buildResolvedVisibleWorldTiles({

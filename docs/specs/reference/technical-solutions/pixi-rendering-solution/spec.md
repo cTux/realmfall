@@ -10,7 +10,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - The Pixi world ticker stops while the document is hidden, then invalidates and draws a single catch-up frame when the document becomes visible before normal ticking resumes.
 - Drag and wheel interactions update the canonical world-map camera ref synchronously, then coalesce Pixi container transform writes through one animation-frame scheduler so high-rate pointer input cannot force multiple container mutations in the same frame.
 - Idle world frames coalesce inside the configured render-FPS bucket, so unchanged state does not rerun the full world render path on every Pixi ticker tick.
-- The Pixi ticker is capped to the selected persisted Pixi render FPS, clamped between `60` and `240`, and the animated world-layer buckets use the same frame duration to reduce idle wakeups before the render snapshot guard runs.
+- The Pixi ticker is capped to the selected persisted Pixi render FPS, clamped between `60` and `240`, while idle animated world-layer buckets advance on their own `30 FPS` cadence so stable atmosphere, cloud, overlay, and marker animation does not force full-speed redraw invalidation.
 - React updates feed the renderer through refs and invalidation-sensitive cached inputs rather than by layering a second immediate render effect path.
 - The renderer separates static, interaction, and animated work.
 - Static layers hold terrain, structures, claims, and stable ground cover.
@@ -39,6 +39,10 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - When offscreen enemy-only clones leave the visible-enemy token unchanged, the scene cache advances its stored `enemies` source reference so later animation ticks do not keep recomputing the visible-enemy token against the same unchanged state.
 - `useWorldTileResolutionLifecycle` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
 - `useWorldTileResolutionLifecycle` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or visible tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
+- The same lifecycle narrows tile-resolution coordinator sync to a visible-frontier
+  payload (`bloodMoonActive`, `playerCoord`, `radius`, `seed`, `resolvedTiles`)
+  instead of depending on the whole `game` object, so unrelated gameplay clones
+  do not retrigger worker sync work before the renderer even considers a redraw.
 - Visible-tile reuse metadata is attached to whichever array `usePixiWorld` keeps, including caller-seeded reused arrays, so later unchanged updates can hit the no-recompute fast path instead of paying for another full visibility rebuild.
 - Once static layers are cached, animation-only frames reuse cached hot-structure light points for campfires and furnaces and skip the full visible-tile traversal instead of repeating enemy lookup and marker preparation work on every ticker tick.
 - Cached world-marker wrappers now keep deterministic per-hex animation metadata, so animation-only frames can pulse or bob hostile markers by mutating live sprite transforms instead of rebuilding static marker pools.
@@ -51,7 +55,7 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - World movement transitions can carry a `playerOffsetAtStart` seed so a victory auto-step into a preserved hostile target continues from the held lunge offset through the normal full hex-slide duration instead of restarting from hex center.
 - The renderer consumes a bounded gameplay-authored `worldFloatingTextEvents` list and displays damage, critical-damage, and healing text above resolved player or hostile badge anchors, including defeated-enemy fallback anchors until the event lifetime expires.
 - Player-targeted floating-text events snapshot the player's world coordinate at emit time, so damage and healing numbers remain above the original hit or heal target even if the player moves before the event expires, while same-hex events continue to inherit the live player badge lunge offset.
-- Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again.
+- Animated sky, atmosphere, cloud, overlay, and firelight layers use their own lower-cadence `30 FPS` token, so hover or selection redraws inside the same animation bucket do not reset those animated stage layers again, while movement cooldown and transition invalidation continue to use the selected world render cadence.
 - Revealed roaming dungeon enemies interpolate between adjacent hexes through scene-local marker transitions over the same `1000 ms` cadence as player movement, and a static marker rebuild forces the same-frame animated pass so those movers do not blink at the destination before the interpolation applies.
 - Deterministic ground-cover presentation and cloud inputs are memoized in bounded caches.
 - Hot animated atmosphere and cloud paths keep repeated layer configs at module scope and use indexed loops for cloud clusters, shadow layers, light shafts, and celestial halos so animation-only frames do not allocate those config arrays or callback closures repeatedly.

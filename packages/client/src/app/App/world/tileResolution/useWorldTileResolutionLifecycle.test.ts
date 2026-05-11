@@ -2,6 +2,7 @@ import { createGame } from '@realmfall/core/game/stateFactory';
 import { hydrateResolvedWorldTilePayload } from '@realmfall/core/game/worldTileResolutionRuntime';
 import {
   mergeResolvedWorldTilePayloads,
+  createVisibleWorldResolutionState,
   syncTileResolutionCoordinator,
 } from './useWorldTileResolutionLifecycleTestkit';
 
@@ -70,18 +71,36 @@ describe('useWorldTileResolutionLifecycle helpers', () => {
   it('syncs the coordinator with the visible world resolution state', async () => {
     const game = createGame(2, 'tile-resolution-sync-state');
     const syncVisibleCoords = vi.fn().mockResolvedValue(undefined);
+    const payload = createVisibleWorldResolutionState(game, game.player.coord);
 
     await syncTileResolutionCoordinator(
       { dispose: vi.fn(), syncVisibleCoords },
-      game,
+      payload,
     );
 
-    expect(syncVisibleCoords).toHaveBeenCalledWith({
+    expect(syncVisibleCoords).toHaveBeenCalledWith(payload);
+  });
+
+  it('builds a narrowed sync payload for visible frontier inputs', () => {
+    const game = createGame(2, 'tile-resolution-sync-state');
+
+    const payload = createVisibleWorldResolutionState(game, game.player.coord);
+    const expectedKeys = Object.keys(payload).sort();
+
+    expect(payload).toMatchObject({
       bloodMoonActive: game.bloodMoonActive,
       playerCoord: game.player.coord,
       radius: game.radius,
       resolvedTiles: game.tiles,
       seed: game.seed,
     });
+    expect(expectedKeys).toStrictEqual([
+      'bloodMoonActive',
+      'playerCoord',
+      'radius',
+      'resolvedTiles',
+      'seed',
+    ]);
+    expect(payload).not.toHaveProperty('player');
   });
 });
