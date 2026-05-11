@@ -1,7 +1,7 @@
 {
   "name": "realmfall",
   "private": true,
-  "version": "0.3.306",
+  "version": "0.3.309",
   "description": "Single-player browser survival RPG with hex exploration, turn-based systems, React UI, and Pixi.js world rendering.",
   "keywords": [
     "browser-game",
@@ -32,6 +32,7 @@
     "prepare": "husky",
     "dev": "node ./scripts/run-dev.mjs",
     "dev:storybook": "turbo dev:storybook",
+    "dev:electron": "pnpm --filter @realmfall/client-electron dev",
     "dev:ui:storybook": "pnpm --filter @realmfall/ui-react dev:storybook",
     "dev:client": "pnpm --filter @realmfall/client-web dev",
     "dev:client:storybook": "pnpm --filter @realmfall/client-web dev:storybook",
@@ -47,6 +48,7 @@
     "build:ui": "pnpm --filter @realmfall/ui-react build",
     "build:ui:storybook": "pnpm --filter @realmfall/ui-react build:storybook",
     "build:client": "pnpm --filter @realmfall/client-web build",
+    "build:electron": "pnpm --filter @realmfall/client-electron build",
     "build:client:assets": "pnpm --filter @realmfall/client-web build:client:assets",
     "build:client:storybook": "pnpm --filter @realmfall/client-web build:storybook",
     "build:server-chat": "pnpm --filter @realmfall/server-chat build",
@@ -56,6 +58,7 @@
     "typecheck:core": "pnpm --filter @realmfall/core typecheck",
     "typecheck:ui": "pnpm --filter @realmfall/ui-react typecheck",
     "typecheck:client": "pnpm --filter @realmfall/client-web typecheck",
+    "typecheck:electron": "pnpm --filter @realmfall/client-electron typecheck",
     "typecheck:server-chat": "pnpm --filter @realmfall/server-chat typecheck",
     "typecheck:server-world": "pnpm --filter @realmfall/server-world typecheck",
     "lint": "turbo lint",
@@ -63,6 +66,7 @@
     "lint:core": "pnpm --filter @realmfall/core lint",
     "lint:ui": "pnpm --filter @realmfall/ui-react lint",
     "lint:client": "pnpm --filter @realmfall/client-web lint",
+    "lint:electron": "pnpm --filter @realmfall/client-electron lint",
     "lint:server-chat": "pnpm --filter @realmfall/server-chat lint",
     "lint:server-world": "pnpm --filter @realmfall/server-world lint",
     "lint:fix": "turbo lint:fix",
@@ -76,6 +80,7 @@
     "test:core": "pnpm --filter @realmfall/core test",
     "test:ui": "pnpm --filter @realmfall/ui-react test",
     "test:client": "pnpm --filter @realmfall/client-web test",
+    "test:electron": "pnpm --filter @realmfall/client-electron test",
     "test:server-chat": "pnpm --filter @realmfall/server-chat test",
     "test:server-world": "pnpm --filter @realmfall/server-world test",
     "deps:update": ":",
@@ -83,7 +88,8 @@
     "auto:pre:commit": "node scripts/run-staged-quality.mjs",
     "auto:pre:push": "node scripts/run-pre-push-quality.mjs",
     "git:deploy": "node scripts/git-deploy.mjs",
-    "git:prune": "node scripts/prune-gone-branches.mjs"
+    "git:prune": "node scripts/prune-gone-branches.mjs",
+    "start:electron": "pnpm --filter @realmfall/client-electron start"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.0.0",
