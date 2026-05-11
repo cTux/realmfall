@@ -11,6 +11,9 @@
 - Keep `vite.config.ts` focused on top-level assembly. Move chunk routing, plugin wiring, local HTTPS certificate setup, and Vitest project definitions into neighboring `vite/*` helpers instead of regrowing one multi-responsibility config module.
 - Tune Vite's generic chunk-size warning so it does not compete with the repository's intentional lazy-loading strategy or known large shared chunks such as `state` and `pixi`.
 - Keep diagnostic or refresh-only startup chrome, such as version polling widgets, off the bootstrap path when a lazy client-side load preserves first interaction and gameplay behavior.
+- Keep bootstrap-only constants on tiny entry-safe modules when the broader
+  app config also imports icons, registries, or other heavy secondary UI
+  surfaces.
 - Keep destructive, reset-only, or rare maintenance flows off the bootstrap graph. If a path only runs from a settings action or similar secondary UI, prefer importing its heavy helpers at action time instead of wiring them into `App` startup.
 - Load bootstrap locales as compact data assets instead of eager application code when the app only needs a translation map before importing `App`.
 - When bootstrap code only needs shared translation helpers, import them from a

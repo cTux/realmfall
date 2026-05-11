@@ -17,6 +17,9 @@ This spec covers the top-level React hook composition and derived view-model pat
   font plus the active locale asset before rendering the live `App`, so startup
   overlaps module work without hydrating translated UI against missing locale
   data or an unready fallback face.
+- The bootstrap shell reads its spinner sizing and timing constants from a tiny
+  bootstrap-only config module instead of the broader window-registry config,
+  keeping entry-safe loading chrome detached from icon-heavy app wiring.
 - The optional browser performance harness records main-start, bootstrap-shell, i18n-loaded, app-module-loaded, app-render-scheduled, and app-ready marks when explicitly enabled, keeping startup milestone measurement available without changing normal app sessions.
 - When that harness is active, `App.tsx` wraps the app shell in a React Profiler and records commit timings through the shared harness; otherwise the entry component renders the shell directly.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.

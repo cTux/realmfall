@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { CLIENT_BOOTSTRAP_SHELL } from './client.config';
+import { CLIENT_BOOTSTRAP_SHELL } from './bootstrap.config';
 import {
   applyInterfaceFontFamily,
   loadInterfaceFontFamily,
