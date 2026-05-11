@@ -1,4 +1,6 @@
+import { hexKey, hexesInRange } from '@realmfall/core/game/hex';
 import { createGame } from '@realmfall/core/game/stateFactory';
+import type { Tile } from '@realmfall/core/game/stateTypes';
 import { hydrateResolvedWorldTilePayload } from '@realmfall/core/game/worldTileResolutionRuntime';
 import {
   mergeResolvedWorldTilePayloads,
@@ -83,17 +85,56 @@ describe('useWorldTileResolutionLifecycle helpers', () => {
 
   it('builds a narrowed sync payload for visible frontier inputs', () => {
     const game = createGame(2, 'tile-resolution-sync-state');
+    const playerCoord = { q: 1, r: 0 };
+    const offscreenCoord = {
+      q: playerCoord.q + game.radius + 1,
+      r: playerCoord.r,
+    };
+    const offscreenTile = {
+      coord: offscreenCoord,
+      terrain: 'plains',
+      items: [],
+      enemyIds: [],
+    } satisfies Tile;
+    const gameWithOffscreenTile = {
+      ...game,
+      tiles: {
+        ...game.tiles,
+        [hexKey(offscreenCoord)]: offscreenTile,
+      },
+    };
+    const visibleKeys = new Set(
+      hexesInRange(playerCoord, game.radius).map((coord) => hexKey(coord)),
+    );
+    const resolvedTileKeys = Object.keys(gameWithOffscreenTile.tiles);
+    const expectedResolvedTileKeys = resolvedTileKeys
+      .filter((key) => visibleKeys.has(key))
+      .sort();
+    const offscreenTileKeys = resolvedTileKeys.filter(
+      (key) => !visibleKeys.has(key),
+    );
 
-    const payload = createVisibleWorldResolutionState(game, game.player.coord);
+    expect(offscreenTileKeys.length).toBeGreaterThan(0);
+
+    const payload = createVisibleWorldResolutionState(
+      gameWithOffscreenTile,
+      playerCoord,
+    );
     const expectedKeys = Object.keys(payload).sort();
 
     expect(payload).toMatchObject({
       bloodMoonActive: game.bloodMoonActive,
-      playerCoord: game.player.coord,
+      playerCoord,
       radius: game.radius,
-      resolvedTiles: game.tiles,
       seed: game.seed,
     });
+    expect(payload.resolvedTiles).not.toBe(gameWithOffscreenTile.tiles);
+    expect(Object.keys(payload.resolvedTiles).sort()).toStrictEqual(
+      expectedResolvedTileKeys,
+    );
+    expect(
+      Object.keys(payload.resolvedTiles).every((key) => visibleKeys.has(key)),
+    ).toBe(true);
     expect(expectedKeys).toStrictEqual([
       'bloodMoonActive',
       'playerCoord',
