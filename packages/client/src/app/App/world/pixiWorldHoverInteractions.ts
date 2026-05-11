@@ -124,6 +124,8 @@ export function createWorldHoverInteractions({
     ) {
       builtWorldHoverAnalysisState = buildWorldHoverAnalysisState(game);
       builtWorldHoverAnalysisStateInputs = nextInputs;
+    } else {
+      return false;
     }
 
     void hoverAnalysisSource
@@ -131,6 +133,8 @@ export function createWorldHoverInteractions({
       .catch((error: unknown) => {
         console.error(error);
       });
+
+    return true;
   };
 
   const invalidatePendingHoverAnalysis = () => {
@@ -304,7 +308,9 @@ export function createWorldHoverInteractions({
       return;
     }
 
-    syncHoverAnalysisState();
+    if (!syncHoverAnalysisState()) {
+      return;
+    }
 
     invalidatePendingHoverAnalysis();
     hoverAnalysisVersionRef.current += 1;

@@ -69,20 +69,74 @@ describe('buildWorldHoverAnalysisState', () => {
     expect(hoverState.enemies).not.toHaveProperty('far-enemy');
   });
 
-  it('recognizes unchanged nearby hover-analysis state inputs', () => {
+  it('ignores distant world changes outside the nearby hover-analysis slice', () => {
     const game = createGame(4, 'hover-analysis-input-snapshot');
+    game.radius = 2;
     const firstInputs = getWorldHoverAnalysisStateInputs(game);
+
+    game.tiles = {
+      ...game.tiles,
+      '6,0': {
+        coord: { q: 6, r: 0 },
+        terrain: 'plains',
+        items: [],
+        enemyIds: ['far-enemy'],
+      },
+    };
+    game.enemies = {
+      ...game.enemies,
+      'far-enemy': {
+        id: 'far-enemy',
+        name: 'Far Enemy',
+        coord: { q: 6, r: 0 },
+        tier: 1,
+        hp: 10,
+        maxHp: 10,
+        attack: 1,
+        defense: 1,
+        xp: 0,
+        elite: false,
+      },
+    };
+
     const secondInputs = getWorldHoverAnalysisStateInputs(game);
 
     expect(isSameWorldHoverAnalysisStateInputs(firstInputs, secondInputs)).toBe(
       true,
     );
+  });
 
-    const thirdInputs = {
-      ...getWorldHoverAnalysisStateInputs(game),
-      gameOver: !game.gameOver,
+  it('detects nearby hover-analysis state changes', () => {
+    const game = createGame(4, 'hover-analysis-nearby-input-change');
+    game.radius = 2;
+    const firstInputs = getWorldHoverAnalysisStateInputs(game);
+
+    game.tiles = {
+      ...game.tiles,
+      '1,0': {
+        ...game.tiles['1,0'],
+        enemyIds: ['near-enemy'],
+      },
     };
-    expect(isSameWorldHoverAnalysisStateInputs(firstInputs, thirdInputs)).toBe(
+    game.enemies = {
+      ...game.enemies,
+      'near-enemy': {
+        id: 'near-enemy',
+        name: 'Near Enemy',
+        coord: { q: 1, r: 0 },
+        tier: 1,
+        hp: 10,
+        maxHp: 10,
+        attack: 1,
+        defense: 1,
+        xp: 0,
+        elite: false,
+      },
+    };
+
+    const secondInputs = getWorldHoverAnalysisStateInputs(game);
+
+    expect(isSameWorldHoverAnalysisStateInputs(firstInputs, secondInputs)).toBe(
       false,
     );
   });
