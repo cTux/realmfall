@@ -22,15 +22,28 @@ vi.mock('./VersionStatusPanel', () => ({
 }));
 
 vi.mock('../../audio/UiAudioControllerBridge', () => ({
-  UiAudioControllerBridge: () => null,
+  UiAudioControllerBridge: () => (
+    <div data-testid="ui-audio-controller-bridge">ui-audio-controller</div>
+  ),
 }));
 
 vi.mock('../../audio/VoiceAudioControllerBridge', () => ({
-  VoiceAudioControllerBridge: () => null,
+  VoiceAudioControllerBridge: () => (
+    <div data-testid="voice-audio-bridge">voice-audio-controller</div>
+  ),
 }));
 
 vi.mock('../../audio/BackgroundMusicControllerBridge', () => ({
-  BackgroundMusicControllerBridge: () => null,
+  BackgroundMusicControllerBridge: () => (
+    <div data-testid="background-music-controller-bridge">
+      background-music-controller
+    </div>
+  ),
+}));
+
+const useAudioBridgeActivationMock = vi.hoisted(() => vi.fn());
+vi.mock('./useAudioBridgeActivation', () => ({
+  useAudioBridgeActivation: useAudioBridgeActivationMock,
 }));
 
 describe('AppShell', () => {
@@ -47,6 +60,7 @@ describe('AppShell', () => {
     host = document.createElement('div');
     document.body.appendChild(host);
     root = createRoot(host);
+    useAudioBridgeActivationMock.mockReturnValue(true);
   });
 
   afterEach(async () => {
@@ -132,5 +146,93 @@ describe('AppShell', () => {
     expect(appRoot.style.getPropertyValue('--app-ui-font-scale')).toBe('1.18');
     expect(appRoot.style.getPropertyValue('--app-ui-scale')).toBe('1.26');
     expect(uiShell.contains(mapViewport)).toBe(false);
+  });
+
+  it('does not mount the recorded voice bridge when voice playback is disabled', async () => {
+    const hostRef = { current: null as HTMLDivElement | null };
+    const windowsProps = {
+      actions: {
+        tooltip: {
+          onCloseTooltip: () => undefined,
+          onShowTooltip: () => undefined,
+        },
+      },
+    } as unknown as AppWindowsProps;
+
+    const game = createGame(2, 'app-shell-recorded-voice-disabled');
+    const activeWorld = getActiveWorld({
+      activeWorldId: game.activeWorldId,
+      worlds: game.worlds,
+    });
+    const shellState: AppShellState = {
+      homeIndicator: {
+        currentWorldKind: activeWorld?.kind ?? 'surface',
+        dungeonExitHex:
+          activeWorld?.kind === 'dungeon'
+            ? activeWorld.dungeon.entranceCoord
+            : null,
+        homeHex: game.homeHex,
+        playerCoord: game.player.coord,
+        radius: game.radius,
+        visibleRadius: getCurrentWorldRevealRadius(game),
+      },
+      voicePlayback: {
+        combat: game.combat,
+        logSequence: game.logSequence,
+        logs: game.logs,
+        player: {
+          hp: game.player.hp,
+          statusEffects: game.player.statusEffects,
+        },
+      },
+    };
+
+    await act(async () => {
+      root.render(
+        <AppShell
+          audioSettings={{
+            ...DEFAULT_AUDIO_SETTINGS,
+            muted: true,
+            voiceVolume: 0,
+            voice: {
+              ...DEFAULT_AUDIO_SETTINGS.voice,
+              events: {
+                combatAttack: false,
+                combatEnd: false,
+                combatExertion: false,
+                playerDamaged: false,
+                playerDeath: false,
+              },
+            },
+          }}
+          backgroundMusicMood="ambient"
+          claimedHex={null}
+          shellState={shellState}
+          hostRef={hostRef}
+          interfaceSettings={{
+            language: 'en',
+            fontFamily: 'ubuntu',
+            fontSize: 118,
+            interfaceScale: 126,
+            showTooltipTags: true,
+            windowTransparency: 45,
+          }}
+          isReady
+          pixiWorldError={false}
+          paused={false}
+          uiAudio={DEFAULT_UI_AUDIO_CONTROLLER}
+          windowsProps={windowsProps}
+          onRetryPixiWorld={() => undefined}
+          onUiAudioChange={() => undefined}
+        />,
+      );
+    });
+
+    await vi.dynamicImportSettled();
+
+    expect(host.querySelector('[data-testid="voice-audio-bridge"]')).toBeNull();
+    expect(
+      host.querySelector('[data-testid="background-music-controller-bridge"]'),
+    ).not.toBeNull();
   });
 });

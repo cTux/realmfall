@@ -24,7 +24,9 @@ This spec covers the top-level React hook composition and derived view-model pat
 - The optional browser performance harness records main-start, bootstrap-shell, i18n-loaded, app-module-loaded, app-render-scheduled, and app-ready marks when explicitly enabled, keeping startup milestone measurement available without changing normal app sessions.
 - When that harness is active, `App.tsx` wraps the app shell in a React Profiler and records commit timings through the shared harness; otherwise the entry component renders the shell directly.
 - The app shell stays visible while save hydration and Pixi initialization complete, so the dock, action bar, and other ready React chrome can paint before the world canvas finishes booting.
-- Bootstrap-loaded settings modules keep lightweight metadata such as voice actor ids separate from eager voice asset indexing so optional gameplay voice clips stay behind the lazy audio bridge boundary.
+- Bootstrap-loaded settings modules keep lightweight metadata such as voice
+  actor ids separate from lazily indexed voice asset catalogs so optional
+  gameplay voice clips stay behind the lazy audio bridge boundary.
 - `useAppGameView` computes the current tile, claim status, the player overview
   snapshot, and other UI-ready derived values, while demand-scoping deferred
   log and recipe slices behind explicit window visibility.
@@ -112,7 +114,12 @@ This spec covers the top-level React hook composition and derived view-model pat
   helpers stay on a dedicated `@realmfall/ui-react/generatedIconAssets`
   subpath so startup-adjacent window chrome does not link that asset graph by
   default.
-- `AppShell` mounts optional recorded-voice and background-music bridges only after the first keyboard, pointer, mouse, or touch activation, keeping their asset manifests and deferred background-music `howler` work out of the pre-interaction path while the lighter UI-audio bridge remains ready for document-level settings.
+- `AppShell` mounts the optional background-music bridge only after the first
+  keyboard, pointer, mouse, or touch activation, and mounts the recorded-voice
+  bridge only when that activation has happened and recorded voice can actually
+  play under the current audio settings. This keeps optional voice setup and
+  clip indexing off the pre-interaction path for users who have voice muted,
+  voice volume at zero, or every recorded-voice trigger disabled.
 - `AppShell` passes a memoized voice playback event slice to the recorded-voice bridge instead of the full `GameState`, limiting voice event checks to combat, log, HP, and status-effect changes.
 - `AppWindows` stays behind a memo boundary so unchanged window props do not
   rerender the dock, fixed windows, and deferred window composition on

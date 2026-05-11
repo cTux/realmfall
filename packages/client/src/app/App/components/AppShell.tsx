@@ -131,6 +131,9 @@ export function AppShell({
     ],
   );
 
+  const canRenderRecordedVoice =
+    audioBridgeActivated && canPlayRecordedVoice(audioSettings);
+
   return (
     <UiAudioProvider value={uiAudio}>
       <div className={styles.appRoot} style={appRootStyle}>
@@ -141,10 +144,12 @@ export function AppShell({
           />
           {audioBridgeActivated ? (
             <>
-              <VoiceAudioControllerBridge
-                audioSettings={audioSettings}
-                voicePlaybackState={voicePlaybackState}
-              />
+              {canRenderRecordedVoice ? (
+                <VoiceAudioControllerBridge
+                  audioSettings={audioSettings}
+                  voicePlaybackState={voicePlaybackState}
+                />
+              ) : null}
               <BackgroundMusicControllerBridge
                 audioSettings={audioSettings}
                 mood={backgroundMusicMood}
@@ -208,5 +213,13 @@ export function AppShell({
         </div>
       </div>
     </UiAudioProvider>
+  );
+}
+
+function canPlayRecordedVoice(audioSettings: AudioSettings) {
+  return (
+    !audioSettings.muted &&
+    audioSettings.voiceVolume > 0 &&
+    Object.values(audioSettings.voice.events).some(Boolean)
   );
 }

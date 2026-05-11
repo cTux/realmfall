@@ -27,13 +27,18 @@ const voiceClipModules = import.meta.glob(
   },
 ) as Record<string, () => Promise<string>>;
 
-const VOICE_CLIP_LIBRARY = buildVoiceClipLibrary(voiceClipModules);
+type VoiceClipLibrary = Record<
+  VoiceActorId,
+  Record<VoiceClipCategory, VoiceClipEntry[]>
+>;
+
+let voiceClipLibrary: VoiceClipLibrary | null = null;
 
 export function getVoiceClipCount(
   actorId: VoiceActorId,
   category: VoiceClipCategory,
 ) {
-  return VOICE_CLIP_LIBRARY[actorId][category].length;
+  return getVoiceClipLibrary()[actorId][category].length;
 }
 
 export async function getVoiceClipUrls(
@@ -41,7 +46,7 @@ export async function getVoiceClipUrls(
   category: VoiceClipCategory,
 ) {
   return Promise.all(
-    VOICE_CLIP_LIBRARY[actorId][category].map((clip) => clip.loadUrl()),
+    getVoiceClipLibrary()[actorId][category].map((clip) => clip.loadUrl()),
   );
 }
 
@@ -50,7 +55,7 @@ export async function pickVoiceClipUrl(
   category: VoiceClipCategory,
   previousClipIndexes: Partial<Record<VoiceClipCategory, number>>,
 ) {
-  const clips = VOICE_CLIP_LIBRARY[actorId][category];
+  const clips = getVoiceClipLibrary()[actorId][category];
   if (clips.length === 0) {
     return null;
   }
@@ -70,15 +75,29 @@ export async function pickVoiceClipUrl(
   return clips[nextIndex]?.loadUrl() ?? null;
 }
 
+export function __isVoiceClipLibraryInitializedForTest() {
+  return voiceClipLibrary !== null;
+}
+
+export function __resetVoiceClipLibraryForTest() {
+  voiceClipLibrary = null;
+}
+
 interface VoiceClipEntry {
   loadUrl: () => Promise<string>;
   path: string;
 }
 
+function getVoiceClipLibrary() {
+  if (!voiceClipLibrary) {
+    voiceClipLibrary = buildVoiceClipLibrary(voiceClipModules);
+  }
+
+  return voiceClipLibrary;
+}
+
 function buildVoiceClipLibrary(modules: Record<string, () => Promise<string>>) {
-  const library = VOICE_ACTOR_OPTIONS.reduce<
-    Record<VoiceActorId, Record<VoiceClipCategory, VoiceClipEntry[]>>
-  >(
+  const library = VOICE_ACTOR_OPTIONS.reduce<VoiceClipLibrary>(
     (current, actor) => ({
       ...current,
       [actor.id]: createEmptyActorLibrary(),
@@ -128,7 +147,7 @@ function createEmptyActorLibrary() {
     miscellaneous: [],
     refusal: [],
     shouting: [],
-  } satisfies Record<VoiceClipCategory, string[]>;
+  } satisfies Record<VoiceClipCategory, VoiceClipEntry[]>;
 }
 
 function isVoiceClipCategory(value: string): value is VoiceClipCategory {
