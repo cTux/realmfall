@@ -20,6 +20,7 @@ Implemented technical solutions are split into dedicated spec files:
 - [Git Branch Rebase And Push](./git-branch-rebase-and-push/spec.md)
 - [CI/CD Automation](./ci-cd-automation/spec.md)
 - [Dependency Update Workflow](./dependency-update-workflow/spec.md)
+- [Desktop Client Shell](./desktop-client-shell/spec.md)
 - [Testing And Quality Tooling](./testing-and-quality-tooling/spec.md)
 - [Documentation Strategy](./documentation-strategy/spec.md)
 - [Player Auth And Realm Directory](./player-auth-and-realm-directory/spec.md)

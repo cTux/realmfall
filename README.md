@@ -4,7 +4,7 @@ Single-player browser survival RPG `Realmfall` with hex exploration, turn-based 
 
 ## Current State
 
-Realmfall is an active browser prototype with hex exploration, survival systems, turn-based combat, crafting, draggable desktop-style windows, Pixi world rendering, local autosave, Storybook-covered UI, and automated quality gates.
+Realmfall is an active browser-first prototype with hex exploration, survival systems, turn-based combat, crafting, draggable desktop-style windows, Pixi world rendering, local autosave, a thin Electron desktop shell, Storybook-covered UI, and automated quality gates.
 
 ## Stack
 
@@ -32,6 +32,7 @@ pnpm dev
 ## Common Commands
 
 - `pnpm dev`
+- `pnpm dev:electron`
 - `pnpm typecheck`
 - `pnpm lint`
 - `pnpm test`
@@ -40,6 +41,7 @@ pnpm dev
 ## Repository Layout
 
 - [`packages/client-web`](./packages/client-web/README.md): browser game package for the React app shell, Pixi world rendering, persistence, and client-only UI orchestration.
+- [`packages/client-electron`](./packages/client-electron/README.md): thin Electron desktop shell that hosts the built or dev-served web client.
 - [`packages/common`](./packages/common/README.md): shared cross-runtime contracts package for movement and world-tile resolution requests and responses.
 - [`packages/core`](./packages/core/README.md): canonical gameplay simulation and shared world model used by the client, tests, and future server-side runtime code.
 - [`packages/server-auth`](./packages/server-auth/README.md): standalone Node auth service package for Google player verification and realm-directory responses.
@@ -52,13 +54,14 @@ pnpm dev
 
 - Contributor rules: `docs/RULES.md`
 - Contributor workflow: `docs/WORKFLOW.md`
-- Package docs: `packages/client-web/README.md`, `packages/common/README.md`, `packages/core/README.md`, `packages/server-auth/README.md`, `packages/server-chat/README.md`, `packages/server-world/README.md`, `packages/ui-react/README.md`
+- Package docs: `packages/client-electron/README.md`, `packages/client-web/README.md`, `packages/common/README.md`, `packages/core/README.md`, `packages/server-auth/README.md`, `packages/server-chat/README.md`, `packages/server-world/README.md`, `packages/ui-react/README.md`
 - Codex skills index: [`docs/realmfall-skills.md`](./docs/realmfall-skills.md)
 - Reference specs: `docs/specs/reference/gameplay-features/README.md` and `docs/specs/reference/technical-solutions/README.md`
 - Lore: `docs/lore/REALMFALL.md`
 
 ## Specs By Package
 
+- `packages/client-electron`: `desktop-client-shell`
 - `packages/client-web`: `application-architecture`, `react-app-orchestration`, `pixi-rendering-solution`, `persistence-and-save-compatibility`
 - `packages/common`: `async-world-tile-resolution`, `movement-cooldown`
 - `packages/core`: gameplay-features index, `combat-system-implementation`, `content-ids-and-tags`, `internationalization`

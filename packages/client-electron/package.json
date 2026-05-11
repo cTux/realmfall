@@ -1,0 +1,27 @@
+{
+  "name": "@realmfall/client-electron",
+  "version": "1.0.0",
+  "description": "Thin Electron shell for the Realmfall web client.",
+  "private": true,
+  "type": "module",
+  "main": "./dist/main.js",
+  "types": "./dist/main.d.ts",
+  "scripts": {
+    "dev": "tsx src/dev.ts",
+    "build": "tsc -p ./tsconfig.build.json",
+    "start": "electron ./dist/main.js",
+    "typecheck": "tsc -p ./tsconfig.json --noEmit",
+    "lint": "oxlint -c ../../.oxlintrc.json src vitest.config.ts",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "electron": "catalog:"
+  },
+  "devDependencies": {
+    "@types/node": "catalog:",
+    "oxlint": "catalog:",
+    "tsx": "^4.21.0",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  }
+}

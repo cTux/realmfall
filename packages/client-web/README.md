@@ -2,6 +2,8 @@
 
 `@realmfall/client-web` is the browser game package. It owns the React app shell, Pixi world rendering, persistence, i18n, and build output for the playable client, while the canonical gameplay runtime lives in `@realmfall/core`.
 
+Phase-one desktop support reuses this package as-is through `@realmfall/client-electron`, so Electron-specific runtime behavior should stay in the desktop shell instead of branching the web renderer.
+
 ## Requirements
 
 - Use the repo root workspace install with Node `v25.9.0` and `pnpm@11`.
