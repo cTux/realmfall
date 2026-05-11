@@ -6,6 +6,5 @@ await createMainProcessController().start({
     process.env.REALMFALL_ELECTRON_APP_MODE === 'development'
       ? 'development'
       : 'production',
-  cwd: process.cwd(),
   rendererDevUrl: process.env.REALMFALL_ELECTRON_RENDERER_URL,
 });

@@ -25,6 +25,7 @@ minimumReleaseAge: 0
 allowBuilds:
   '@parcel/watcher': true
   better-sqlite3: true
+  electron-winstaller: true
   esbuild: true
   protobufjs: true
   puppeteer: true
