@@ -9,7 +9,7 @@ import {
 import { Button, LoadingSpinner } from '@realmfall/ui-react';
 import type { HexCoord } from '@realmfall/core/game/stateTypes';
 import { t } from '../../../i18n';
-import { recordStartupMark } from '../../../performance/performanceHarness';
+import { recordStartupMark } from '../../../performance/performanceBridge';
 import type { BackgroundMusicMood } from '../../audio/backgroundMusic';
 import {
   UiAudioProvider,
