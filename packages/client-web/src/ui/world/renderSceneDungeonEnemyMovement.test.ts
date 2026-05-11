@@ -204,6 +204,60 @@ describe('renderScene dungeon enemy movement', () => {
 
     expect(wrapper?.position.x).toBeCloseTo(nextPoint.x, 4);
   });
+
+  it('updates the dungeon enemy movement cooldown bar smoothly between world clock ticks', async () => {
+    const { renderScene } = await import('./renderScene');
+    const { getSceneCache } = await import('./renderSceneCache');
+    const game = createDungeonRenderGame();
+    const app = createMockApp();
+    const visibleTiles = getVisibleTiles(game);
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      0,
+      null,
+      {
+        combatFeedbackWorldTimeMs: 500,
+        worldRenderFps: 120,
+        worldTimeMs: 0,
+      } as never,
+    );
+
+    const scene = getSceneCache(app as never);
+    const enemyMarker = scene.animatedWorldMarkers.find(
+      (marker) => marker.kind === 'enemy',
+    );
+    const wrapper = enemyMarker?.entry.wrapper as MockContainer | undefined;
+    const initialCooldownArc = getVisibleCooldownArcPoints(wrapper);
+
+    expect(initialCooldownArc).toBeDefined();
+
+    renderScene(
+      app as never,
+      game,
+      visibleTiles,
+      game.player.coord,
+      null,
+      12 * 60,
+      1000 / 120,
+      null,
+      {
+        combatFeedbackWorldTimeMs: 508,
+        worldRenderFps: 120,
+        worldTimeMs: 0,
+      } as never,
+    );
+
+    const progressedCooldownArc = getVisibleCooldownArcPoints(wrapper);
+
+    expect(progressedCooldownArc).toBeDefined();
+    expect(progressedCooldownArc).not.toEqual(initialCooldownArc);
+  });
 });
 
 function createDungeonRenderGame() {
@@ -356,4 +410,28 @@ function makeDungeonTile(coord: HexCoord): Tile {
     items: [],
     enemyIds: [],
   };
+}
+
+function getVisibleCooldownArcPoints(wrapper: MockContainer | undefined) {
+  if (!wrapper) {
+    return undefined;
+  }
+
+  const cooldownGraphic = collectDescendants(wrapper).find(
+    (child): child is MockGraphics =>
+      child instanceof MockGraphics &&
+      child.visible &&
+      child.beginFill.mock.calls.some(
+        ([color, alpha]) => color === 0xfacc15 && alpha === 0.95,
+      ) &&
+      child.drawPolygon.mock.calls.length > 0,
+  );
+
+  const drawPolygonCalls = cooldownGraphic?.drawPolygon.mock.calls;
+  const lastDrawPolygonCall =
+    drawPolygonCalls && drawPolygonCalls.length > 0
+      ? drawPolygonCalls[drawPolygonCalls.length - 1]
+      : undefined;
+
+  return (lastDrawPolygonCall?.[0] as number[] | undefined)?.slice();
 }

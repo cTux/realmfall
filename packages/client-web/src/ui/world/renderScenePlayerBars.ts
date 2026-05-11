@@ -69,22 +69,22 @@ export function renderPlayerMovementCooldown({
 
 export function renderDungeonEnemyMovementCooldowns({
   scene,
+  renderWorldTimeMs,
   enemyIconSize,
   movementTransitionRevealState,
   playerCoord,
   revealRadius,
   visibleTileRenderInputs,
   worldKind,
-  worldTimeMs,
 }: {
   scene: SceneCache;
+  renderWorldTimeMs: number;
   enemyIconSize: number;
   movementTransitionRevealState: MovementTransitionRevealState | null;
   playerCoord: HexCoord;
   revealRadius: number;
   visibleTileRenderInputs: VisibleTileRenderInput[];
   worldKind: WorldKind;
-  worldTimeMs: number;
 }) {
   scene.animatedWorldMarkers.forEach((marker) => {
     if (marker.kind === 'enemy') {
@@ -116,7 +116,7 @@ export function renderDungeonEnemyMovementCooldowns({
     }
     if (
       leadEnemy.dungeonMovementCooldownEndsAt === undefined ||
-      leadEnemy.dungeonMovementCooldownEndsAt <= worldTimeMs
+      leadEnemy.dungeonMovementCooldownEndsAt <= renderWorldTimeMs
     ) {
       continue;
     }
@@ -135,7 +135,7 @@ export function renderDungeonEnemyMovementCooldowns({
       entry: marker.entry,
       progress: Math.min(
         1,
-        (leadEnemy.dungeonMovementCooldownEndsAt - worldTimeMs) /
+        (leadEnemy.dungeonMovementCooldownEndsAt - renderWorldTimeMs) /
           WORLD_MOVE_HEX_COOLDOWN_MS,
       ),
     });
