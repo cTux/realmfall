@@ -1,5 +1,5 @@
-import { Button } from '@realmfall/ui-react';
-import { formatCompactNumber } from '@realmfall/ui-react';
+import { Button } from '@realmfall/ui-react/button';
+import { formatCompactNumber } from '@realmfall/ui-react/formatters';
 import { TOOLTIP_BORDER_COLORS } from '../../../theme.config';
 import type { TooltipLine } from '../../tooltips';
 import type { WindowDetailTooltipHandlers } from '../windowTooltipTypes';

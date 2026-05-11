@@ -1,4 +1,4 @@
-import { Switch } from '@realmfall/ui-react';
+import { Switch } from '@realmfall/ui-react/switch';
 import { GAMEPLAY_SETTINGS_TOGGLE_OPTIONS } from '../../../app/gameplaySettings';
 import { t } from '../../../i18n';
 import type { GameSettingsGameplayPanelProps } from './types';

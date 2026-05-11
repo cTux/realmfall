@@ -4,8 +4,8 @@ import type {
   Tile,
 } from '@realmfall/core/game/stateTypes';
 import { buildEnemyTooltip, buildStructureTooltip } from '../tooltipContent';
-import type { TooltipLine } from '@realmfall/ui-react';
-import { tagTooltipLines } from '@realmfall/ui-react';
+import type { TooltipLine } from '@realmfall/ui-react/tooltip';
+import { tagTooltipLines } from '@realmfall/ui-react/tooltip';
 
 type WorldTooltipLine = Pick<
   TooltipLine,

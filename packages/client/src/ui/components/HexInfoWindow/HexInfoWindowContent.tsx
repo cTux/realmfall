@@ -1,4 +1,5 @@
-import { Button, ItemSlot as ItemSlotButton } from '@realmfall/ui-react';
+import { Button } from '@realmfall/ui-react/button';
+import { ItemSlot as ItemSlotButton } from '@realmfall/ui-react/item-slot';
 import { t } from '../../../i18n';
 import { ITEM_MODIFICATION_BALANCE } from '@realmfall/core/game/config';
 import { CombatWindowContent } from '../CombatWindow/CombatWindowContent';

@@ -1,4 +1,4 @@
-import { Switch } from '@realmfall/ui-react';
+import { Switch } from '@realmfall/ui-react/switch';
 import {
   INTERFACE_FONT_OPTIONS,
   type InterfaceFontFamily,

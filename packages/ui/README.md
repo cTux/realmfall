@@ -41,6 +41,13 @@
     `@realmfall/ui-react/tooltip`, `@realmfall/ui-react/tooltip-placement`, or
     `@realmfall/ui-react/ui-audio` instead of routing that consumer through the
     root barrel.
+15. Apply the same narrow-subpath rule to deferred windows and world tooltip
+    helpers. Secondary UI code should import targeted entries such as
+    `@realmfall/ui-react/action-bar`, `@realmfall/ui-react/context-menu`,
+    `@realmfall/ui-react/dock-panel`, `@realmfall/ui-react/item-slot`,
+    `@realmfall/ui-react/formatters`, `@realmfall/ui-react/window`, and
+    `@realmfall/ui-react/window-label` instead of regrowing the shared root
+    barrel chunk through lazy windows.
 
 ## Local commands
 

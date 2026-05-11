@@ -1,4 +1,5 @@
-import { Button, Switch } from '@realmfall/ui-react';
+import { Button } from '@realmfall/ui-react/button';
+import { Switch } from '@realmfall/ui-react/switch';
 import {
   applyGraphicsPreset,
   GRAPHICS_PRESET_OPTIONS,

@@ -93,12 +93,155 @@ function findForbiddenImports(): Violation[] {
     resolve(projectRoot, 'app', 'App', 'hooks', 'useItemTooltipController.ts'),
     resolve(projectRoot, 'app', 'audio', 'UiAudioContext.tsx'),
   ];
+  const deferredFiles = [
+    resolve(projectRoot, 'ui', 'tooltips', 'shared.ts'),
+    resolve(projectRoot, 'app', 'App', 'components', 'AppFixedWindows.tsx'),
+    resolve(projectRoot, 'ui', 'world', 'worldTooltips.ts'),
+    resolve(projectRoot, 'ui', 'components', 'WindowShell.tsx'),
+    resolve(projectRoot, 'ui', 'components', 'WindowLoadingState.tsx'),
+    resolve(projectRoot, 'ui', 'components', 'WindowHeaderActionButton.tsx'),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'InventoryWindow',
+      'InventoryWindow.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'InventoryWindow',
+      'InventoryWindowContent.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'HexInfoWindow',
+      'HexInfoWindowContent.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'EquipmentWindow',
+      'EquipmentWindowContent.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'RecipeBookWindow',
+      'RecipeBookWindowContent.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'RecipeBookWindow',
+      'RecipeBookVirtualRow.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'GameSettingsWindow',
+      'GameSettingsAudioPanel.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'GameSettingsWindow',
+      'GameSettingsGameplayPanel.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'GameSettingsWindow',
+      'GameSettingsGraphicsPanel.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'GameSettingsWindow',
+      'GameSettingsInterfacePanel.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'GameSettingsWindow',
+      'GameSettingsSavesPanel.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'GameSettingsWindow',
+      'GameSettingsWindowContent.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'EntityStatusPanel',
+      'EntityStatusPanel.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'DebugWindow',
+      'DebugWindowContent.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'LootWindow',
+      'LootWindowContent.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'VersionStatusWidget',
+      'VersionStatusWidget.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'DraggableWindow',
+      'DraggableWindow.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'DraggableWindow',
+      'DraggableWindowFrame.tsx',
+    ),
+    resolve(
+      projectRoot,
+      'ui',
+      'components',
+      'HeroWindow',
+      'components',
+      'StatBar',
+      'StatBar.tsx',
+    ),
+  ];
 
-  return eagerFiles.flatMap(hasRuntimeRootImport);
+  return [...eagerFiles, ...deferredFiles].flatMap(hasRuntimeRootImport);
 }
 
 describe('bootstrap bundle import policy', () => {
-  it('only allows type imports from the root @realmfall/ui-react entry in the eager App path', () => {
+  it('only allows type imports from the root @realmfall/ui-react entry in deferred runtime surfaces', () => {
     expect(findForbiddenImports()).toEqual([]);
   });
 });
