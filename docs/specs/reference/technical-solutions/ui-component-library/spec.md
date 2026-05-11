@@ -10,7 +10,9 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - The package is built through Vite library mode using `packages/ui/vite.config.ts`.
 - The package includes Storybook coverage for each exported component in `packages/ui`.
 - `packages/client` imports shared components directly from `@realmfall/ui-react` at their call sites.
-- `packages/ui` is the single shared export surface for reusable UI primitives via `packages/ui/src/index.ts`.
+- `packages/ui` exposes reusable UI primitives through `packages/ui/src/index.ts`
+  and keeps heavier helper families such as bootstrap i18n and generated-icon
+  assets on narrow package subpaths instead of the root barrel.
 - Shared gameplay-aware controls such as `ActionBar`, `ActionBarSlot`, `Tooltip`, `ContextMenu`, `ItemSlot`, and `DockPanel` live in `packages/ui`, and their stories live there as well.
 - Legacy client-local copies of shared controls such as `ActionBar`, `Tooltip`, `ContextMenu`, and `ItemSlot` have been removed; client coverage now asserts the shared exports directly instead of comparing parallel implementations.
 - `packages/client` receives the library through a workspace dependency (`@realmfall/ui-react`) added in
@@ -18,6 +20,10 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - `packages/ui` owns its runtime i18n contract locally, while `packages/client/src/i18n/index.ts` loads locale assets and seeds that shared translation state for the app at runtime.
 - The only retained TypeScript bridge from `packages/ui` back into `packages/client/src` is the Storybook fixture helper under `packages/ui/src/components/storybook/storybookHelpers.tsx`, while `packages/ui/src/styles/_ui.scss` remains the isolated shared surface-token forward.
 - Shared package-owned UI helpers such as `packages/ui/src/icons.ts`, `packages/ui/src/iconAssets.ts`, `packages/ui/src/itemMetadata.ts`, `packages/ui/src/formatters.ts`, `packages/ui/src/tooltips.ts`, and `packages/ui/src/tooltipPlacement.ts` resolve shared display concerns locally instead of re-exporting `packages/client/src/ui/*`.
+- Generated-equipment asset resolution stays on the dedicated
+  `@realmfall/ui-react/generatedIconAssets` subpath, so consumers importing
+  shared window, dock, tooltip, or button primitives from the root barrel do
+  not link that asset module by default.
 - Shared gameplay-aware controls inside `packages/ui` own narrow structural view contracts and helper logic under `packages/ui/src/game` for item-centric display and interaction state instead of importing broad client gameplay state types directly.
 - `packages/ui/src/game` is a UI-owned contract layer. Its content ids, tags, and item classification helpers do not re-export `packages/client/src/game/content/*`.
 - Shared item presentation metadata in `packages/ui` is the single source for canonical item-category fallback rules: shared tag constants and slot-to-category mapping are resolved there and then reused by client configuration helpers.
@@ -53,6 +59,7 @@ This spec covers the reusable UI component library in `packages/ui`, its Storybo
 - `packages/ui/src/game/*`
 - `packages/ui/src/icons.ts`
 - `packages/ui/src/iconAssets.ts`
+- `packages/ui/src/generatedIconAssets.ts`
 - `packages/ui/src/itemMetadata.ts`
 - `packages/ui/src/formatters.ts`
 - `packages/ui/src/tooltips.ts`

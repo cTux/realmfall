@@ -36,6 +36,10 @@
   state-facing content modules. Gameplay content should use stable icon ids and
   pool sizes; UI asset modules should resolve those ids to vendored SVG URLs
   before rendering masks or image tags.
+- Keep heavy shared UI asset families such as generated-equipment asset
+  resolvers off the root `@realmfall/ui-react` barrel. Expose them through
+  narrow package subpaths so startup-adjacent imports of shared primitives do
+  not link those asset modules by default.
 - Keep lazy debug mutation modules off eager gameplay barrels and startup-facing
   UI imports. If debug windows need shared constants or types, keep those in a
   tiny neighboring module instead of importing `stateDebug` statically.

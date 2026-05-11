@@ -95,6 +95,11 @@ This spec covers the top-level React hook composition and derived view-model pat
   just to keep the voice bridge and home indicator up to date.
 - That loading chrome is reused for dungeon world entry and exit, so world switching blocks interaction behind the fullscreen shell overlay instead of opening a window-local spinner.
 - `AppShell` lazy-loads the desktop window surface separately from the canvas shell, keeping fixed and deferred window composition out of the first App chunk while the world canvas bootstraps.
+- Shared UI primitives used by the shell and fixed windows continue to import
+  from the `@realmfall/ui-react` root barrel, while generated-equipment asset
+  helpers stay on a dedicated `@realmfall/ui-react/generatedIconAssets`
+  subpath so startup-adjacent window chrome does not link that asset graph by
+  default.
 - `AppShell` mounts optional recorded-voice and background-music bridges only after the first keyboard, pointer, mouse, or touch activation, keeping their asset manifests and deferred background-music `howler` work out of the pre-interaction path while the lighter UI-audio bridge remains ready for document-level settings.
 - `AppShell` passes a memoized voice playback event slice to the recorded-voice bridge instead of the full `GameState`, limiting voice event checks to combat, log, HP, and status-effect changes.
 - `AppWindows` stays behind a memo boundary so unchanged window props do not

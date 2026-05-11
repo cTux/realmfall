@@ -90,10 +90,6 @@ export {
   isGeneratedIconId,
 } from './generatedIconPools';
 export {
-  GENERATED_ICON_ASSET_POOLS,
-  resolveGeneratedIconAsset,
-} from './generatedIconAssets';
-export {
   Tooltip,
   GameTooltip,
   syncFollowCursorTooltipPosition,
