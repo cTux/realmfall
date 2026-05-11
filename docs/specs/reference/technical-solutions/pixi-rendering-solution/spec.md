@@ -39,6 +39,10 @@ This spec covers the main world-render loop, scene decomposition, and render-per
 - When offscreen enemy-only clones leave the visible-enemy token unchanged, the scene cache advances its stored `enemies` source reference so later animation ticks do not keep recomputing the visible-enemy token against the same unchanged state.
 - `useWorldTileResolutionLifecycle` reuses the previous `visibleTiles` array when unrelated state clones leave the visible tile set untouched, and render-version caching keys off those stable world-facing inputs plus the specific enemy and world flags that actually affect Pixi output.
 - `useWorldTileResolutionLifecycle` updates the cached visible-tile list only when world-facing inputs such as player position, world radius, seed, or visible tile data change, instead of recomputing visible tiles on every unrelated root-state clone.
+- The same lifecycle narrows tile-resolution coordinator sync to a visible-frontier
+  payload (`bloodMoonActive`, `playerCoord`, `radius`, `seed`, `resolvedTiles`)
+  instead of depending on the whole `game` object, so unrelated gameplay clones
+  do not retrigger worker sync work before the renderer even considers a redraw.
 - Visible-tile reuse metadata is attached to whichever array `usePixiWorld` keeps, including caller-seeded reused arrays, so later unchanged updates can hit the no-recompute fast path instead of paying for another full visibility rebuild.
 - Once static layers are cached, animation-only frames reuse cached hot-structure light points for campfires and furnaces and skip the full visible-tile traversal instead of repeating enemy lookup and marker preparation work on every ticker tick.
 - Cached world-marker wrappers now keep deterministic per-hex animation metadata, so animation-only frames can pulse or bob hostile markers by mutating live sprite transforms instead of rebuilding static marker pools.
