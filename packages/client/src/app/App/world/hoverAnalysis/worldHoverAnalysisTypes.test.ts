@@ -140,4 +140,47 @@ describe('buildWorldHoverAnalysisState', () => {
       false,
     );
   });
+
+  it('ignores nearby enemy field changes that do not affect hover analysis', () => {
+    const game = createGame(4, 'hover-analysis-ignores-enemy-attack');
+    game.radius = 2;
+    game.tiles = {
+      ...game.tiles,
+      '1,0': {
+        ...game.tiles['1,0'],
+        enemyIds: ['near-enemy'],
+      },
+    };
+    game.enemies = {
+      ...game.enemies,
+      'near-enemy': {
+        id: 'near-enemy',
+        name: 'Near Enemy',
+        coord: { q: 1, r: 0 },
+        tier: 1,
+        hp: 10,
+        maxHp: 10,
+        attack: 1,
+        defense: 1,
+        xp: 0,
+        elite: false,
+      },
+    };
+
+    const firstInputs = getWorldHoverAnalysisStateInputs(game);
+
+    game.enemies = {
+      ...game.enemies,
+      'near-enemy': {
+        ...game.enemies['near-enemy'],
+        attack: 99,
+      },
+    };
+
+    const secondInputs = getWorldHoverAnalysisStateInputs(game);
+
+    expect(isSameWorldHoverAnalysisStateInputs(firstInputs, secondInputs)).toBe(
+      true,
+    );
+  });
 });

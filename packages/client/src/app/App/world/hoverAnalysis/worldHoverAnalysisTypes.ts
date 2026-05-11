@@ -44,12 +44,49 @@ export interface WorldHoverAnalysisWorker {
   syncState(state: WorldHoverAnalysisState): Promise<void>;
 }
 
+const WORLD_HOVER_FINGERPRINT_FIELD_SEPARATOR = '\u0001';
+const WORLD_HOVER_FINGERPRINT_LIST_SEPARATOR = '\u0002';
+
+function joinWorldHoverAnalysisFingerprint(
+  parts: Array<string | number | boolean | null | undefined>,
+) {
+  return parts
+    .map((part) => {
+      if (part === undefined || part === null) {
+        return '';
+      }
+
+      return String(part);
+    })
+    .join(WORLD_HOVER_FINGERPRINT_FIELD_SEPARATOR);
+}
+
+function getWorldHoverAnalysisEnemyIdsFingerprint(enemyIds: string[]) {
+  return enemyIds.join(WORLD_HOVER_FINGERPRINT_LIST_SEPARATOR);
+}
+
 function getWorldHoverAnalysisEnemySignature(enemy: Enemy) {
-  return JSON.stringify(enemy);
+  return joinWorldHoverAnalysisFingerprint([
+    enemy.id,
+    enemy.coord.q,
+    enemy.coord.r,
+    enemy.tier,
+    enemy.hp,
+    enemy.maxHp,
+    enemy.elite,
+    enemy.aggressive,
+  ]);
 }
 
 function getWorldHoverAnalysisTileSignature(tile: Tile) {
-  return JSON.stringify(tile);
+  return joinWorldHoverAnalysisFingerprint([
+    tile.coord.q,
+    tile.coord.r,
+    tile.terrain,
+    tile.structure,
+    tile.claim?.npc?.enemyId,
+    getWorldHoverAnalysisEnemyIdsFingerprint(tile.enemyIds),
+  ]);
 }
 
 function collectWorldHoverAnalysisSlice(state: GameState) {
