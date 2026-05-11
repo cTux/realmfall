@@ -13,6 +13,7 @@ export function createWorkerWorldHoverAnalysisSource(): WorldHoverAnalysisSource
   let usingLocalFallback = typeof Worker !== 'function';
   let worker: Worker | null = null;
   let workerApi: WorldHoverAnalysisWorker | null = null;
+  let latestState: WorldHoverAnalysisState | null = null;
 
   const disposeWorker = () => {
     if (worker === null) {
@@ -25,17 +26,28 @@ export function createWorkerWorldHoverAnalysisSource(): WorldHoverAnalysisSource
     workerApi = null;
   };
 
-  const switchToLocalFallback = () => {
+  const replayLatestStateInLocalSource = async () => {
+    if (latestState === null) {
+      return;
+    }
+
+    await localSource.syncState(latestState);
+  };
+
+  const switchToLocalFallback = async () => {
     if (usingLocalFallback) {
       return;
     }
 
     usingLocalFallback = true;
     disposeWorker();
+    await replayLatestStateInLocalSource();
   };
 
   const handleWorkerError = () => {
-    switchToLocalFallback();
+    void switchToLocalFallback().catch((error: unknown) => {
+      console.error(error);
+    });
   };
 
   if (!usingLocalFallback) {
@@ -50,7 +62,9 @@ export function createWorkerWorldHoverAnalysisSource(): WorldHoverAnalysisSource
       worker.addEventListener('error', handleWorkerError);
       workerApi = wrap<WorldHoverAnalysisWorker>(worker);
     } catch {
-      switchToLocalFallback();
+      void switchToLocalFallback().catch((error: unknown) => {
+        console.error(error);
+      });
     }
   }
 
@@ -63,7 +77,7 @@ export function createWorkerWorldHoverAnalysisSource(): WorldHoverAnalysisSource
       try {
         return await workerApi.analyze(target);
       } catch {
-        switchToLocalFallback();
+        await switchToLocalFallback();
         return localSource.analyze(target);
       }
     },
@@ -77,15 +91,16 @@ export function createWorkerWorldHoverAnalysisSource(): WorldHoverAnalysisSource
       await localSource.dispose();
     },
     async syncState(state: WorldHoverAnalysisState) {
-      await localSource.syncState(state);
+      latestState = state;
       if (usingLocalFallback || workerApi === null) {
+        await localSource.syncState(state);
         return;
       }
 
       try {
         await workerApi.syncState(state);
       } catch {
-        switchToLocalFallback();
+        await switchToLocalFallback();
       }
     },
   };
