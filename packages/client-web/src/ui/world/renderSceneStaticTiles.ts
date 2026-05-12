@@ -117,8 +117,8 @@ export function renderStaticTile({
     const terrainAlpha =
       (tile.terrain === 'mountain'
         ? emphasized
-          ? 0.96
-          : 0.92
+          ? 1
+          : 1
         : emphasized
           ? 0.84
           : 0.76) *
