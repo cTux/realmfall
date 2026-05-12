@@ -9,6 +9,26 @@ export const WORLD_TERRAIN_ATLAS_OUTPUTS = {
 
 const paintedBlockerDir =
   'packages/client-web/src/assets/images/terrain/painted';
+const PAINTED_BLOCKER_TERRAIN_IDS = [
+  'mountain-straight',
+  'mountain-bend',
+  'mountain-fork',
+  'mountain-end',
+  'mountain-isolated',
+  'mountain-massif',
+  'rift-straight',
+  'rift-bend',
+  'rift-fork',
+  'rift-end',
+  'rift-isolated',
+  'rift-massif',
+];
+
+export const PAINTED_BLOCKER_TERRAIN_SOURCES =
+  PAINTED_BLOCKER_TERRAIN_IDS.map((id) => ({
+    id,
+    source: `${paintedBlockerDir}/${id}.png`,
+  }));
 
 export const BASE_WORLD_TERRAIN_ATLAS_SOURCES = [
   {
@@ -135,52 +155,5 @@ export const WORLD_TERRAIN_ATLAS_SOURCES = [
     id,
     source,
   })),
-  {
-    id: 'mountain-straight',
-    source: `${paintedBlockerDir}/mountain-straight.png`,
-  },
-  {
-    id: 'mountain-bend',
-    source: `${paintedBlockerDir}/mountain-bend.png`,
-  },
-  {
-    id: 'mountain-fork',
-    source: `${paintedBlockerDir}/mountain-fork.png`,
-  },
-  {
-    id: 'mountain-end',
-    source: `${paintedBlockerDir}/mountain-end.png`,
-  },
-  {
-    id: 'mountain-isolated',
-    source: `${paintedBlockerDir}/mountain-isolated.png`,
-  },
-  {
-    id: 'mountain-massif',
-    source: `${paintedBlockerDir}/mountain-massif.png`,
-  },
-  {
-    id: 'rift-straight',
-    source: `${paintedBlockerDir}/rift-straight.png`,
-  },
-  {
-    id: 'rift-bend',
-    source: `${paintedBlockerDir}/rift-bend.png`,
-  },
-  {
-    id: 'rift-fork',
-    source: `${paintedBlockerDir}/rift-fork.png`,
-  },
-  {
-    id: 'rift-end',
-    source: `${paintedBlockerDir}/rift-end.png`,
-  },
-  {
-    id: 'rift-isolated',
-    source: `${paintedBlockerDir}/rift-isolated.png`,
-  },
-  {
-    id: 'rift-massif',
-    source: `${paintedBlockerDir}/rift-massif.png`,
-  },
+  ...PAINTED_BLOCKER_TERRAIN_SOURCES,
 ];

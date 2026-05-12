@@ -4,6 +4,7 @@ import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
 import { generateSurfaceTerrainVariants } from './generate-surface-terrain-variants.mjs';
 import {
+  PAINTED_BLOCKER_TERRAIN_SOURCES,
   WORLD_TERRAIN_ATLAS_COLUMNS,
   WORLD_TERRAIN_ATLAS_OUTPUTS,
   WORLD_TERRAIN_ATLAS_SOURCES,
@@ -19,6 +20,13 @@ async function ensureFileExists(path, message) {
   } catch {
     throw new Error(message);
   }
+}
+
+for (const entry of PAINTED_BLOCKER_TERRAIN_SOURCES) {
+  await ensureFileExists(
+    join(rootDir, entry.source),
+    `World terrain atlas source is missing: ${entry.id} -> ${entry.source}`,
+  );
 }
 
 await generateSurfaceTerrainVariants();

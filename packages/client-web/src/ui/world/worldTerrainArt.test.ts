@@ -9,28 +9,33 @@ function isGameplayTerrain(
   return (TERRAINS as readonly string[]).includes(terrain);
 }
 
+const paintedBlockerDir =
+  'packages/client-web/src/assets/images/terrain/painted';
+const canonicalBlockerTerrains = [
+  'mountain-straight',
+  'mountain-bend',
+  'mountain-fork',
+  'mountain-end',
+  'mountain-isolated',
+  'mountain-massif',
+  'rift-straight',
+  'rift-bend',
+  'rift-fork',
+  'rift-end',
+  'rift-isolated',
+  'rift-massif',
+] as const;
+
 describe('worldTerrainArt', () => {
   it('requires painted blocker terrain files for every canonical connectivity class', async () => {
     const { getWorldTerrainFrameId } = await import('./worldTerrainArtTestkit');
 
-    expect(getWorldTerrainFrameId('mountain-straight')).toContain(
-      'mountain-straight',
-    );
-    expect(getWorldTerrainFrameId('mountain-bend')).toContain('mountain-bend');
-    expect(getWorldTerrainFrameId('mountain-fork')).toContain('mountain-fork');
-    expect(getWorldTerrainFrameId('mountain-end')).toContain('mountain-end');
-    expect(getWorldTerrainFrameId('mountain-isolated')).toContain(
-      'mountain-isolated',
-    );
-    expect(getWorldTerrainFrameId('mountain-massif')).toContain(
-      'mountain-massif',
-    );
-    expect(getWorldTerrainFrameId('rift-straight')).toContain('rift-straight');
-    expect(getWorldTerrainFrameId('rift-bend')).toContain('rift-bend');
-    expect(getWorldTerrainFrameId('rift-fork')).toContain('rift-fork');
-    expect(getWorldTerrainFrameId('rift-end')).toContain('rift-end');
-    expect(getWorldTerrainFrameId('rift-isolated')).toContain('rift-isolated');
-    expect(getWorldTerrainFrameId('rift-massif')).toContain('rift-massif');
+    for (const terrain of canonicalBlockerTerrains) {
+      expect(getWorldTerrainFrameId(terrain)).toContain(terrain);
+      expect(worldTerrainAtlasManifest.frames[terrain].source).toBe(
+        `${paintedBlockerDir}/${terrain}.png`,
+      );
+    }
   });
 
   it('uses generated atlas frame ids for runtime terrain art', async () => {
