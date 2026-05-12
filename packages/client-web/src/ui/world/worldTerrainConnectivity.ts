@@ -33,72 +33,177 @@ export type ConnectedWorldTerrainId =
   | Terrain
   | (typeof CONNECTIVITY_VARIANT_BY_TERRAIN)[ConnectedBlockerTerrain][WorldTerrainConnectivity];
 
+export interface ConnectedWorldTerrainPresentation {
+  rotation: number;
+  signature: string;
+  terrainId: ConnectedWorldTerrainId;
+}
+
 export function resolveConnectedWorldTerrainId(
   tile: VisibleWorldTile,
   visibleTileMap: Map<string, VisibleWorldTile> | null,
 ): ConnectedWorldTerrainId {
+  return getConnectedWorldTerrainPresentation(tile, visibleTileMap).terrainId;
+}
+
+export function getConnectedWorldTerrainPresentation(
+  tile: VisibleWorldTile,
+  visibleTileMap: Map<string, VisibleWorldTile> | null,
+): ConnectedWorldTerrainPresentation {
   if (isUnknownVisibleWorldTile(tile) || visibleTileMap === null) {
-    return tile.terrain;
+    return {
+      rotation: 0,
+      signature: `${tile.terrain}:base`,
+      terrainId: tile.terrain,
+    };
   }
 
   if (tile.terrain !== 'mountain' && tile.terrain !== 'rift') {
-    return tile.terrain;
+    return {
+      rotation: 0,
+      signature: `${tile.terrain}:base`,
+      terrainId: tile.terrain,
+    };
   }
 
-  const connectivity = getWorldTerrainConnectivity(tile, visibleTileMap);
-  return CONNECTIVITY_VARIANT_BY_TERRAIN[tile.terrain][connectivity];
+  const connectedDirectionIndices = getConnectedDirectionIndices(
+    tile,
+    visibleTileMap,
+  );
+  const connectivity = classifyWorldTerrainConnectivity(connectedDirectionIndices);
+  const rotationSteps = getConnectivityRotationSteps(
+    connectivity,
+    connectedDirectionIndices,
+  );
+
+  return {
+    rotation: (Math.PI / 3) * rotationSteps,
+    signature: `${tile.terrain}:${connectivity}:${connectedDirectionIndices.join('.')}`,
+    terrainId: CONNECTIVITY_VARIANT_BY_TERRAIN[tile.terrain][connectivity],
+  };
 }
 
 export function getWorldTerrainConnectivity(
   tile: Pick<VisibleWorldTile, 'coord' | 'terrain'>,
   visibleTileMap: Map<string, VisibleWorldTile>,
 ): WorldTerrainConnectivity {
+  return classifyWorldTerrainConnectivity(
+    getConnectedDirectionIndices(tile, visibleTileMap),
+  );
+}
+
+function getConnectedDirectionIndices(
+  tile: Pick<VisibleWorldTile, 'coord' | 'terrain'>,
+  visibleTileMap: Map<string, VisibleWorldTile>,
+) {
   if (tile.terrain !== 'mountain' && tile.terrain !== 'rift') {
-    return 'isolated';
+    return [];
   }
 
-  const connectedDirections = hexNeighbors(tile.coord).filter(
-    (neighborCoord) => {
+  return hexNeighbors(tile.coord)
+    .flatMap((neighborCoord, directionIndex) => {
       const neighbor = visibleTileMap.get(hexKey(neighborCoord));
       return (
         neighbor !== undefined &&
         !isUnknownVisibleWorldTile(neighbor) &&
         neighbor.terrain === tile.terrain
+          ? [directionIndex]
+          : []
       );
-    },
-  );
+    });
+}
 
-  if (connectedDirections.length === 0) {
+function classifyWorldTerrainConnectivity(
+  connectedDirectionIndices: number[],
+): WorldTerrainConnectivity {
+  if (connectedDirectionIndices.length === 0) {
     return 'isolated';
   }
 
-  if (connectedDirections.length === 1) {
+  if (connectedDirectionIndices.length === 1) {
     return 'end';
   }
 
-  if (connectedDirections.length >= 4) {
+  if (connectedDirectionIndices.length >= 4) {
     return 'massif';
   }
 
-  if (connectedDirections.length >= 3) {
+  if (connectedDirectionIndices.length >= 3) {
     return 'fork';
   }
 
-  const [firstDirection, secondDirection] = connectedDirections;
-  if (!firstDirection || !secondDirection) {
+  const [firstIndex, secondIndex] = connectedDirectionIndices;
+  if (firstIndex == null || secondIndex == null) {
     return 'straight';
   }
 
-  const firstIndex = directionIndex(tile.coord, firstDirection);
-  const secondIndex = directionIndex(tile.coord, secondDirection);
-  return Math.abs(firstIndex - secondIndex) === 3 ? 'straight' : 'bend';
+  return areOppositeDirections(firstIndex, secondIndex) ? 'straight' : 'bend';
 }
 
-function directionIndex(
-  origin: Pick<VisibleWorldTile, 'coord'>['coord'],
-  neighbor: Pick<VisibleWorldTile, 'coord'>['coord'],
+function getConnectivityRotationSteps(
+  connectivity: WorldTerrainConnectivity,
+  connectedDirectionIndices: number[],
 ) {
-  return hexNeighbors(origin).findIndex(
-    (candidate) => candidate.q === neighbor.q && candidate.r === neighbor.r,
-  );
+  switch (connectivity) {
+    case 'end':
+      return connectedDirectionIndices[0] ?? 0;
+    case 'straight': {
+      const primary = connectedDirectionIndices[0] ?? 0;
+      return primary % 3;
+    }
+    case 'bend': {
+      const pair = normalizeConsecutiveDirectionPair(connectedDirectionIndices);
+      return pair[0] ?? 0;
+    }
+    case 'fork':
+      return getForkPrimaryDirection(connectedDirectionIndices);
+    default:
+      return 0;
+  }
+}
+
+function normalizeConsecutiveDirectionPair(directionIndices: number[]) {
+  const normalized = [...directionIndices].sort((left, right) => left - right);
+  if (
+    normalized.length === 2 &&
+    normalized[0] === 0 &&
+    normalized[1] === 5
+  ) {
+    return [5, 0];
+  }
+
+  return normalized;
+}
+
+function getForkPrimaryDirection(directionIndices: number[]) {
+  if (directionIndices.length < 3) {
+    return directionIndices[0] ?? 0;
+  }
+
+  const unique = [...new Set(directionIndices)].sort((left, right) => left - right);
+  const wrapped = [...unique, unique[0]! + 6, unique[1]! + 6];
+  let bestRunStart = unique[0] ?? 0;
+
+  for (let index = 0; index < unique.length; index += 1) {
+    const first = wrapped[index];
+    const second = wrapped[index + 1];
+    const third = wrapped[index + 2];
+
+    if (
+      first != null &&
+      second != null &&
+      third != null &&
+      second - first === 1 &&
+      third - second === 1
+    ) {
+      bestRunStart = first % 6;
+      break;
+    }
+  }
+
+  return (bestRunStart + 1) % 6;
+}
+
+function areOppositeDirections(firstIndex: number, secondIndex: number) {
+  return Math.abs(firstIndex - secondIndex) === 3;
 }

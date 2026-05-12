@@ -7,6 +7,8 @@ import {
   type VisibleTileRenderInput,
 } from './renderSceneRenderInputs';
 import { getWorldIconTextureVersion } from './worldIcons';
+import { getWorldTerrainPresentation } from './worldTerrainArt';
+import { getTerrainTransitionSignature } from './worldTerrainTransitions';
 import {
   getVisibleWorldTileRenderKey,
   isVisibleWorldTileRevealActive,
@@ -106,6 +108,9 @@ function getStaticRenderToken(
   interfaceFontStack: string,
   visibleTileRenderInputs: VisibleTileRenderInput[],
 ) {
+  const visibleTileMap = new Map(
+    visibleTileRenderInputs.map(({ tile }) => [hexKey(tile.coord), tile] as const),
+  );
   let token = 2166136261;
   token = mixRenderToken(token, coordToken(state.player.coord));
   token = mixRenderToken(token, coordToken(state.homeHex));
@@ -114,13 +119,19 @@ function getStaticRenderToken(
   token = mixRenderToken(token, getWorldIconTextureVersion());
 
   for (const tileRenderInput of visibleTileRenderInputs) {
-    token = mixRenderToken(token, getStaticTileRenderToken(tileRenderInput));
+    token = mixRenderToken(
+      token,
+      getStaticTileRenderToken(tileRenderInput, visibleTileMap),
+    );
   }
 
   return token;
 }
 
-function getStaticTileRenderToken({ enemies, tile }: VisibleTileRenderInput) {
+function getStaticTileRenderToken(
+  { enemies, tile }: VisibleTileRenderInput,
+  visibleTileMap: Map<string, VisibleWorldTile>,
+) {
   const enemyToken = enemies.reduce((token, enemy) => {
     token = mixRenderToken(token, hashRenderString(enemy.id));
     token = mixRenderToken(
@@ -142,6 +153,14 @@ function getStaticTileRenderToken({ enemies, tile }: VisibleTileRenderInput) {
   token = mixRenderToken(
     token,
     hashRenderString(getVisibleWorldTileRenderKey(tile)),
+  );
+  token = mixRenderToken(
+    token,
+    hashRenderString(getWorldTerrainPresentation(tile, visibleTileMap).signature),
+  );
+  token = mixRenderToken(
+    token,
+    hashRenderString(getTerrainTransitionSignature(tile, visibleTileMap)),
   );
   token = mixRenderToken(token, enemyToken);
   token = mixRenderToken(token, getTileItemRenderToken(tile.items));

@@ -52,7 +52,11 @@ describe('worldTerrainConnectivity', () => {
   ])(
     'maps $terrain neighborhoods to connectivity variants',
     async ({ terrain, expected }) => {
-      const { getWorldTerrainFrameId, terrainArtForVisibleTile } =
+      const {
+        getWorldTerrainFrameId,
+        getWorldTerrainPresentation,
+        terrainArtForVisibleTile,
+      } =
         await import('./worldTerrainArt');
       const { getWorldTerrainConnectivity } =
         await import('./worldTerrainConnectivity');
@@ -63,33 +67,44 @@ describe('worldTerrainConnectivity', () => {
       const northEast = { q: 1, r: -1 };
       const east = { q: 1, r: 0 };
       const southWest = { q: -1, r: 1 };
+      const southEast = { q: 0, r: 1 };
 
       const cases = [
-        { name: 'isolated', coords: [], variant: expected.isolated },
-        { name: 'end', coords: [east], variant: expected.end },
+        {
+          name: 'isolated',
+          coords: [],
+          rotation: 0,
+          variant: expected.isolated,
+        },
+        { name: 'end', coords: [east], rotation: 0, variant: expected.end },
         {
           name: 'straight',
           coords: [north, south],
+          rotation: (Math.PI / 3) * 2,
           variant: expected.straight,
         },
         {
           name: 'bend',
           coords: [east, northEast],
+          rotation: 0,
           variant: expected.bend,
         },
         {
           name: 'fork',
-          coords: [east, northEast, southWest],
+          coords: [southEast, east, northEast],
+          rotation: 0,
           variant: expected.fork,
         },
         {
           name: 'massif',
           coords: [east, northEast, north, southWest],
+          rotation: 0,
           variant: expected.massif,
         },
       ] as const satisfies ReadonlyArray<{
         name: string;
         coords: readonly HexCoord[];
+        rotation: number;
         variant: string;
       }>;
 
@@ -102,6 +117,9 @@ describe('worldTerrainConnectivity', () => {
           getWorldTerrainFrameId(
             entry.variant as Parameters<typeof getWorldTerrainFrameId>[0],
           ),
+        );
+        expect(getWorldTerrainPresentation(center, visibleTileMap).rotation).toBe(
+          entry.rotation,
         );
       }
     },

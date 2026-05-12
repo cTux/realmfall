@@ -475,6 +475,7 @@ export function configureSprite(
   sprite.height = height;
   sprite.tint = tint;
   sprite.alpha = alpha;
+  sprite.rotation = 0;
 }
 
 export function resetShadowedSpriteBadge(entry: ShadowedSpriteEntry) {

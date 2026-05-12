@@ -1,7 +1,10 @@
 import type { GameState } from '@realmfall/core/game/stateTypes';
 import { configureSprite, takeGraphics, takeSprite } from './renderScenePools';
 import type { SceneCache } from './renderSceneCache';
-import { terrainArtForVisibleTile } from './worldTerrainArt';
+import {
+  getWorldTerrainPresentation,
+  terrainArtForVisibleTile,
+} from './worldTerrainArt';
 import {
   HOME_HEX_TINT_ALPHA,
   HOME_HEX_TINT_COLOR,
@@ -20,6 +23,10 @@ import {
   isUnknownVisibleWorldTile,
   type VisibleWorldTile,
 } from './visibleWorldTiles';
+import {
+  getTerrainTransitionBandPolygons,
+  getTerrainTransitionOverlays,
+} from './worldTerrainTransitions';
 
 export function renderStaticTile({
   emphasized,
@@ -104,6 +111,7 @@ export function renderStaticTile({
   }
 
   const revealProgress = getVisibleWorldTileRevealProgress(tile, animationMs);
+  const terrainPresentation = getWorldTerrainPresentation(tile, visibleTileMap);
 
   if (showTerrainBackgrounds && !isUnknownVisibleWorldTile(tile)) {
     const terrainAlpha =
@@ -121,6 +129,27 @@ export function renderStaticTile({
         terrainAlpha,
         point,
       );
+      terrainSprite.rotation = terrainPresentation.rotation;
+    }
+
+    const transitionOverlays = getTerrainTransitionOverlays(tile, visibleTileMap);
+    for (const overlay of transitionOverlays) {
+      const polygons = getTerrainTransitionBandPolygons(poly, overlay);
+      if (!polygons) {
+        continue;
+      }
+
+      const outerBand = takeGraphics(scene.worldStaticDetailGraphics);
+      outerBand.poly(polygons.outer).fill({
+        color: overlay.color,
+        alpha: overlay.outerAlpha * revealProgress * resolvedAppearanceAlpha,
+      });
+
+      const innerBand = takeGraphics(scene.worldStaticDetailGraphics);
+      innerBand.poly(polygons.inner).fill({
+        color: overlay.color,
+        alpha: overlay.innerAlpha * revealProgress * resolvedAppearanceAlpha,
+      });
     }
   }
 
