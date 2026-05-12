@@ -115,7 +115,15 @@ export function renderStaticTile({
 
   if (showTerrainBackgrounds && !isUnknownVisibleWorldTile(tile)) {
     const terrainAlpha =
-      (emphasized ? 0.84 : 0.76) * revealProgress * resolvedAppearanceAlpha;
+      (tile.terrain === 'mountain'
+        ? emphasized
+          ? 0.96
+          : 0.92
+        : emphasized
+          ? 0.84
+          : 0.76) *
+      revealProgress *
+      resolvedAppearanceAlpha;
     if (revealAlpha > 0) {
       const terrainSprite = takeSprite(
         scene.worldTerrainSprites,
@@ -132,7 +140,10 @@ export function renderStaticTile({
       terrainSprite.rotation = terrainPresentation.rotation;
     }
 
-    const transitionOverlays = getTerrainTransitionOverlays(tile, visibleTileMap);
+    const transitionOverlays = getTerrainTransitionOverlays(
+      tile,
+      visibleTileMap,
+    );
     for (const overlay of transitionOverlays) {
       const polygons = getTerrainTransitionBandPolygons(poly, overlay);
       if (!polygons) {

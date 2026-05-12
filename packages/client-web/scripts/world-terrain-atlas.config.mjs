@@ -9,13 +9,19 @@ export const WORLD_TERRAIN_ATLAS_OUTPUTS = {
 
 const paintedBlockerDir =
   'packages/client-web/src/assets/images/terrain/painted';
+function toMountainConnectionMaskString(mask) {
+  return Array.from({ length: 6 }, (_, directionIndex) =>
+    mask & (1 << directionIndex) ? '1' : '0',
+  ).join('');
+}
+
+const MOUNTAIN_CONNECTED_TERRAIN_IDS = Array.from(
+  { length: 63 },
+  (_, index) => `mountain-connect-${toMountainConnectionMaskString(index + 1)}`,
+);
 const PAINTED_BLOCKER_TERRAIN_IDS = [
-  'mountain-straight',
-  'mountain-bend',
-  'mountain-fork',
-  'mountain-end',
   'mountain-isolated',
-  'mountain-massif',
+  ...MOUNTAIN_CONNECTED_TERRAIN_IDS,
   'rift-straight',
   'rift-bend',
   'rift-fork',
@@ -24,11 +30,12 @@ const PAINTED_BLOCKER_TERRAIN_IDS = [
   'rift-massif',
 ];
 
-export const PAINTED_BLOCKER_TERRAIN_SOURCES =
-  PAINTED_BLOCKER_TERRAIN_IDS.map((id) => ({
+export const PAINTED_BLOCKER_TERRAIN_SOURCES = PAINTED_BLOCKER_TERRAIN_IDS.map(
+  (id) => ({
     id,
     source: `${paintedBlockerDir}/${id}.png`,
-  }));
+  }),
+);
 
 export const BASE_WORLD_TERRAIN_ATLAS_SOURCES = [
   {

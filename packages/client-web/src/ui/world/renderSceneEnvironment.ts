@@ -384,7 +384,7 @@ export function tileStyle(terrain: Terrain) {
     case 'meadow':
       return { color: 0x4d7c0f, alpha: 0.93 };
     case 'mountain':
-      return { color: 0x475569, alpha: 0.88 };
+      return { color: 0x5f594f, alpha: 0.9 };
     case 'plains':
       return { color: 0x3f6212, alpha: 0.92 };
     case 'rift':

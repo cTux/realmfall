@@ -6,14 +6,6 @@ import {
 } from './visibleWorldTiles';
 
 const CONNECTIVITY_VARIANT_BY_TERRAIN = {
-  mountain: {
-    isolated: 'mountain-isolated',
-    end: 'mountain-end',
-    straight: 'mountain-straight',
-    bend: 'mountain-bend',
-    fork: 'mountain-fork',
-    massif: 'mountain-massif',
-  },
   rift: {
     isolated: 'rift-isolated',
     end: 'rift-end',
@@ -25,13 +17,18 @@ const CONNECTIVITY_VARIANT_BY_TERRAIN = {
 } as const;
 
 type ConnectedBlockerTerrain = keyof typeof CONNECTIVITY_VARIANT_BY_TERRAIN;
+type MountainConnectionVariantId = `mountain-connect-${string}`;
+type RiftConnectedTerrainId =
+  (typeof CONNECTIVITY_VARIANT_BY_TERRAIN)[ConnectedBlockerTerrain][WorldTerrainConnectivity];
 
 export type WorldTerrainConnectivity =
-  keyof (typeof CONNECTIVITY_VARIANT_BY_TERRAIN)['mountain'];
+  keyof (typeof CONNECTIVITY_VARIANT_BY_TERRAIN)['rift'];
 
 export type ConnectedWorldTerrainId =
   | Terrain
-  | (typeof CONNECTIVITY_VARIANT_BY_TERRAIN)[ConnectedBlockerTerrain][WorldTerrainConnectivity];
+  | 'mountain-isolated'
+  | MountainConnectionVariantId
+  | RiftConnectedTerrainId;
 
 export interface ConnectedWorldTerrainPresentation {
   rotation: number;
@@ -70,7 +67,24 @@ export function getConnectedWorldTerrainPresentation(
     tile,
     visibleTileMap,
   );
-  const connectivity = classifyWorldTerrainConnectivity(connectedDirectionIndices);
+
+  if (tile.terrain === 'mountain') {
+    const connectionMask = getConnectedDirectionMask(connectedDirectionIndices);
+    const connectionMaskString = toMountainConnectionMaskString(connectionMask);
+
+    return {
+      rotation: 0,
+      signature: `${tile.terrain}:${connectionMaskString}`,
+      terrainId:
+        connectionMask === 0
+          ? 'mountain-isolated'
+          : `mountain-connect-${connectionMaskString}`,
+    };
+  }
+
+  const connectivity = classifyWorldTerrainConnectivity(
+    connectedDirectionIndices,
+  );
   const rotationSteps = getConnectivityRotationSteps(
     connectivity,
     connectedDirectionIndices,
@@ -100,17 +114,27 @@ function getConnectedDirectionIndices(
     return [];
   }
 
-  return hexNeighbors(tile.coord)
-    .flatMap((neighborCoord, directionIndex) => {
-      const neighbor = visibleTileMap.get(hexKey(neighborCoord));
-      return (
-        neighbor !== undefined &&
-        !isUnknownVisibleWorldTile(neighbor) &&
-        neighbor.terrain === tile.terrain
-          ? [directionIndex]
-          : []
-      );
-    });
+  return hexNeighbors(tile.coord).flatMap((neighborCoord, directionIndex) => {
+    const neighbor = visibleTileMap.get(hexKey(neighborCoord));
+    return neighbor !== undefined &&
+      !isUnknownVisibleWorldTile(neighbor) &&
+      neighbor.terrain === tile.terrain
+      ? [directionIndex]
+      : [];
+  });
+}
+
+function getConnectedDirectionMask(connectedDirectionIndices: number[]) {
+  return connectedDirectionIndices.reduce(
+    (mask, directionIndex) => mask | (1 << directionIndex),
+    0,
+  );
+}
+
+function toMountainConnectionMaskString(mask: number) {
+  return Array.from({ length: 6 }, (_, directionIndex) =>
+    mask & (1 << directionIndex) ? '1' : '0',
+  ).join('');
 }
 
 function classifyWorldTerrainConnectivity(
@@ -164,11 +188,7 @@ function getConnectivityRotationSteps(
 
 function normalizeConsecutiveDirectionPair(directionIndices: number[]) {
   const normalized = [...directionIndices].sort((left, right) => left - right);
-  if (
-    normalized.length === 2 &&
-    normalized[0] === 0 &&
-    normalized[1] === 5
-  ) {
+  if (normalized.length === 2 && normalized[0] === 0 && normalized[1] === 5) {
     return [5, 0];
   }
 
@@ -180,7 +200,9 @@ function getForkPrimaryDirection(directionIndices: number[]) {
     return directionIndices[0] ?? 0;
   }
 
-  const unique = [...new Set(directionIndices)].sort((left, right) => left - right);
+  const unique = [...new Set(directionIndices)].sort(
+    (left, right) => left - right,
+  );
   const wrapped = [...unique, unique[0]! + 6, unique[1]! + 6];
   let bestRunStart = unique[0] ?? 0;
 

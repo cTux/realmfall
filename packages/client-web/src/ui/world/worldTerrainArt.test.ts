@@ -10,12 +10,14 @@ function isGameplayTerrain(
 }
 
 const canonicalBlockerTerrains = [
-  'mountain-straight',
-  'mountain-bend',
-  'mountain-fork',
-  'mountain-end',
   'mountain-isolated',
-  'mountain-massif',
+  ...Array.from(
+    { length: 63 },
+    (_, index) =>
+      `mountain-connect-${Array.from({ length: 6 }, (_, directionIndex) =>
+        (index + 1) & (1 << directionIndex) ? '1' : '0',
+      ).join('')}`,
+  ),
   'rift-straight',
   'rift-bend',
   'rift-fork',
@@ -35,7 +37,11 @@ describe('worldTerrainArt', () => {
     const { getWorldTerrainFrameId } = await import('./worldTerrainArtTestkit');
 
     for (const terrain of canonicalBlockerTerrains) {
-      expect(getWorldTerrainFrameId(terrain)).toContain(terrain);
+      expect(
+        getWorldTerrainFrameId(
+          terrain as Parameters<typeof getWorldTerrainFrameId>[0],
+        ),
+      ).toContain(terrain);
       expect(paintedBlockerTerrainSourceMap.get(terrain)).toBe(
         `packages/client-web/src/assets/images/terrain/painted/${terrain}.png`,
       );
@@ -95,6 +101,6 @@ describe('worldTerrainArt', () => {
 
     expect(
       terrainArtForVisibleTile(connectedMountainTile, connectedMountainMap),
-    ).toBe(getWorldTerrainFrameId('mountain-straight'));
+    ).toBe(getWorldTerrainFrameId('mountain-connect-001001'));
   });
 });
