@@ -29,9 +29,7 @@ describe('worldTerrainArt', () => {
     expect(getWorldTerrainFrameId('rift-bend')).toContain('rift-bend');
     expect(getWorldTerrainFrameId('rift-fork')).toContain('rift-fork');
     expect(getWorldTerrainFrameId('rift-end')).toContain('rift-end');
-    expect(getWorldTerrainFrameId('rift-isolated')).toContain(
-      'rift-isolated',
-    );
+    expect(getWorldTerrainFrameId('rift-isolated')).toContain('rift-isolated');
     expect(getWorldTerrainFrameId('rift-massif')).toContain('rift-massif');
   });
 
