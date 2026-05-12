@@ -10,6 +10,31 @@ function isGameplayTerrain(
 }
 
 describe('worldTerrainArt', () => {
+  it('requires painted blocker terrain files for every canonical connectivity class', async () => {
+    const { getWorldTerrainFrameId } = await import('./worldTerrainArtTestkit');
+
+    expect(getWorldTerrainFrameId('mountain-straight')).toContain(
+      'mountain-straight',
+    );
+    expect(getWorldTerrainFrameId('mountain-bend')).toContain('mountain-bend');
+    expect(getWorldTerrainFrameId('mountain-fork')).toContain('mountain-fork');
+    expect(getWorldTerrainFrameId('mountain-end')).toContain('mountain-end');
+    expect(getWorldTerrainFrameId('mountain-isolated')).toContain(
+      'mountain-isolated',
+    );
+    expect(getWorldTerrainFrameId('mountain-massif')).toContain(
+      'mountain-massif',
+    );
+    expect(getWorldTerrainFrameId('rift-straight')).toContain('rift-straight');
+    expect(getWorldTerrainFrameId('rift-bend')).toContain('rift-bend');
+    expect(getWorldTerrainFrameId('rift-fork')).toContain('rift-fork');
+    expect(getWorldTerrainFrameId('rift-end')).toContain('rift-end');
+    expect(getWorldTerrainFrameId('rift-isolated')).toContain(
+      'rift-isolated',
+    );
+    expect(getWorldTerrainFrameId('rift-massif')).toContain('rift-massif');
+  });
+
   it('uses generated atlas frame ids for runtime terrain art', async () => {
     const {
       getWorldTerrainAtlasImage,

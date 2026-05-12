@@ -1,4 +1,4 @@
-import { SHIPPED_GENERATED_SURFACE_TERRAIN_SOURCES } from './world-terrain-family-recipes.mjs';
+import { SHIPPED_GENERATED_PASSABLE_TERRAIN_SOURCES } from './world-terrain-family-recipes.mjs';
 
 export const WORLD_TERRAIN_ATLAS_COLUMNS = 4;
 
@@ -6,6 +6,9 @@ export const WORLD_TERRAIN_ATLAS_OUTPUTS = {
   image: 'packages/client-web/src/assets/generated/world-terrain-atlas.png',
   manifest: 'packages/client-web/src/assets/generated/world-terrain-atlas.json',
 };
+
+const paintedBlockerDir =
+  'packages/client-web/src/assets/images/terrain/painted';
 
 export const BASE_WORLD_TERRAIN_ATLAS_SOURCES = [
   {
@@ -128,8 +131,56 @@ export const BASE_WORLD_TERRAIN_ATLAS_SOURCES = [
 
 export const WORLD_TERRAIN_ATLAS_SOURCES = [
   ...BASE_WORLD_TERRAIN_ATLAS_SOURCES,
-  ...SHIPPED_GENERATED_SURFACE_TERRAIN_SOURCES.map(({ id, source }) => ({
+  ...SHIPPED_GENERATED_PASSABLE_TERRAIN_SOURCES.map(({ id, source }) => ({
     id,
     source,
   })),
+  {
+    id: 'mountain-straight',
+    source: `${paintedBlockerDir}/mountain-straight.png`,
+  },
+  {
+    id: 'mountain-bend',
+    source: `${paintedBlockerDir}/mountain-bend.png`,
+  },
+  {
+    id: 'mountain-fork',
+    source: `${paintedBlockerDir}/mountain-fork.png`,
+  },
+  {
+    id: 'mountain-end',
+    source: `${paintedBlockerDir}/mountain-end.png`,
+  },
+  {
+    id: 'mountain-isolated',
+    source: `${paintedBlockerDir}/mountain-isolated.png`,
+  },
+  {
+    id: 'mountain-massif',
+    source: `${paintedBlockerDir}/mountain-massif.png`,
+  },
+  {
+    id: 'rift-straight',
+    source: `${paintedBlockerDir}/rift-straight.png`,
+  },
+  {
+    id: 'rift-bend',
+    source: `${paintedBlockerDir}/rift-bend.png`,
+  },
+  {
+    id: 'rift-fork',
+    source: `${paintedBlockerDir}/rift-fork.png`,
+  },
+  {
+    id: 'rift-end',
+    source: `${paintedBlockerDir}/rift-end.png`,
+  },
+  {
+    id: 'rift-isolated',
+    source: `${paintedBlockerDir}/rift-isolated.png`,
+  },
+  {
+    id: 'rift-massif',
+    source: `${paintedBlockerDir}/rift-massif.png`,
+  },
 ];

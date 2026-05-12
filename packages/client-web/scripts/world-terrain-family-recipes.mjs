@@ -365,3 +365,8 @@ export const SHIPPED_GENERATED_SURFACE_TERRAIN_SOURCES =
   GENERATED_SURFACE_TERRAIN_SOURCES.filter(
     ({ publishToAtlas }) => publishToAtlas,
   );
+
+export const SHIPPED_GENERATED_PASSABLE_TERRAIN_SOURCES =
+  SHIPPED_GENERATED_SURFACE_TERRAIN_SOURCES.filter(
+    ({ kind }) => kind === 'surface',
+  );

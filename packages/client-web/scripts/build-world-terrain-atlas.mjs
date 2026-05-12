@@ -13,19 +13,26 @@ const rootDir = fileURLToPath(new URL('../../../', import.meta.url));
 const imagePath = join(rootDir, WORLD_TERRAIN_ATLAS_OUTPUTS.image);
 const manifestPath = join(rootDir, WORLD_TERRAIN_ATLAS_OUTPUTS.manifest);
 
+async function ensureFileExists(path, message) {
+  try {
+    await access(path);
+  } catch {
+    throw new Error(message);
+  }
+}
+
 await generateSurfaceTerrainVariants();
+
+for (const entry of WORLD_TERRAIN_ATLAS_SOURCES) {
+  await ensureFileExists(
+    join(rootDir, entry.source),
+    `World terrain atlas source is missing: ${entry.id} -> ${entry.source}`,
+  );
+}
 
 const sourceMetadata = await Promise.all(
   WORLD_TERRAIN_ATLAS_SOURCES.map(async ({ id, source }) => {
     const sourcePath = join(rootDir, source);
-
-    try {
-      await access(sourcePath);
-    } catch {
-      throw new Error(
-        `World terrain atlas source is missing: ${id} -> ${source}`,
-      );
-    }
 
     const metadata = await sharp(sourcePath).metadata();
 
