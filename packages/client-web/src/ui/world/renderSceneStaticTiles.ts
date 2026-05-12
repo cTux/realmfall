@@ -1,7 +1,7 @@
 import type { GameState } from '@realmfall/core/game/stateTypes';
 import { configureSprite, takeGraphics, takeSprite } from './renderScenePools';
 import type { SceneCache } from './renderSceneCache';
-import { terrainArtFor } from './worldTerrainArt';
+import { terrainArtForVisibleTile } from './worldTerrainArt';
 import {
   HOME_HEX_TINT_ALPHA,
   HOME_HEX_TINT_COLOR,
@@ -111,7 +111,7 @@ export function renderStaticTile({
     if (revealAlpha > 0) {
       const terrainSprite = takeSprite(
         scene.worldTerrainSprites,
-        terrainArtFor(tile.terrain),
+        terrainArtForVisibleTile(tile, visibleTileMap),
       );
       configureSprite(
         terrainSprite,

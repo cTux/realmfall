@@ -1,6 +1,11 @@
 import worldTerrainAtlasManifest from '../../assets/generated/world-terrain-atlas.json';
 import worldTerrainAtlasImage from '../../assets/generated/world-terrain-atlas.png';
 import { TERRAINS, type Terrain } from '@realmfall/core/game/stateTypes';
+import {
+  resolveConnectedWorldTerrainId,
+  type ConnectedWorldTerrainId,
+} from './worldTerrainConnectivity';
+import type { VisibleWorldTile } from './visibleWorldTiles';
 
 export type WorldTerrainAtlasTerrainId =
   keyof typeof worldTerrainAtlasManifest.frames;
@@ -22,6 +27,18 @@ export const WORLD_TERRAIN_ART = Object.fromEntries(
 
 export function terrainArtFor(terrain: Terrain) {
   return WORLD_TERRAIN_ART[terrain];
+}
+
+export function terrainArtForVisibleTile(
+  tile: VisibleWorldTile,
+  visibleTileMap: Map<string, VisibleWorldTile> | null,
+) {
+  return getWorldTerrainFrameId(
+    resolveConnectedWorldTerrainId(
+      tile,
+      visibleTileMap,
+    ) as ConnectedWorldTerrainId & WorldTerrainAtlasTerrainId,
+  );
 }
 
 export function getWorldTerrainAssetIds() {

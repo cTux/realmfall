@@ -125,7 +125,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'mountain-straight.png',
         base: 'mountain-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.88,
           saturation: 0.68,
@@ -143,7 +143,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'mountain-bend.png',
         base: 'mountain-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.86,
           saturation: 0.64,
@@ -161,7 +161,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'mountain-fork.png',
         base: 'mountain-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.84,
           saturation: 0.64,
@@ -179,7 +179,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'mountain-end.png',
         base: 'mountain-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.89,
           saturation: 0.66,
@@ -197,7 +197,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'mountain-isolated.png',
         base: 'mountain-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.9,
           saturation: 0.7,
@@ -215,7 +215,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'mountain-massif.png',
         base: 'mountain-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.82,
           saturation: 0.62,
@@ -242,7 +242,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'rift-straight.png',
         base: 'rift-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.84,
           saturation: 0.82,
@@ -260,7 +260,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'rift-bend.png',
         base: 'rift-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.83,
           saturation: 0.84,
@@ -296,7 +296,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'rift-end.png',
         base: 'rift-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.85,
           saturation: 0.8,
@@ -314,7 +314,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'rift-isolated.png',
         base: 'rift-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.86,
           saturation: 0.78,
@@ -332,7 +332,7 @@ export const TERRAIN_FAMILY_RECIPES = {
         file: 'rift-massif.png',
         base: 'rift-v2.png',
         kind: 'blocker',
-        publishToAtlas: false,
+        publishToAtlas: true,
         modulate: {
           brightness: 0.78,
           saturation: 0.9,

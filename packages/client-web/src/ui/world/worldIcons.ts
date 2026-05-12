@@ -21,6 +21,7 @@ import {
   getEnemiesAt,
   getTileAt,
 } from '@realmfall/core/game/stateWorldQueries';
+import { hexKey } from '@realmfall/core/game/hex';
 import type {
   Enemy,
   GameState,
@@ -37,7 +38,7 @@ import {
   getWorldTerrainAtlasImage,
   getWorldTerrainFrame,
   isWorldTerrainFrameId,
-  terrainArtFor,
+  terrainArtForVisibleTile,
   type WorldTerrainAtlasFrameId,
 } from './worldTerrainArt';
 import { resolveIconAsset } from '../iconAssets';
@@ -289,13 +290,17 @@ function collectWorldIconAssetIdsForTiles({
   resolveEnemies: (tile: VisibleWorldTile) => Enemy[];
   tiles: VisibleWorldTile[];
 }) {
+  const visibleTileMap = new Map(
+    tiles.map((tile) => [hexKey(tile.coord), tile] as const),
+  );
+
   for (const tile of tiles) {
     if (isUnknownVisibleWorldTile(tile)) {
       iconAssetIds.add(WorldIcons.UnknownHex);
       continue;
     }
 
-    iconAssetIds.add(terrainArtFor(tile.terrain));
+    iconAssetIds.add(terrainArtForVisibleTile(tile, visibleTileMap));
 
     if (tile.structure) {
       iconAssetIds.add(
