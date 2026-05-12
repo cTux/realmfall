@@ -1,6 +1,7 @@
 import worldTerrainAtlasManifest from '../../assets/generated/world-terrain-atlas.json';
 import worldTerrainAtlasImage from '../../assets/generated/world-terrain-atlas.png';
 import { TERRAINS } from '@realmfall/core/game/stateTypes';
+import { PAINTED_BLOCKER_TERRAIN_SOURCES } from '../../../scripts/world-terrain-atlas.config.mjs';
 import type { VisibleWorldTile } from './visibleWorldTiles';
 
 function isGameplayTerrain(
@@ -9,8 +10,6 @@ function isGameplayTerrain(
   return (TERRAINS as readonly string[]).includes(terrain);
 }
 
-const paintedBlockerDir =
-  'packages/client-web/src/assets/images/terrain/painted';
 const canonicalBlockerTerrains = [
   'mountain-straight',
   'mountain-bend',
@@ -25,6 +24,9 @@ const canonicalBlockerTerrains = [
   'rift-isolated',
   'rift-massif',
 ] as const;
+const paintedBlockerTerrainSourceMap = new Map(
+  PAINTED_BLOCKER_TERRAIN_SOURCES.map(({ id, source }) => [id, source]),
+);
 
 describe('worldTerrainArt', () => {
   it('requires painted blocker terrain files for every canonical connectivity class', async () => {
@@ -32,8 +34,8 @@ describe('worldTerrainArt', () => {
 
     for (const terrain of canonicalBlockerTerrains) {
       expect(getWorldTerrainFrameId(terrain)).toContain(terrain);
-      expect(worldTerrainAtlasManifest.frames[terrain].source).toBe(
-        `${paintedBlockerDir}/${terrain}.png`,
+      expect(paintedBlockerTerrainSourceMap.get(terrain)).toBe(
+        `packages/client-web/src/assets/images/terrain/painted/${terrain}.png`,
       );
     }
   });
