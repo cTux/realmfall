@@ -18,6 +18,12 @@ export async function generateSurfaceTerrainVariants() {
   await removeStaleGeneratedFiles();
 
   for (const recipe of GENERATED_SURFACE_TERRAIN_SOURCES) {
+    if (recipe.kind !== 'surface') {
+      throw new Error(
+        `Generated surface terrain recipes must remain passable-only. Received blocker recipe: ${recipe.id}`,
+      );
+    }
+
     const sourcePath = join(terrainSourceDir, recipe.base);
     const outputPath = join(generatedTerrainDir, recipe.file);
 

@@ -352,13 +352,15 @@ export const TERRAIN_FAMILY_RECIPES = {
 export const GENERATED_SURFACE_TERRAIN_SOURCES = Object.entries(
   TERRAIN_FAMILY_RECIPES,
 ).flatMap(([family, recipe]) =>
-  recipe.variants.map((variant) => ({
-    family,
-    file: variant.file,
-    id: variant.id,
-    source: `${GENERATED_WORLD_TERRAIN_DIR}/${variant.file}`,
-    ...variant,
-  })),
+  recipe.variants
+    .filter(({ kind }) => kind === 'surface')
+    .map((variant) => ({
+      family,
+      file: variant.file,
+      id: variant.id,
+      source: `${GENERATED_WORLD_TERRAIN_DIR}/${variant.file}`,
+      ...variant,
+    })),
 );
 
 export const SHIPPED_GENERATED_SURFACE_TERRAIN_SOURCES =

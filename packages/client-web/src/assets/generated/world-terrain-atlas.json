@@ -3,7 +3,7 @@
   "tileWidth": 200,
   "tileHeight": 200,
   "columns": 4,
-  "rows": 11,
+  "rows": 10,
   "frames": {
     "plains": {
       "x": 0,
@@ -201,96 +201,89 @@
       "h": 200,
       "source": "packages/client-web/src/assets/images/terrain/generated/forest-moss.png"
     },
-    "mountain-ridge": {
+    "mountain-straight": {
       "x": 0,
       "y": 1400,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/mountain-ridge.png"
-    },
-    "mountain-straight": {
-      "x": 200,
-      "y": 1400,
-      "w": 200,
-      "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/mountain-straight.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-straight.png"
     },
     "mountain-bend": {
-      "x": 400,
+      "x": 200,
       "y": 1400,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/mountain-bend.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-bend.png"
     },
     "mountain-fork": {
+      "x": 400,
+      "y": 1400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-fork.png"
+    },
+    "mountain-end": {
       "x": 600,
       "y": 1400,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/mountain-fork.png"
-    },
-    "mountain-end": {
-      "x": 0,
-      "y": 1600,
-      "w": 200,
-      "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/mountain-end.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-end.png"
     },
     "mountain-isolated": {
-      "x": 200,
+      "x": 0,
       "y": 1600,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/mountain-isolated.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-isolated.png"
     },
     "mountain-massif": {
+      "x": 200,
+      "y": 1600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-massif.png"
+    },
+    "rift-straight": {
       "x": 400,
       "y": 1600,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/mountain-massif.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-straight.png"
     },
-    "rift-straight": {
+    "rift-bend": {
       "x": 600,
       "y": 1600,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/rift-straight.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-bend.png"
     },
-    "rift-bend": {
+    "rift-fork": {
       "x": 0,
       "y": 1800,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/rift-bend.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-fork.png"
     },
-    "rift-fork": {
+    "rift-end": {
       "x": 200,
       "y": 1800,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/rift-fork.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-end.png"
     },
-    "rift-end": {
+    "rift-isolated": {
       "x": 400,
       "y": 1800,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/rift-end.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-isolated.png"
     },
-    "rift-isolated": {
+    "rift-massif": {
       "x": 600,
       "y": 1800,
       "w": 200,
       "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/rift-isolated.png"
-    },
-    "rift-massif": {
-      "x": 0,
-      "y": 2000,
-      "w": 200,
-      "h": 200,
-      "source": "packages/client-web/src/assets/images/terrain/generated/rift-massif.png"
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-massif.png"
     }
   }
 }
