@@ -1,20 +1,23 @@
 import worldTerrainAtlasManifest from '../../assets/generated/world-terrain-atlas.json';
 import worldTerrainAtlasImage from '../../assets/generated/world-terrain-atlas.png';
-import type { Terrain } from '@realmfall/core/game/stateTypes';
+import { TERRAINS, type Terrain } from '@realmfall/core/game/stateTypes';
 
-export type WorldTerrainAtlasFrameId = `world-terrain-atlas:${Terrain}`;
+export type WorldTerrainAtlasTerrainId =
+  keyof typeof worldTerrainAtlasManifest.frames;
+export type WorldTerrainAtlasFrameId =
+  `world-terrain-atlas:${WorldTerrainAtlasTerrainId}`;
 
 const WORLD_TERRAIN_ATLAS_FRAME_PREFIX = 'world-terrain-atlas:';
 const WORLD_TERRAIN_ATLAS_FRAMES = worldTerrainAtlasManifest.frames as Record<
-  Terrain,
+  WorldTerrainAtlasTerrainId,
   { x: number; y: number; w: number; h: number; source: string }
 >;
+const WORLD_TERRAIN_ATLAS_TERRAINS = Object.keys(
+  WORLD_TERRAIN_ATLAS_FRAMES,
+) as WorldTerrainAtlasTerrainId[];
 
 export const WORLD_TERRAIN_ART = Object.fromEntries(
-  Object.keys(WORLD_TERRAIN_ATLAS_FRAMES).map((terrain) => [
-    terrain,
-    getWorldTerrainFrameId(terrain as Terrain),
-  ]),
+  TERRAINS.map((terrain) => [terrain, getWorldTerrainFrameId(terrain)]),
 ) as Record<Terrain, WorldTerrainAtlasFrameId>;
 
 export function terrainArtFor(terrain: Terrain) {
@@ -22,7 +25,9 @@ export function terrainArtFor(terrain: Terrain) {
 }
 
 export function getWorldTerrainAssetIds() {
-  return Object.values(WORLD_TERRAIN_ART);
+  return WORLD_TERRAIN_ATLAS_TERRAINS.map((terrain) =>
+    getWorldTerrainFrameId(terrain),
+  );
 }
 
 export function getWorldTerrainAtlasImage() {
@@ -30,7 +35,7 @@ export function getWorldTerrainAtlasImage() {
 }
 
 export function getWorldTerrainFrameId(
-  terrain: Terrain,
+  terrain: WorldTerrainAtlasTerrainId,
 ): WorldTerrainAtlasFrameId {
   return `${WORLD_TERRAIN_ATLAS_FRAME_PREFIX}${terrain}`;
 }
@@ -49,7 +54,7 @@ export function getWorldTerrainFrame(assetId: WorldTerrainAtlasFrameId): {
 } {
   const terrain = assetId.slice(
     WORLD_TERRAIN_ATLAS_FRAME_PREFIX.length,
-  ) as Terrain;
+  ) as WorldTerrainAtlasTerrainId;
   const frame = WORLD_TERRAIN_ATLAS_FRAMES[terrain];
 
   if (!frame) {

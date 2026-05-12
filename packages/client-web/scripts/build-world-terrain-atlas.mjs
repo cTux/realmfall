@@ -1,7 +1,8 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { generateSurfaceTerrainVariants } from './generate-surface-terrain-variants.mjs';
 import {
   WORLD_TERRAIN_ATLAS_COLUMNS,
   WORLD_TERRAIN_ATLAS_OUTPUTS,
@@ -12,9 +13,20 @@ const rootDir = fileURLToPath(new URL('../../../', import.meta.url));
 const imagePath = join(rootDir, WORLD_TERRAIN_ATLAS_OUTPUTS.image);
 const manifestPath = join(rootDir, WORLD_TERRAIN_ATLAS_OUTPUTS.manifest);
 
+await generateSurfaceTerrainVariants();
+
 const sourceMetadata = await Promise.all(
   WORLD_TERRAIN_ATLAS_SOURCES.map(async ({ id, source }) => {
     const sourcePath = join(rootDir, source);
+
+    try {
+      await access(sourcePath);
+    } catch {
+      throw new Error(
+        `World terrain atlas source is missing: ${id} -> ${source}`,
+      );
+    }
+
     const metadata = await sharp(sourcePath).metadata();
 
     if (!metadata.width || !metadata.height) {
@@ -66,6 +78,7 @@ const composites = sourceMetadata.map((source, index) => {
 });
 
 await mkdir(dirname(imagePath), { recursive: true });
+await mkdir(dirname(manifestPath), { recursive: true });
 await sharp({
   create: {
     width: atlasWidth,

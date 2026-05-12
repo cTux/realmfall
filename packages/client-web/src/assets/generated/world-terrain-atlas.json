@@ -3,7 +3,7 @@
   "tileWidth": 200,
   "tileHeight": 200,
   "columns": 4,
-  "rows": 7,
+  "rows": 8,
   "frames": {
     "plains": {
       "x": 0,
@@ -186,6 +186,34 @@
       "w": 200,
       "h": 200,
       "source": "packages/client-web/src/assets/images/terrain/dungeons/dungeon-obsidian-wall.png"
+    },
+    "plains-bloom": {
+      "x": 400,
+      "y": 1200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/generated/plains-bloom.png"
+    },
+    "forest-moss": {
+      "x": 600,
+      "y": 1200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/generated/forest-moss.png"
+    },
+    "mountain-ridge": {
+      "x": 0,
+      "y": 1400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/generated/mountain-ridge.png"
+    },
+    "rift-fork": {
+      "x": 200,
+      "y": 1400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/generated/rift-fork.png"
     }
   }
 }

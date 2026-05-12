@@ -1,3 +1,5 @@
+import { SHIPPED_GENERATED_SURFACE_TERRAIN_SOURCES } from './world-terrain-family-recipes.mjs';
+
 export const WORLD_TERRAIN_ATLAS_COLUMNS = 4;
 
 export const WORLD_TERRAIN_ATLAS_OUTPUTS = {
@@ -5,7 +7,7 @@ export const WORLD_TERRAIN_ATLAS_OUTPUTS = {
   manifest: 'packages/client-web/src/assets/generated/world-terrain-atlas.json',
 };
 
-export const WORLD_TERRAIN_ATLAS_SOURCES = [
+export const BASE_WORLD_TERRAIN_ATLAS_SOURCES = [
   {
     id: 'plains',
     source: 'packages/client-web/src/assets/images/terrain/plains-v2.png',
@@ -122,4 +124,12 @@ export const WORLD_TERRAIN_ATLAS_SOURCES = [
     source:
       'packages/client-web/src/assets/images/terrain/dungeons/dungeon-obsidian-wall.png',
   },
+];
+
+export const WORLD_TERRAIN_ATLAS_SOURCES = [
+  ...BASE_WORLD_TERRAIN_ATLAS_SOURCES,
+  ...SHIPPED_GENERATED_SURFACE_TERRAIN_SOURCES.map(({ id, source }) => ({
+    id,
+    source,
+  })),
 ];

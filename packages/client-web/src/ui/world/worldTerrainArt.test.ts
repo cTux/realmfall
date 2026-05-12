@@ -1,5 +1,12 @@
 import worldTerrainAtlasManifest from '../../assets/generated/world-terrain-atlas.json';
 import worldTerrainAtlasImage from '../../assets/generated/world-terrain-atlas.png';
+import { TERRAINS } from '@realmfall/core/game/stateTypes';
+
+function isGameplayTerrain(
+  terrain: string,
+): terrain is (typeof TERRAINS)[number] {
+  return (TERRAINS as readonly string[]).includes(terrain);
+}
 
 describe('worldTerrainArt', () => {
   it('uses generated atlas frame ids for runtime terrain art', async () => {
@@ -20,10 +27,13 @@ describe('worldTerrainArt', () => {
     );
 
     for (const terrain of terrains) {
-      expect(terrainArtFor(terrain)).toBe(getWorldTerrainFrameId(terrain));
-      expect(terrainArtFor(terrain)).not.toBe(
+      expect(getWorldTerrainFrameId(terrain)).not.toBe(
         worldTerrainAtlasManifest.frames[terrain].source,
       );
+
+      if (isGameplayTerrain(terrain)) {
+        expect(terrainArtFor(terrain)).toBe(getWorldTerrainFrameId(terrain));
+      }
     }
   });
 });
