@@ -2,7 +2,14 @@ import { describe, expect, it } from 'vitest';
 
 import { hexDistance, hexKey, hexNeighbors, type HexCoord } from './hex';
 import { isPassable } from './shared';
-import { pickTerrain } from './worldTerrainTestkit';
+import {
+  getTerrainContentTerrain,
+  getTerrainGameplayFamily,
+  getTerrainTierBonus,
+  isPassableTerrain,
+  isWorldBossTerrain,
+  pickTerrain,
+} from './worldTerrainTestkit';
 
 describe('worldTerrain', () => {
   it('keeps terrain generation deterministic for the same seed and coordinate', () => {
@@ -35,6 +42,28 @@ describe('worldTerrain', () => {
     );
 
     expect(terrains.size).toBeGreaterThanOrEqual(11);
+  });
+
+  it('maps visual terrain variants back to canonical gameplay terrain families', () => {
+    expect(getTerrainGameplayFamily('plains-bloom')).toBe('plains');
+    expect(getTerrainGameplayFamily('forest-moss')).toBe('forest');
+    expect(getTerrainGameplayFamily('mountain-ridge')).toBe('mountain');
+    expect(getTerrainGameplayFamily('rift-fork')).toBe('rift');
+  });
+
+  it('preserves representative canonical terrain gameplay properties', () => {
+    expect(isPassableTerrain('plains')).toBe(true);
+    expect(getTerrainContentTerrain('plains')).toBe('plains');
+
+    expect(isWorldBossTerrain('forest')).toBe(true);
+    expect(getTerrainContentTerrain('forest')).toBe('forest');
+
+    expect(isPassableTerrain('mountain')).toBe(false);
+    expect(getTerrainTierBonus('mountain')).toBe(2);
+    expect(getTerrainContentTerrain('mountain')).toBe('mountain');
+
+    expect(isPassableTerrain('rift')).toBe(false);
+    expect(getTerrainContentTerrain('rift')).toBe('rift');
   });
 });
 

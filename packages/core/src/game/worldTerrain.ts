@@ -1,25 +1,14 @@
 import { hexDistance, type HexCoord } from './hex';
 import { createRng } from './random';
 import type { Terrain } from './types';
+import {
+  getTerrainGameplayFamily,
+  TERRAIN_FAMILY_BY_TERRAIN,
+} from './worldTerrainFamilies';
 
 interface NoiseLayer {
   scale: number;
   weight: number;
-}
-
-interface TerrainProfile {
-  biome:
-    | 'grassland'
-    | 'woodland'
-    | 'wetland'
-    | 'arid'
-    | 'alpine'
-    | 'corrupted'
-    | 'dungeon';
-  passable: boolean;
-  tierBonus: number;
-  contentTerrain: Terrain;
-  worldBossEligible: boolean;
 }
 
 interface TerrainClimate {
@@ -65,191 +54,6 @@ const BIOME_SIGNAL_LAYERS = {
   readonly NoiseLayer[]
 >;
 
-const TERRAIN_PROFILES = {
-  plains: {
-    biome: 'grassland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'plains',
-    worldBossEligible: false,
-  },
-  meadow: {
-    biome: 'grassland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'plains',
-    worldBossEligible: false,
-  },
-  steppe: {
-    biome: 'grassland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'plains',
-    worldBossEligible: false,
-  },
-  grove: {
-    biome: 'woodland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'forest',
-    worldBossEligible: true,
-  },
-  forest: {
-    biome: 'woodland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'forest',
-    worldBossEligible: true,
-  },
-  marsh: {
-    biome: 'wetland',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'swamp',
-    worldBossEligible: false,
-  },
-  swamp: {
-    biome: 'wetland',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'swamp',
-    worldBossEligible: false,
-  },
-  dunes: {
-    biome: 'arid',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'desert',
-    worldBossEligible: false,
-  },
-  desert: {
-    biome: 'arid',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'desert',
-    worldBossEligible: false,
-  },
-  badlands: {
-    biome: 'arid',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'desert',
-    worldBossEligible: false,
-  },
-  highlands: {
-    biome: 'alpine',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'plains',
-    worldBossEligible: false,
-  },
-  mountain: {
-    biome: 'alpine',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'mountain',
-    worldBossEligible: false,
-  },
-  blasted: {
-    biome: 'corrupted',
-    passable: true,
-    tierBonus: 2,
-    contentTerrain: 'desert',
-    worldBossEligible: false,
-  },
-  rift: {
-    biome: 'corrupted',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'rift',
-    worldBossEligible: false,
-  },
-  'dungeon-brick-floor': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'highlands',
-    worldBossEligible: false,
-  },
-  'dungeon-brick-cracked': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'highlands',
-    worldBossEligible: false,
-  },
-  'dungeon-brick-moss': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'grove',
-    worldBossEligible: false,
-  },
-  'dungeon-brick-wall': {
-    biome: 'dungeon',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'mountain',
-    worldBossEligible: false,
-  },
-  'dungeon-mud-floor': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'marsh',
-    worldBossEligible: false,
-  },
-  'dungeon-mud-rut': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'marsh',
-    worldBossEligible: false,
-  },
-  'dungeon-mud-puddle': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'swamp',
-    worldBossEligible: false,
-  },
-  'dungeon-mud-wall': {
-    biome: 'dungeon',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'swamp',
-    worldBossEligible: false,
-  },
-  'dungeon-obsidian-floor': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 2,
-    contentTerrain: 'blasted',
-    worldBossEligible: false,
-  },
-  'dungeon-obsidian-ash': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 2,
-    contentTerrain: 'blasted',
-    worldBossEligible: false,
-  },
-  'dungeon-obsidian-ember': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 2,
-    contentTerrain: 'rift',
-    worldBossEligible: false,
-  },
-  'dungeon-obsidian-wall': {
-    biome: 'dungeon',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'rift',
-    worldBossEligible: false,
-  },
-} as const satisfies Record<Terrain, TerrainProfile>;
-
 export function pickTerrain(seed: string, coord: HexCoord): Terrain {
   const climate = sampleTerrainClimate(seed, coord);
   const terrain = softenTerrainNearOrigin(
@@ -260,24 +64,33 @@ export function pickTerrain(seed: string, coord: HexCoord): Terrain {
 }
 
 export function getTerrainProfile(terrain: Terrain) {
-  return TERRAIN_PROFILES[terrain];
+  const definition = TERRAIN_FAMILY_BY_TERRAIN[terrain];
+  return {
+    biome: definition.family,
+    passable: definition.passable,
+    tierBonus: definition.tierBonus,
+    contentTerrain: definition.gameplayTerrain,
+    worldBossEligible: definition.worldBossEligible,
+  };
 }
 
 export function isPassableTerrain(terrain: Terrain) {
-  return TERRAIN_PROFILES[terrain].passable;
+  return TERRAIN_FAMILY_BY_TERRAIN[terrain].passable;
 }
 
 export function getTerrainTierBonus(terrain: Terrain) {
-  return TERRAIN_PROFILES[terrain].tierBonus;
+  return TERRAIN_FAMILY_BY_TERRAIN[terrain].tierBonus;
 }
 
 export function getTerrainContentTerrain(terrain: Terrain): Terrain {
-  return TERRAIN_PROFILES[terrain].contentTerrain;
+  return getTerrainGameplayFamily(terrain);
 }
 
 export function isWorldBossTerrain(terrain: Terrain) {
-  return TERRAIN_PROFILES[terrain].worldBossEligible;
+  return TERRAIN_FAMILY_BY_TERRAIN[terrain].worldBossEligible;
 }
+
+export { getTerrainGameplayFamily } from './worldTerrainFamilies';
 
 function sampleTerrainClimate(seed: string, coord: HexCoord): TerrainClimate {
   const distance = hexDistance(coord, { q: 0, r: 0 });
