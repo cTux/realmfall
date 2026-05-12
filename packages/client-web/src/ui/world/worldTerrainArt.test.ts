@@ -1,7 +1,6 @@
 import worldTerrainAtlasManifest from '../../assets/generated/world-terrain-atlas.json';
 import worldTerrainAtlasImage from '../../assets/generated/world-terrain-atlas.png';
 import { TERRAINS } from '@realmfall/core/game/stateTypes';
-import { PAINTED_BLOCKER_TERRAIN_SOURCES } from '../../../scripts/world-terrain-atlas.config.mjs';
 import type { VisibleWorldTile } from './visibleWorldTiles';
 
 function isGameplayTerrain(
@@ -25,7 +24,10 @@ const canonicalBlockerTerrains = [
   'rift-massif',
 ] as const;
 const paintedBlockerTerrainSourceMap = new Map(
-  PAINTED_BLOCKER_TERRAIN_SOURCES.map(({ id, source }) => [id, source]),
+  canonicalBlockerTerrains.map((id) => [
+    id,
+    `packages/client-web/src/assets/images/terrain/painted/${id}.png`,
+  ]),
 );
 
 describe('worldTerrainArt', () => {
