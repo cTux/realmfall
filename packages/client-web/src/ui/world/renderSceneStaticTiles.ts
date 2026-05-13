@@ -88,11 +88,17 @@ export function renderStaticTile({
     (emphasized || tile.terrain.startsWith('dungeon-') ? style.alpha : 0.8) *
     appearanceAlpha;
   const resolvedAppearanceAlpha = appearanceAlpha * revealAlpha;
+  const blockerTerrainStrokeAlpha =
+    tile.terrain === 'mountain' || tile.terrain === 'rift' ? 0 : 0.9;
   const shape = takeGraphics(scene.worldGroundGraphics);
   shape
     .poly(poly)
     .fill({ color: style.color, alpha: fillAlpha })
-    .stroke({ width: 1, color: 0x1e293b, alpha: 0.9 * appearanceAlpha });
+    .stroke({
+      width: 1,
+      color: 0x1e293b,
+      alpha: blockerTerrainStrokeAlpha * appearanceAlpha,
+    });
 
   if (isHomeTile) {
     const homeTint = takeGraphics(scene.worldStaticDetailGraphics);
