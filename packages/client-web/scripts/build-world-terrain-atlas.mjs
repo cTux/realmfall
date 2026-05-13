@@ -1,8 +1,10 @@
-import { mkdir, writeFile } from 'node:fs/promises';
+import { access, mkdir, writeFile } from 'node:fs/promises';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import sharp from 'sharp';
+import { generateSurfaceTerrainVariants } from './generate-surface-terrain-variants.mjs';
 import {
+  PAINTED_BLOCKER_TERRAIN_SOURCES,
   WORLD_TERRAIN_ATLAS_COLUMNS,
   WORLD_TERRAIN_ATLAS_OUTPUTS,
   WORLD_TERRAIN_ATLAS_SOURCES,
@@ -12,9 +14,34 @@ const rootDir = fileURLToPath(new URL('../../../', import.meta.url));
 const imagePath = join(rootDir, WORLD_TERRAIN_ATLAS_OUTPUTS.image);
 const manifestPath = join(rootDir, WORLD_TERRAIN_ATLAS_OUTPUTS.manifest);
 
+async function ensureFileExists(path, message) {
+  try {
+    await access(path);
+  } catch {
+    throw new Error(message);
+  }
+}
+
+for (const entry of PAINTED_BLOCKER_TERRAIN_SOURCES) {
+  await ensureFileExists(
+    join(rootDir, entry.source),
+    `World terrain atlas source is missing: ${entry.id} -> ${entry.source}`,
+  );
+}
+
+await generateSurfaceTerrainVariants();
+
+for (const entry of WORLD_TERRAIN_ATLAS_SOURCES) {
+  await ensureFileExists(
+    join(rootDir, entry.source),
+    `World terrain atlas source is missing: ${entry.id} -> ${entry.source}`,
+  );
+}
+
 const sourceMetadata = await Promise.all(
   WORLD_TERRAIN_ATLAS_SOURCES.map(async ({ id, source }) => {
     const sourcePath = join(rootDir, source);
+
     const metadata = await sharp(sourcePath).metadata();
 
     if (!metadata.width || !metadata.height) {
@@ -66,6 +93,7 @@ const composites = sourceMetadata.map((source, index) => {
 });
 
 await mkdir(dirname(imagePath), { recursive: true });
+await mkdir(dirname(manifestPath), { recursive: true });
 await sharp({
   create: {
     width: atlasWidth,

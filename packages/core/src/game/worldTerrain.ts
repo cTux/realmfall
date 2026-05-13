@@ -1,38 +1,24 @@
 import { hexDistance, type HexCoord } from './hex';
 import { createRng } from './random';
 import type { Terrain } from './types';
+import { getMacroTerrainFeatureAt } from './worldTerrainFeatures';
+import {
+  getTerrainGameplayFamily,
+  TERRAIN_FAMILY_BY_TERRAIN,
+} from './worldTerrainFamilies';
+import { getTerrainProvinceAt } from './worldTerrainProvinces';
+import {
+  pickProvinceTerrainVariant,
+  type TerrainVariantClimate,
+} from './worldTerrainVariantSelection';
 
 interface NoiseLayer {
   scale: number;
   weight: number;
 }
 
-interface TerrainProfile {
-  biome:
-    | 'grassland'
-    | 'woodland'
-    | 'wetland'
-    | 'arid'
-    | 'alpine'
-    | 'corrupted'
-    | 'dungeon';
-  passable: boolean;
-  tierBonus: number;
-  contentTerrain: Terrain;
-  worldBossEligible: boolean;
-}
-
-interface TerrainClimate {
-  elevation: number;
-  moisture: number;
-  temperature: number;
-  corruption: number;
-  ruggedness: number;
-  dryness: number;
-  distance: number;
-}
-
 const HEX_AXIAL_Y_SCALE = Math.sqrt(3) / 2;
+const provinceFamilyCache = new Map<string, TerrainProvinceFamily>();
 
 const BIOME_SIGNAL_LAYERS = {
   elevation: [
@@ -65,221 +51,72 @@ const BIOME_SIGNAL_LAYERS = {
   readonly NoiseLayer[]
 >;
 
-const TERRAIN_PROFILES = {
-  plains: {
-    biome: 'grassland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'plains',
-    worldBossEligible: false,
-  },
-  meadow: {
-    biome: 'grassland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'plains',
-    worldBossEligible: false,
-  },
-  steppe: {
-    biome: 'grassland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'plains',
-    worldBossEligible: false,
-  },
-  grove: {
-    biome: 'woodland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'forest',
-    worldBossEligible: true,
-  },
-  forest: {
-    biome: 'woodland',
-    passable: true,
-    tierBonus: 0,
-    contentTerrain: 'forest',
-    worldBossEligible: true,
-  },
-  marsh: {
-    biome: 'wetland',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'swamp',
-    worldBossEligible: false,
-  },
-  swamp: {
-    biome: 'wetland',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'swamp',
-    worldBossEligible: false,
-  },
-  dunes: {
-    biome: 'arid',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'desert',
-    worldBossEligible: false,
-  },
-  desert: {
-    biome: 'arid',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'desert',
-    worldBossEligible: false,
-  },
-  badlands: {
-    biome: 'arid',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'desert',
-    worldBossEligible: false,
-  },
-  highlands: {
-    biome: 'alpine',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'plains',
-    worldBossEligible: false,
-  },
-  mountain: {
-    biome: 'alpine',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'mountain',
-    worldBossEligible: false,
-  },
-  blasted: {
-    biome: 'corrupted',
-    passable: true,
-    tierBonus: 2,
-    contentTerrain: 'desert',
-    worldBossEligible: false,
-  },
-  rift: {
-    biome: 'corrupted',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'rift',
-    worldBossEligible: false,
-  },
-  'dungeon-brick-floor': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'highlands',
-    worldBossEligible: false,
-  },
-  'dungeon-brick-cracked': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'highlands',
-    worldBossEligible: false,
-  },
-  'dungeon-brick-moss': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'grove',
-    worldBossEligible: false,
-  },
-  'dungeon-brick-wall': {
-    biome: 'dungeon',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'mountain',
-    worldBossEligible: false,
-  },
-  'dungeon-mud-floor': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'marsh',
-    worldBossEligible: false,
-  },
-  'dungeon-mud-rut': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'marsh',
-    worldBossEligible: false,
-  },
-  'dungeon-mud-puddle': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 1,
-    contentTerrain: 'swamp',
-    worldBossEligible: false,
-  },
-  'dungeon-mud-wall': {
-    biome: 'dungeon',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'swamp',
-    worldBossEligible: false,
-  },
-  'dungeon-obsidian-floor': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 2,
-    contentTerrain: 'blasted',
-    worldBossEligible: false,
-  },
-  'dungeon-obsidian-ash': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 2,
-    contentTerrain: 'blasted',
-    worldBossEligible: false,
-  },
-  'dungeon-obsidian-ember': {
-    biome: 'dungeon',
-    passable: true,
-    tierBonus: 2,
-    contentTerrain: 'rift',
-    worldBossEligible: false,
-  },
-  'dungeon-obsidian-wall': {
-    biome: 'dungeon',
-    passable: false,
-    tierBonus: 2,
-    contentTerrain: 'rift',
-    worldBossEligible: false,
-  },
-} as const satisfies Record<Terrain, TerrainProfile>;
-
 export function pickTerrain(seed: string, coord: HexCoord): Terrain {
   const climate = sampleTerrainClimate(seed, coord);
-  const terrain = softenTerrainNearOrigin(
-    resolveTerrainFromClimate(climate),
-    climate.distance,
+  const featureStamp = getMacroTerrainFeatureAt(seed, coord);
+
+  if (featureStamp) {
+    return softenTerrainNearOrigin(featureStamp.terrain, climate.distance);
+  }
+
+  const province = getTerrainProvinceAt(seed, coord);
+  const provinceClimate = sampleTerrainClimate(seed, province.center);
+  const provinceFamily = getTerrainProvinceFamily(
+    seed,
+    province.id,
+    provinceClimate,
   );
-  return terrain;
+  const provinceTerrain = pickProvinceTerrainVariant(
+    provinceFamily,
+    provinceClimate,
+    sampleVariantDetail(`${seed}:terrain:province-variant`, province.center),
+  );
+
+  return softenTerrainNearOrigin(provinceTerrain, climate.distance);
 }
 
 export function getTerrainProfile(terrain: Terrain) {
-  return TERRAIN_PROFILES[terrain];
+  const definition = TERRAIN_FAMILY_BY_TERRAIN[terrain];
+  return {
+    biome: definition.family,
+    passable: definition.passable,
+    tierBonus: definition.tierBonus,
+    contentTerrain: definition.gameplayTerrain,
+    worldBossEligible: definition.worldBossEligible,
+  };
 }
 
 export function isPassableTerrain(terrain: Terrain) {
-  return TERRAIN_PROFILES[terrain].passable;
+  return TERRAIN_FAMILY_BY_TERRAIN[terrain].passable;
 }
 
 export function getTerrainTierBonus(terrain: Terrain) {
-  return TERRAIN_PROFILES[terrain].tierBonus;
+  return TERRAIN_FAMILY_BY_TERRAIN[terrain].tierBonus;
 }
 
 export function getTerrainContentTerrain(terrain: Terrain): Terrain {
-  return TERRAIN_PROFILES[terrain].contentTerrain;
+  return getTerrainGameplayFamily(terrain);
 }
 
 export function isWorldBossTerrain(terrain: Terrain) {
-  return TERRAIN_PROFILES[terrain].worldBossEligible;
+  return TERRAIN_FAMILY_BY_TERRAIN[terrain].worldBossEligible;
 }
 
-function sampleTerrainClimate(seed: string, coord: HexCoord): TerrainClimate {
+export { getTerrainGameplayFamily } from './worldTerrainFamilies';
+export {
+  buildMacroTerrainFeatures,
+  getMacroTerrainFeatureAt,
+} from './worldTerrainFeatures';
+export {
+  buildSampledTerrainProvinceMap,
+  buildTerrainProvinceMap,
+  getTerrainProvinceAt,
+} from './worldTerrainProvinces';
+
+function sampleTerrainClimate(
+  seed: string,
+  coord: HexCoord,
+): TerrainVariantClimate {
   const distance = hexDistance(coord, { q: 0, r: 0 });
   const elevation = sampleFractalNoise(
     `${seed}:terrain:elevation`,
@@ -326,53 +163,6 @@ function sampleTerrainClimate(seed: string, coord: HexCoord): TerrainClimate {
   };
 }
 
-function resolveTerrainFromClimate(climate: TerrainClimate): Terrain {
-  if (
-    climate.corruption > 0.82 &&
-    (climate.ruggedness > 0.54 || climate.elevation > 0.63)
-  ) {
-    return 'rift';
-  }
-
-  if (climate.elevation > 0.84 && climate.ruggedness > 0.5) {
-    return 'mountain';
-  }
-
-  if (climate.corruption > 0.71 && climate.dryness > 0.46) {
-    return 'blasted';
-  }
-
-  if (climate.elevation > 0.69) {
-    return 'highlands';
-  }
-
-  if (climate.moisture > 0.76) {
-    return climate.elevation < 0.48 ? 'swamp' : 'marsh';
-  }
-
-  if (climate.dryness > 0.83 && climate.ruggedness < 0.49) {
-    return 'dunes';
-  }
-
-  if (climate.dryness > 0.69) {
-    return climate.ruggedness > 0.57 ? 'badlands' : 'desert';
-  }
-
-  if (climate.moisture > 0.64) {
-    return climate.ruggedness < 0.47 ? 'forest' : 'grove';
-  }
-
-  if (climate.moisture > 0.53) {
-    return climate.ruggedness < 0.54 ? 'meadow' : 'grove';
-  }
-
-  if (climate.dryness > 0.56) {
-    return 'steppe';
-  }
-
-  return 'plains';
-}
-
 function softenTerrainNearOrigin(terrain: Terrain, distance: number) {
   if (distance <= 1) {
     return 'plains';
@@ -398,6 +188,22 @@ function softenTerrainNearOrigin(terrain: Terrain, distance: number) {
   return terrain;
 }
 
+function getTerrainProvinceFamily(
+  seed: string,
+  provinceId: string,
+  climate: TerrainVariantClimate,
+) {
+  const cacheKey = `${seed}:${provinceId}`;
+  const cached = provinceFamilyCache.get(cacheKey);
+  if (cached) {
+    return cached;
+  }
+
+  const family = resolveProvinceFamily(climate);
+  provinceFamilyCache.set(cacheKey, family);
+  return family;
+}
+
 function sampleFractalNoise(
   seed: string,
   coord: HexCoord,
@@ -417,6 +223,33 @@ function sampleFractalNoise(
     0,
   );
   return clamp01(value / totalWeight);
+}
+
+function resolveProvinceFamily(climate: TerrainVariantClimate) {
+  if (
+    climate.corruption > 0.69 &&
+    (climate.dryness > 0.48 || climate.ruggedness > 0.58)
+  ) {
+    return 'corrupted' as const;
+  }
+
+  if (climate.elevation > 0.71) {
+    return 'alpine' as const;
+  }
+
+  if (climate.moisture > 0.74) {
+    return 'wetland' as const;
+  }
+
+  if (climate.dryness > 0.66) {
+    return 'arid' as const;
+  }
+
+  if (climate.moisture > 0.58) {
+    return 'woodland' as const;
+  }
+
+  return 'grassland' as const;
 }
 
 function sampleInterpolatedNoise(seed: string, x: number, y: number) {
@@ -440,6 +273,11 @@ function latticeNoise(seed: string, x: number, y: number) {
   return createRng(`${seed}:${x}:${y}`)();
 }
 
+function sampleVariantDetail(seed: string, coord: HexCoord) {
+  const point = axialToWorld(coord);
+  return sampleInterpolatedNoise(seed, point.x / 4.5, point.y / 4.5);
+}
+
 function axialToWorld(coord: HexCoord) {
   return {
     x: coord.q + coord.r * 0.5,
@@ -458,3 +296,5 @@ function lerp(start: number, end: number, amount: number) {
 function clamp01(value: number) {
   return Math.max(0, Math.min(1, value));
 }
+
+type TerrainProvinceFamily = ReturnType<typeof resolveProvinceFamily>;

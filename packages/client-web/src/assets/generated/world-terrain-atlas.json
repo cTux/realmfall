@@ -3,7 +3,7 @@
   "tileWidth": 200,
   "tileHeight": 200,
   "columns": 4,
-  "rows": 7,
+  "rows": 25,
   "frames": {
     "plains": {
       "x": 0,
@@ -186,6 +186,510 @@
       "w": 200,
       "h": 200,
       "source": "packages/client-web/src/assets/images/terrain/dungeons/dungeon-obsidian-wall.png"
+    },
+    "plains-bloom": {
+      "x": 400,
+      "y": 1200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/generated/plains-bloom.png"
+    },
+    "forest-moss": {
+      "x": 600,
+      "y": 1200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/generated/forest-moss.png"
+    },
+    "mountain-isolated": {
+      "x": 0,
+      "y": 1400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-isolated.png"
+    },
+    "mountain-connect-100000": {
+      "x": 200,
+      "y": 1400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-100000.png"
+    },
+    "mountain-connect-010000": {
+      "x": 400,
+      "y": 1400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-010000.png"
+    },
+    "mountain-connect-110000": {
+      "x": 600,
+      "y": 1400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-110000.png"
+    },
+    "mountain-connect-001000": {
+      "x": 0,
+      "y": 1600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-001000.png"
+    },
+    "mountain-connect-101000": {
+      "x": 200,
+      "y": 1600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-101000.png"
+    },
+    "mountain-connect-011000": {
+      "x": 400,
+      "y": 1600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-011000.png"
+    },
+    "mountain-connect-111000": {
+      "x": 600,
+      "y": 1600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-111000.png"
+    },
+    "mountain-connect-000100": {
+      "x": 0,
+      "y": 1800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-000100.png"
+    },
+    "mountain-connect-100100": {
+      "x": 200,
+      "y": 1800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-100100.png"
+    },
+    "mountain-connect-010100": {
+      "x": 400,
+      "y": 1800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-010100.png"
+    },
+    "mountain-connect-110100": {
+      "x": 600,
+      "y": 1800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-110100.png"
+    },
+    "mountain-connect-001100": {
+      "x": 0,
+      "y": 2000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-001100.png"
+    },
+    "mountain-connect-101100": {
+      "x": 200,
+      "y": 2000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-101100.png"
+    },
+    "mountain-connect-011100": {
+      "x": 400,
+      "y": 2000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-011100.png"
+    },
+    "mountain-connect-111100": {
+      "x": 600,
+      "y": 2000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-111100.png"
+    },
+    "mountain-connect-000010": {
+      "x": 0,
+      "y": 2200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-000010.png"
+    },
+    "mountain-connect-100010": {
+      "x": 200,
+      "y": 2200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-100010.png"
+    },
+    "mountain-connect-010010": {
+      "x": 400,
+      "y": 2200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-010010.png"
+    },
+    "mountain-connect-110010": {
+      "x": 600,
+      "y": 2200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-110010.png"
+    },
+    "mountain-connect-001010": {
+      "x": 0,
+      "y": 2400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-001010.png"
+    },
+    "mountain-connect-101010": {
+      "x": 200,
+      "y": 2400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-101010.png"
+    },
+    "mountain-connect-011010": {
+      "x": 400,
+      "y": 2400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-011010.png"
+    },
+    "mountain-connect-111010": {
+      "x": 600,
+      "y": 2400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-111010.png"
+    },
+    "mountain-connect-000110": {
+      "x": 0,
+      "y": 2600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-000110.png"
+    },
+    "mountain-connect-100110": {
+      "x": 200,
+      "y": 2600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-100110.png"
+    },
+    "mountain-connect-010110": {
+      "x": 400,
+      "y": 2600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-010110.png"
+    },
+    "mountain-connect-110110": {
+      "x": 600,
+      "y": 2600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-110110.png"
+    },
+    "mountain-connect-001110": {
+      "x": 0,
+      "y": 2800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-001110.png"
+    },
+    "mountain-connect-101110": {
+      "x": 200,
+      "y": 2800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-101110.png"
+    },
+    "mountain-connect-011110": {
+      "x": 400,
+      "y": 2800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-011110.png"
+    },
+    "mountain-connect-111110": {
+      "x": 600,
+      "y": 2800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-111110.png"
+    },
+    "mountain-connect-000001": {
+      "x": 0,
+      "y": 3000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-000001.png"
+    },
+    "mountain-connect-100001": {
+      "x": 200,
+      "y": 3000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-100001.png"
+    },
+    "mountain-connect-010001": {
+      "x": 400,
+      "y": 3000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-010001.png"
+    },
+    "mountain-connect-110001": {
+      "x": 600,
+      "y": 3000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-110001.png"
+    },
+    "mountain-connect-001001": {
+      "x": 0,
+      "y": 3200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-001001.png"
+    },
+    "mountain-connect-101001": {
+      "x": 200,
+      "y": 3200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-101001.png"
+    },
+    "mountain-connect-011001": {
+      "x": 400,
+      "y": 3200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-011001.png"
+    },
+    "mountain-connect-111001": {
+      "x": 600,
+      "y": 3200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-111001.png"
+    },
+    "mountain-connect-000101": {
+      "x": 0,
+      "y": 3400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-000101.png"
+    },
+    "mountain-connect-100101": {
+      "x": 200,
+      "y": 3400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-100101.png"
+    },
+    "mountain-connect-010101": {
+      "x": 400,
+      "y": 3400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-010101.png"
+    },
+    "mountain-connect-110101": {
+      "x": 600,
+      "y": 3400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-110101.png"
+    },
+    "mountain-connect-001101": {
+      "x": 0,
+      "y": 3600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-001101.png"
+    },
+    "mountain-connect-101101": {
+      "x": 200,
+      "y": 3600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-101101.png"
+    },
+    "mountain-connect-011101": {
+      "x": 400,
+      "y": 3600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-011101.png"
+    },
+    "mountain-connect-111101": {
+      "x": 600,
+      "y": 3600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-111101.png"
+    },
+    "mountain-connect-000011": {
+      "x": 0,
+      "y": 3800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-000011.png"
+    },
+    "mountain-connect-100011": {
+      "x": 200,
+      "y": 3800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-100011.png"
+    },
+    "mountain-connect-010011": {
+      "x": 400,
+      "y": 3800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-010011.png"
+    },
+    "mountain-connect-110011": {
+      "x": 600,
+      "y": 3800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-110011.png"
+    },
+    "mountain-connect-001011": {
+      "x": 0,
+      "y": 4000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-001011.png"
+    },
+    "mountain-connect-101011": {
+      "x": 200,
+      "y": 4000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-101011.png"
+    },
+    "mountain-connect-011011": {
+      "x": 400,
+      "y": 4000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-011011.png"
+    },
+    "mountain-connect-111011": {
+      "x": 600,
+      "y": 4000,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-111011.png"
+    },
+    "mountain-connect-000111": {
+      "x": 0,
+      "y": 4200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-000111.png"
+    },
+    "mountain-connect-100111": {
+      "x": 200,
+      "y": 4200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-100111.png"
+    },
+    "mountain-connect-010111": {
+      "x": 400,
+      "y": 4200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-010111.png"
+    },
+    "mountain-connect-110111": {
+      "x": 600,
+      "y": 4200,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-110111.png"
+    },
+    "mountain-connect-001111": {
+      "x": 0,
+      "y": 4400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-001111.png"
+    },
+    "mountain-connect-101111": {
+      "x": 200,
+      "y": 4400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-101111.png"
+    },
+    "mountain-connect-011111": {
+      "x": 400,
+      "y": 4400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-011111.png"
+    },
+    "mountain-connect-111111": {
+      "x": 600,
+      "y": 4400,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/mountain-connect-111111.png"
+    },
+    "rift-straight": {
+      "x": 0,
+      "y": 4600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-straight.png"
+    },
+    "rift-bend": {
+      "x": 200,
+      "y": 4600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-bend.png"
+    },
+    "rift-fork": {
+      "x": 400,
+      "y": 4600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-fork.png"
+    },
+    "rift-end": {
+      "x": 600,
+      "y": 4600,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-end.png"
+    },
+    "rift-isolated": {
+      "x": 0,
+      "y": 4800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-isolated.png"
+    },
+    "rift-massif": {
+      "x": 200,
+      "y": 4800,
+      "w": 200,
+      "h": 200,
+      "source": "packages/client-web/src/assets/images/terrain/painted/rift-massif.png"
     }
   }
 }

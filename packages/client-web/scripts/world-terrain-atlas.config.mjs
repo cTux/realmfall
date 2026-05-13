@@ -1,3 +1,5 @@
+import { SHIPPED_GENERATED_PASSABLE_TERRAIN_SOURCES } from './world-terrain-family-recipes.mjs';
+
 export const WORLD_TERRAIN_ATLAS_COLUMNS = 4;
 
 export const WORLD_TERRAIN_ATLAS_OUTPUTS = {
@@ -5,7 +7,37 @@ export const WORLD_TERRAIN_ATLAS_OUTPUTS = {
   manifest: 'packages/client-web/src/assets/generated/world-terrain-atlas.json',
 };
 
-export const WORLD_TERRAIN_ATLAS_SOURCES = [
+const paintedBlockerDir =
+  'packages/client-web/src/assets/images/terrain/painted';
+function toMountainConnectionMaskString(mask) {
+  return Array.from({ length: 6 }, (_, directionIndex) =>
+    mask & (1 << directionIndex) ? '1' : '0',
+  ).join('');
+}
+
+const MOUNTAIN_CONNECTED_TERRAIN_IDS = Array.from(
+  { length: 63 },
+  (_, index) => `mountain-connect-${toMountainConnectionMaskString(index + 1)}`,
+);
+const PAINTED_BLOCKER_TERRAIN_IDS = [
+  'mountain-isolated',
+  ...MOUNTAIN_CONNECTED_TERRAIN_IDS,
+  'rift-straight',
+  'rift-bend',
+  'rift-fork',
+  'rift-end',
+  'rift-isolated',
+  'rift-massif',
+];
+
+export const PAINTED_BLOCKER_TERRAIN_SOURCES = PAINTED_BLOCKER_TERRAIN_IDS.map(
+  (id) => ({
+    id,
+    source: `${paintedBlockerDir}/${id}.png`,
+  }),
+);
+
+export const BASE_WORLD_TERRAIN_ATLAS_SOURCES = [
   {
     id: 'plains',
     source: 'packages/client-web/src/assets/images/terrain/plains-v2.png',
@@ -122,4 +154,13 @@ export const WORLD_TERRAIN_ATLAS_SOURCES = [
     source:
       'packages/client-web/src/assets/images/terrain/dungeons/dungeon-obsidian-wall.png',
   },
+];
+
+export const WORLD_TERRAIN_ATLAS_SOURCES = [
+  ...BASE_WORLD_TERRAIN_ATLAS_SOURCES,
+  ...SHIPPED_GENERATED_PASSABLE_TERRAIN_SOURCES.map(({ id, source }) => ({
+    id,
+    source,
+  })),
+  ...PAINTED_BLOCKER_TERRAIN_SOURCES,
 ];

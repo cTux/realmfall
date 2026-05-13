@@ -46,6 +46,7 @@
 - When a world-facing time display only publishes at second boundaries, schedule it to the next boundary instead of driving a separate every-frame RAF loop beside the capped Pixi ticker.
 - Keep the generated world terrain atlas in sync with terrain PNG changes by running `pnpm build:client:assets`; the generated manifest must cover every runtime terrain in `TERRAINS`.
 - Runtime terrain sprites should resolve through generated atlas frame ids. Treat individual terrain PNGs as atlas inputs, not as direct world-render texture imports.
+- Keep connected mountain blocker art aligned to the runtime hex-neighbor direction map. When regenerating or repainting `mountain-connect-*` tiles from source art, orient the ridge exits one hex step clockwise from the raw concept-sheet default so neighboring mountain tiles continue across shared hex edges in-game.
 - Disabled renderer experiments such as optional filters must cost zero runtime bootstrap work. Keep the live runtime on a no-op path until the feature flag is enabled instead of importing or constructing disabled filter code during normal startup.
 - Use device-aware quality budgets for Pixi rendering. Cap expensive defaults such as full-resolution rendering or unconditional antialiasing when they threaten frame time on weaker or high-DPI devices.
 - Treat Pixi renderer creation options as page-lifetime initialization inputs. Keep those settings out of live Pixi bootstrap effect dependencies, and mark their controls as reload-required while routing live redraw toggles through explicit render invalidation.
