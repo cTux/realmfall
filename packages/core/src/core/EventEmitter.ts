@@ -3,7 +3,10 @@ type EventListener<Args extends readonly unknown[]> = (...args: Args) => void;
 export type EventMap = Record<string, readonly unknown[]>;
 
 export class EventEmitter<Events extends EventMap = EventMap> {
-  private readonly listeners = new Map<string, Set<EventListener<readonly unknown[]>>>();
+  private readonly listeners = new Map<
+    string,
+    Set<EventListener<readonly unknown[]>>
+  >();
 
   on<K extends keyof Events & string>(
     event: K,

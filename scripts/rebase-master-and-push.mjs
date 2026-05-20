@@ -1,4 +1,9 @@
-import { appendFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
+import {
+  appendFileSync,
+  existsSync,
+  readFileSync,
+  writeFileSync,
+} from 'node:fs';
 import { resolve } from 'node:path';
 import { spawnSync } from 'node:child_process';
 import process from 'node:process';
@@ -224,7 +229,7 @@ function continueRebase() {
       continue;
     }
 
-  fail(
+    fail(
       'git rebase --continue failed. Resolve the reported issue, or run git rebase --skip/--abort manually before retrying.',
     );
   }

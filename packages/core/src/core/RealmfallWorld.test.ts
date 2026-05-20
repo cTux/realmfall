@@ -60,10 +60,12 @@ describe('RealmfallWorld', () => {
 
     expect(world.player.inventory).toBeInstanceOf(Inventory);
     expect(world.player.inventory.items[0]).toBeInstanceOf(ItemStack);
-    expect(world.player.inventory.size).toBe(world.snapshot().player.inventory.length);
-    expect(world.player.inventory.findById(world.snapshot().player.inventory[0]!.id)).toBeInstanceOf(
-      ItemStack,
+    expect(world.player.inventory.size).toBe(
+      world.snapshot().player.inventory.length,
     );
+    expect(
+      world.player.inventory.findById(world.snapshot().player.inventory[0]!.id),
+    ).toBeInstanceOf(ItemStack);
   });
 
   it('wraps combat state in a combat encounter class', () => {

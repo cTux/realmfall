@@ -109,7 +109,9 @@ function getStaticRenderToken(
   visibleTileRenderInputs: VisibleTileRenderInput[],
 ) {
   const visibleTileMap = new Map(
-    visibleTileRenderInputs.map(({ tile }) => [hexKey(tile.coord), tile] as const),
+    visibleTileRenderInputs.map(
+      ({ tile }) => [hexKey(tile.coord), tile] as const,
+    ),
   );
   let token = 2166136261;
   token = mixRenderToken(token, coordToken(state.player.coord));
@@ -156,7 +158,9 @@ function getStaticTileRenderToken(
   );
   token = mixRenderToken(
     token,
-    hashRenderString(getWorldTerrainPresentation(tile, visibleTileMap).signature),
+    hashRenderString(
+      getWorldTerrainPresentation(tile, visibleTileMap).signature,
+    ),
   );
   token = mixRenderToken(
     token,

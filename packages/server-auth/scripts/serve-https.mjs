@@ -2,13 +2,8 @@ import process from 'node:process';
 import { ensureLocalhostHttpsCertificate } from '../../client/scripts/localhost-https.mjs';
 
 async function start() {
-  const [
-    { buildServer },
-    { createAuthListenUrl, createAuthRuntimeConfig },
-  ] = await Promise.all([
-    import('../dist/app.js'),
-    import('../dist/runtime.js'),
-  ]);
+  const [{ buildServer }, { createAuthListenUrl, createAuthRuntimeConfig }] =
+    await Promise.all([import('../dist/app.js'), import('../dist/runtime.js')]);
   const { certPath, keyPath } = await ensureLocalhostHttpsCertificate();
   const server = buildServer({
     https: {

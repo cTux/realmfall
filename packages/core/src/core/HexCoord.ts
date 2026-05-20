@@ -37,10 +37,15 @@ export class HexCoord extends EventEmitter {
   }
 
   distanceTo(other: RuntimeHexCoord | HexCoord): number {
-    return hexDistance(this.toRuntimeCoord(), HexCoord.from(other).toRuntimeCoord());
+    return hexDistance(
+      this.toRuntimeCoord(),
+      HexCoord.from(other).toRuntimeCoord(),
+    );
   }
 
   neighbors(): HexCoord[] {
-    return hexNeighbors(this.toRuntimeCoord()).map(({ q, r }) => new HexCoord(q, r));
+    return hexNeighbors(this.toRuntimeCoord()).map(
+      ({ q, r }) => new HexCoord(q, r),
+    );
   }
 }

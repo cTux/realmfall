@@ -84,7 +84,7 @@ describe('run-staged-quality helpers', () => {
   });
 
   it('chunks staged file arguments before Windows process limits are hit', () => {
-    const fixedArgs = ['--filter', '@realmfall/client-web', 'exec', 'prettier'];
+    const fixedArgs = ['exec', 'oxfmt', '--config', 'E:/repo/.oxfmtrc.jsonc'];
     const fileArgs = [
       'E:/repo/packages/client-web/src/game/one.ts',
       'E:/repo/packages/client-web/src/game/two.ts',

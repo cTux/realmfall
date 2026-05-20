@@ -8,7 +8,12 @@ import {
 import { ItemId } from '../ids';
 import type { ItemConfig } from '../types';
 
-export type ItemCategory = 'weapon' | 'armor' | 'artifact' | 'consumable' | 'resource';
+export type ItemCategory =
+  | 'weapon'
+  | 'armor'
+  | 'artifact'
+  | 'consumable'
+  | 'resource';
 
 export interface ItemClassificationInput {
   name?: string;
@@ -175,7 +180,9 @@ export function inferItemTagsByCategory(
 }
 
 export function isEquippableItemCategory(category: ItemCategory) {
-  return category === 'weapon' || category === 'armor' || category === 'artifact';
+  return (
+    category === 'weapon' || category === 'armor' || category === 'artifact'
+  );
 }
 
 export function isConsumableItem(item: ItemClassificationInput) {

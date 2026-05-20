@@ -1,9 +1,6 @@
 import process from 'node:process';
 import { buildServer } from './app.js';
-import {
-  createAuthListenUrl,
-  createAuthRuntimeConfig,
-} from './runtime.js';
+import { createAuthListenUrl, createAuthRuntimeConfig } from './runtime.js';
 
 type LocalhostHttpsCertificate = {
   certPath: string;
@@ -23,7 +20,8 @@ async function ensureAuthServerLocalhostHttpsCertificate() {
 }
 
 async function start() {
-  const { certPath, keyPath } = await ensureAuthServerLocalhostHttpsCertificate();
+  const { certPath, keyPath } =
+    await ensureAuthServerLocalhostHttpsCertificate();
   const server = buildServer({
     https: {
       certPath,

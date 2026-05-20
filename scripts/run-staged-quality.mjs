@@ -3,8 +3,8 @@ import { existsSync, statSync } from 'node:fs';
 import { resolve } from 'node:path';
 import {
   chunkFilesByArgumentLength,
+  isFormatFile,
   isLintFile,
-  isPrettierFile,
   isSrcStyleFile,
   isVitestRelatedFile,
   shouldRunFullTestSuite,
@@ -71,7 +71,7 @@ if (stagedFiles.length === 0) {
   process.exit(0);
 }
 
-const prettierFiles = stagedFiles.filter(isPrettierFile);
+const formatFiles = stagedFiles.filter(isFormatFile);
 const lintFiles = stagedFiles.filter(isLintFile);
 const stylelintFiles = stagedFiles.filter(isSrcStyleFile);
 const packageJsonDiffText = stagedFiles.includes('package.json')
@@ -87,14 +87,14 @@ const hasFullTestTrigger = shouldRunFullTestSuite(
 const vitestRelatedFiles = stagedFiles.filter(isVitestRelatedFile);
 const toAbsolutePaths = (files) => files.map((file) => resolve(file));
 
-if (prettierFiles.length > 0) {
+if (formatFiles.length > 0) {
   runChunkedCommand(
-    `Running Prettier --write on ${prettierFiles.length} staged file(s)`,
-    ['--filter', '@realmfall/client-web', 'exec', 'prettier', '--write'],
-    toAbsolutePaths(prettierFiles),
+    `Running Oxfmt on ${formatFiles.length} staged file(s)`,
+    ['exec', 'oxfmt', '--config', resolve('.oxfmtrc.jsonc')],
+    toAbsolutePaths(formatFiles),
   );
 } else {
-  logStep('Skipping staged Prettier, no matching files');
+  logStep('Skipping staged Oxfmt, no matching files');
 }
 
 if (lintClientFiles.length > 0) {

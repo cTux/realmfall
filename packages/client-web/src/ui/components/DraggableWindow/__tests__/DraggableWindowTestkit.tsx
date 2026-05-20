@@ -190,35 +190,36 @@ export class DraggableWindowTestkit {
 
     this.getBoundingClientRectSpy = vi
       .spyOn(HTMLElement.prototype, 'getBoundingClientRect')
-      .mockImplementation(function mockGetBoundingClientRect(
-        this: HTMLElement,
-      ) {
-        const left = Number(
-          (
-            this.style.getPropertyValue('--window-position-x') ||
-            this.style.left
-          ).replace('px', '') || 0,
-        );
-        const top = Number(
-          (
-            this.style.getPropertyValue('--window-position-y') || this.style.top
-          ).replace('px', '') || 0,
-        );
-        const width = Number(this.style.width.replace('px', '') || 320);
-        const height = Number(this.style.height.replace('px', '') || 220);
+      .mockImplementation(
+        function mockGetBoundingClientRect(this: HTMLElement) {
+          const left = Number(
+            (
+              this.style.getPropertyValue('--window-position-x') ||
+              this.style.left
+            ).replace('px', '') || 0,
+          );
+          const top = Number(
+            (
+              this.style.getPropertyValue('--window-position-y') ||
+              this.style.top
+            ).replace('px', '') || 0,
+          );
+          const width = Number(this.style.width.replace('px', '') || 320);
+          const height = Number(this.style.height.replace('px', '') || 220);
 
-        return {
-          x: left,
-          y: top,
-          left,
-          top,
-          width,
-          height,
-          right: left + width,
-          bottom: top + height,
-          toJSON: () => undefined,
-        } as DOMRect;
-      });
+          return {
+            x: left,
+            y: top,
+            left,
+            top,
+            width,
+            height,
+            right: left + width,
+            bottom: top + height,
+            toJSON: () => undefined,
+          } as DOMRect;
+        },
+      );
   }
 
   private restoreViewport() {

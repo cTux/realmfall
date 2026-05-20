@@ -75,12 +75,8 @@ export function maybeGatherByproduct(
     `${state.seed}:gather-byproduct:${structure}:${state.turn}:${hexKey(state.player.coord)}`,
   );
   const byproductChance =
-    byproductKind === 'string'
-      ? 1
-      : GATHERING_BYPRODUCT_CHANCES[byproductKind];
-  if (
-    rng() >= byproductChance
-  ) {
+    byproductKind === 'string' ? 1 : GATHERING_BYPRODUCT_CHANCES[byproductKind];
+  if (rng() >= byproductChance) {
     return null;
   }
 

@@ -68,7 +68,8 @@ export const CONTENT_ICON_IDS = {
   EarthCrack: 'content-icon:earth-crack',
 } as const;
 
-export type ContentIconId = (typeof CONTENT_ICON_IDS)[keyof typeof CONTENT_ICON_IDS];
+export type ContentIconId =
+  (typeof CONTENT_ICON_IDS)[keyof typeof CONTENT_ICON_IDS];
 
 export const ABILITY_ICON_IDS = {
   kick: 'ability-icon:kick',
@@ -108,7 +109,8 @@ export const ABILITY_ICON_IDS = {
   ironGuard: 'ability-icon:iron-guard',
 } as const;
 
-export type AbilityIconId = (typeof ABILITY_ICON_IDS)[keyof typeof ABILITY_ICON_IDS];
+export type AbilityIconId =
+  (typeof ABILITY_ICON_IDS)[keyof typeof ABILITY_ICON_IDS];
 
 export const STATUS_EFFECT_ICON_IDS = {
   hunger: 'status-effect-icon:hunger',

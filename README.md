@@ -14,7 +14,7 @@ Realmfall is an active browser-first prototype with hex exploration, survival sy
 - Pixi.js
 - Vitest
 - Oxlint
-- Prettier
+- Oxfmt
 - Husky
 - pnpm
 
@@ -35,6 +35,8 @@ pnpm dev
 - `pnpm dev:electron`
 - `pnpm typecheck`
 - `pnpm lint`
+- `pnpm fmt`
+- `pnpm fmt:check`
 - `pnpm test`
 - `pnpm build`
 

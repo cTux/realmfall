@@ -22,7 +22,7 @@ export class BattleEntity<
 
   get maxHp() {
     return 'maxHp' in this.state
-      ? this.state.maxHp ?? this.state.baseMaxHp
+      ? (this.state.maxHp ?? this.state.baseMaxHp)
       : this.state.baseMaxHp;
   }
 
@@ -59,13 +59,13 @@ export class BattleEntity<
   }
 
   get mana() {
-    return 'mana' in this.state ? this.state.mana ?? 0 : this.state.mana;
+    return 'mana' in this.state ? (this.state.mana ?? 0) : this.state.mana;
   }
 
   get maxMana() {
     return 'baseMaxMana' in this.state
       ? this.state.baseMaxMana
-      : this.state.maxMana ?? 0;
+      : (this.state.maxMana ?? 0);
   }
 
   snapshot(): TState {

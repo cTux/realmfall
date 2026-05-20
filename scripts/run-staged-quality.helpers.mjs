@@ -1,10 +1,11 @@
 const LINT_EXTENSIONS = new Set(['.js', '.jsx', '.ts', '.tsx', '.mjs', '.cjs']);
 
-const PRETTIER_EXTENSIONS = new Set([
+const FORMAT_EXTENSIONS = new Set([
   ...LINT_EXTENSIONS,
   '.css',
   '.scss',
   '.json',
+  '.jsonc',
   '.md',
   '.html',
   '.yaml',
@@ -42,8 +43,8 @@ export function isSrcStyleFile(file) {
   );
 }
 
-export function isPrettierFile(file) {
-  return PRETTIER_EXTENSIONS.has(getExtension(file));
+export function isFormatFile(file) {
+  return FORMAT_EXTENSIONS.has(getExtension(file));
 }
 
 export function isLintFile(file) {

@@ -7,10 +7,7 @@ import {
   createGooglePlayerAuth,
   type GooglePlayerAuthService,
 } from './googleAuth.js';
-import {
-  createAuthRuntimeConfig,
-  type AuthRuntimeConfig,
-} from './runtime.js';
+import { createAuthRuntimeConfig, type AuthRuntimeConfig } from './runtime.js';
 import { getAuthServiceVersion } from './version.js';
 
 type HttpsServerConfig = {
@@ -29,9 +26,7 @@ type VerifyGooglePlayerRequestBody = {
   idToken: string;
 };
 
-function hasIdToken(
-  body: unknown,
-): body is VerifyGooglePlayerRequestBody {
+function hasIdToken(body: unknown): body is VerifyGooglePlayerRequestBody {
   if (!body || typeof body !== 'object') {
     return false;
   }

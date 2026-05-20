@@ -52,7 +52,6 @@
     "jsdom": "catalog:",
     "npm-check-updates": "^22.1.0",
     "oxlint": "catalog:",
-    "prettier": "^3.8.3",
     "rollup-plugin-visualizer": "^7.0.1",
     "sass": "catalog:",
     "selfsigned": "^5.5.0",
