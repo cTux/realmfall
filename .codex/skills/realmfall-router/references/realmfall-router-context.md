@@ -7,6 +7,7 @@
 - Lore gate (when applicable): `docs/lore/REALMFALL.md`
 
 Available destination skills:
+
 - `realmfall-dev`
 - `realmfall-ui-audit`
 - `realmfall-review`

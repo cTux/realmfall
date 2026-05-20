@@ -26,9 +26,7 @@ export type GooglePlayerIdentity = {
 };
 
 export type GoogleAuthClient = {
-  verifyIdToken: (
-    options: VerifyIdTokenOptions,
-  ) => Promise<GoogleLoginTicket>;
+  verifyIdToken: (options: VerifyIdTokenOptions) => Promise<GoogleLoginTicket>;
 };
 
 export type GooglePlayerAuthService = {
@@ -88,8 +86,7 @@ export function createGooglePlayerAuth({
   authClient,
   googleClientId,
 }: CreateGooglePlayerAuthOptions): GooglePlayerAuthService {
-  const client =
-    authClient ?? new OAuth2Client(googleClientId ?? undefined);
+  const client = authClient ?? new OAuth2Client(googleClientId ?? undefined);
 
   return {
     async verifyPlayer(idToken) {

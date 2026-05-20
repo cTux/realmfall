@@ -28,7 +28,10 @@ export function maybeSkinEnemy(state: GameState, enemy: Enemy) {
       item: makeResourceStack(ItemId.LeatherScraps, enemy.tier, quantity),
       suppressLog: true,
     },
-    { item: makeResourceStack('meat', enemy.tier, quantity), suppressLog: true },
+    {
+      item: makeResourceStack('meat', enemy.tier, quantity),
+      suppressLog: true,
+    },
   ]);
   gainSkillXp(state, Skill.Skinning, quantity, addLog);
   addLog(

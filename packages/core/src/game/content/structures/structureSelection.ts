@@ -35,10 +35,11 @@ function resolveGlobalAppearanceThreshold(
   type: StructureType,
   fallback: number | undefined,
 ) {
-  const configuredThreshold = STRUCTURE_APPEARANCE.globalAppearanceThreshold[type];
+  const configuredThreshold =
+    STRUCTURE_APPEARANCE.globalAppearanceThreshold[type];
   return typeof configuredThreshold === 'number'
     ? configuredThreshold
-    : fallback ?? 1;
+    : (fallback ?? 1);
 }
 
 function resolveTerrainAppearanceThreshold(

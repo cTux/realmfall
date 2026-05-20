@@ -11,9 +11,9 @@
       <div class="label">Approach A</div>
       <h3>App-Layer Intent</h3>
       <p>
-        Keep most combat state unchanged. Intercept enemy-hex clicks in the world
-        controller, remember the clicked enemy hex in app state, and resolve the
-        post-victory step from the UI layer.
+        Keep most combat state unchanged. Intercept enemy-hex clicks in the
+        world controller, remember the clicked enemy hex in app state, and
+        resolve the post-victory step from the UI layer.
       </p>
       <div class="pros-cons">
         <div class="pros">
@@ -41,9 +41,10 @@
       <h3>Encounter Metadata In Game State</h3>
       <p>
         Extend encounter creation with metadata about how the fight started:
-        clicked enemy hex, staging hex, and whether victory should auto-step onto
-        the target. Combat always auto-starts, and the renderer consumes the same
-        encounter metadata for the visual lunge and floating text anchors.
+        clicked enemy hex, staging hex, and whether victory should auto-step
+        onto the target. Combat always auto-starts, and the renderer consumes
+        the same encounter metadata for the visual lunge and floating text
+        anchors.
       </p>
       <div class="pros-cons">
         <div class="pros">
@@ -71,8 +72,8 @@
       <h3>Full Position Virtualization</h3>
       <p>
         Move the player into the enemy hex in gameplay state at encounter start,
-        then emulate the pre-combat or post-combat position visually and logically
-        from there.
+        then emulate the pre-combat or post-combat position visually and
+        logically from there.
       </p>
       <div class="pros-cons">
         <div class="pros">
@@ -106,15 +107,26 @@
           <p>2. No real move, no move cooldown.</p>
           <p>3. Combat auto-starts immediately.</p>
           <p>4. Player badge visually lunges toward the enemy hex.</p>
-          <p>5. On victory, player auto-steps onto that hex and starts movement cooldown.</p>
+          <p>
+            5. On victory, player auto-steps onto that hex and starts movement
+            cooldown.
+          </p>
         </div>
         <div>
           <div class="label">Far Enemy Click / Dungeon Chase</div>
           <p>1. Move toward the nearest adjacent staging hex.</p>
-          <p>2. Start combat immediately on arrival or on enemy chase contact.</p>
+          <p>
+            2. Start combat immediately on arrival or on enemy chase contact.
+          </p>
           <p>3. Keep the original enemy hex as the post-victory destination.</p>
-          <p>4. On victory, auto-step into that target hex and start movement cooldown.</p>
-          <p>5. HP/MP rings and floating damage/heal text stay attached to world hex frames.</p>
+          <p>
+            4. On victory, auto-step into that target hex and start movement
+            cooldown.
+          </p>
+          <p>
+            5. HP/MP rings and floating damage/heal text stay attached to world
+            hex frames.
+          </p>
         </div>
       </div>
     </div>

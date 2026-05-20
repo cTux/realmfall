@@ -1,7 +1,5 @@
 import { expect } from 'vitest';
-import {
-  createGooglePlayerAuth,
-} from '../googleAuth.js';
+import { createGooglePlayerAuth } from '../googleAuth.js';
 
 type VerifyIdTokenOptions = {
   audience: string;
@@ -38,12 +36,12 @@ export class GooglePlayerAuthTestkit {
         googleClientId: 'realmfall-web-client-id',
       });
 
-      await expect(auth.verifyPlayer('valid-player-token')).rejects.toMatchObject(
-        {
-          message: 'Expected the Google token payload to contain an email.',
-          statusCode: 401,
-        },
-      );
+      await expect(
+        auth.verifyPlayer('valid-player-token'),
+      ).rejects.toMatchObject({
+        message: 'Expected the Google token payload to contain an email.',
+        statusCode: 401,
+      });
     },
     rejectsVerificationWithoutGoogleClientId: async () => {
       const auth = createGooglePlayerAuth({
@@ -51,12 +49,12 @@ export class GooglePlayerAuthTestkit {
         googleClientId: null,
       });
 
-      await expect(auth.verifyPlayer('valid-player-token')).rejects.toMatchObject(
-        {
-          message: 'Google player auth is not configured.',
-          statusCode: 503,
-        },
-      );
+      await expect(
+        auth.verifyPlayer('valid-player-token'),
+      ).rejects.toMatchObject({
+        message: 'Google player auth is not configured.',
+        statusCode: 503,
+      });
     },
     verifiesTokensAgainstConfiguredAudience: async () => {
       const auth = createGooglePlayerAuth({

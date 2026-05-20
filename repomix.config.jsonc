@@ -10,8 +10,8 @@
     "topFilesLength": 15,
     "truncateBase64": true,
     "git": {
-      "sortByChanges": true
-    }
+      "sortByChanges": true,
+    },
   },
   "include": [
     "AGENTS.md",
@@ -19,10 +19,10 @@
     "README.md",
     ".nvmrc",
     ".npmrc",
+    ".oxfmtrc.jsonc",
     ".oxlintrc.json",
     ".stylelintrc.json",
     "commitlint.config.js",
-    "prettier.config.cjs",
     "package.json",
     "pnpm-workspace.yaml",
     ".github/workflows/**",
@@ -33,7 +33,7 @@
     "docs/PROJECT_REVIEW.md",
     "docs/realmfall-skills.md",
     "packages/**",
-    "scripts/**"
+    "scripts/**",
   ],
   "ignore": {
     "useGitignore": true,
@@ -46,13 +46,13 @@
       "packages/client-web/public/assets/**",
       "packages/client-web/src/assets/**",
       "packages/client-web/src/i18n/locales/**",
-      "**/*.{svg,png,jpg,jpeg,webp,gif,mp3,wav,ogg,ttf,woff,woff2}"
-    ]
+      "**/*.{svg,png,jpg,jpeg,webp,gif,mp3,wav,ogg,ttf,woff,woff2}",
+    ],
   },
   "security": {
-    "enableSecurityCheck": true
+    "enableSecurityCheck": true,
   },
   "tokenCount": {
-    "encoding": "o200k_base"
-  }
+    "encoding": "o200k_base",
+  },
 }

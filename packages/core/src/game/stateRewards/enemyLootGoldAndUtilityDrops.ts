@@ -64,8 +64,11 @@ export function maybeDropEnemyGold(state: GameState, enemy: Enemy) {
   );
   const bloodMoonQuantity = state.bloodMoonActive
     ? Math.max(
-        quantity + enemy.tier * ENEMY_GOLD_DROP_CHANCES.bloodMoonMultiplier.tierWeight,
-        Math.ceil(quantity * ENEMY_GOLD_DROP_CHANCES.bloodMoonMultiplier.quantity),
+        quantity +
+          enemy.tier * ENEMY_GOLD_DROP_CHANCES.bloodMoonMultiplier.tierWeight,
+        Math.ceil(
+          quantity * ENEMY_GOLD_DROP_CHANCES.bloodMoonMultiplier.quantity,
+        ),
       )
     : quantity;
   const finalQuantity = isTreasureGoblinEnemy(enemy)
@@ -110,7 +113,10 @@ export function maybeDropLockedChestOpener(
   );
 }
 
-export function maybeDropTerraformingConsumable(state: GameState, enemy: Enemy) {
+export function maybeDropTerraformingConsumable(
+  state: GameState,
+  enemy: Enemy,
+) {
   const chance = GAME_CONFIG.drops.terraformingConsumableChance;
   if (chance <= 0) return;
   const rng = createRng(

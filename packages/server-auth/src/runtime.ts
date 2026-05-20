@@ -105,7 +105,9 @@ export function parseRealmDirectory(
     throw new Error('Expected REALMFALL_AUTH_REALMS_JSON to be a JSON array.');
   }
 
-  return parsedValue.map((entry, index) => parseRealmDirectoryEntry(entry, index));
+  return parsedValue.map((entry, index) =>
+    parseRealmDirectoryEntry(entry, index),
+  );
 }
 
 export function createAuthRuntimeConfig(

@@ -1,5 +1,9 @@
 import type { GameTag } from '../game/content/tags';
-import { getItemCategory, hasItemTag, isEquippableItemCategory } from '../game/content/items/itemClassification';
+import {
+  getItemCategory,
+  hasItemTag,
+  isEquippableItemCategory,
+} from '../game/content/items/itemClassification';
 import type { Item } from '../game/types';
 import { EventEmitter } from './EventEmitter';
 

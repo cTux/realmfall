@@ -1,6 +1,10 @@
 import { copyGameState } from '../game/stateClone';
 import { syncActiveWorldAliases } from '../game/dungeons/worldState';
-import { getDayPhase, getWorldDayIndex, normalizeWorldMinutes } from '../game/logs';
+import {
+  getDayPhase,
+  getWorldDayIndex,
+  normalizeWorldMinutes,
+} from '../game/logs';
 import * as stateApi from '../game/state';
 import { getWorldTimeMinutesFromTimestamp } from '../game/worldTime';
 import type { CombatState, GameState } from '../game/types';
@@ -48,7 +52,9 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
     );
   }
 
-  static fromSave(input: Partial<GameState> | null | undefined): RealmfallWorld {
+  static fromSave(
+    input: Partial<GameState> | null | undefined,
+  ): RealmfallWorld {
     if (!input) {
       return RealmfallWorld.create();
     }
@@ -58,7 +64,9 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
         ? input.seed
         : `world-${Date.now()}`;
     const radius =
-      typeof input.radius === 'number' && Number.isFinite(input.radius) && input.radius > 0
+      typeof input.radius === 'number' &&
+      Number.isFinite(input.radius) &&
+      input.radius > 0
         ? input.radius
         : undefined;
     const fallback = stateApi.createGame(radius, seed);
@@ -76,17 +84,22 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
       worldFloatingTextEvents: Array.isArray(input.worldFloatingTextEvents)
         ? input.worldFloatingTextEvents
         : fallback.worldFloatingTextEvents,
-      tiles: isRecord(input.tiles) ? (input.tiles as GameState['tiles']) : fallback.tiles,
+      tiles: isRecord(input.tiles)
+        ? (input.tiles as GameState['tiles'])
+        : fallback.tiles,
       enemies: isRecord(input.enemies)
         ? (input.enemies as GameState['enemies'])
         : fallback.enemies,
-      worlds: isRecord(input.worlds) ? (input.worlds as GameState['worlds']) : fallback.worlds,
+      worlds: isRecord(input.worlds)
+        ? (input.worlds as GameState['worlds'])
+        : fallback.worlds,
       dungeonEntrances: isRecord(input.dungeonEntrances)
         ? (input.dungeonEntrances as GameState['dungeonEntrances'])
         : fallback.dungeonEntrances,
-      combat: input.combat === undefined
-        ? fallback.combat
-        : (input.combat as GameState['combat']),
+      combat:
+        input.combat === undefined
+          ? fallback.combat
+          : (input.combat as GameState['combat']),
       activeDungeon:
         input.activeDungeon === undefined
           ? fallback.activeDungeon
@@ -106,7 +119,9 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
   }
 
   get enemies(): EnemyEntity[] {
-    return Object.values(this.#state.enemies).map((enemy) => new EnemyEntity(enemy));
+    return Object.values(this.#state.enemies).map(
+      (enemy) => new EnemyEntity(enemy),
+    );
   }
 
   get combat() {
@@ -128,7 +143,9 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
   }
 
   get visibleTiles() {
-    return stateApi.getVisibleTiles(this.#state).map((tile) => this.wrapTile(tile));
+    return stateApi
+      .getVisibleTiles(this.#state)
+      .map((tile) => this.wrapTile(tile));
   }
 
   get outpostBuildStatus() {
@@ -156,11 +173,15 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
   }
 
   moveToTile(target: HexCoordLike, options: MoveToTileOptions = {}) {
-    return this.swapState(stateApi.moveToTile(this.#state, toRuntimeCoord(target), options));
+    return this.swapState(
+      stateApi.moveToTile(this.#state, toRuntimeCoord(target), options),
+    );
   }
 
   moveAlongSafePath(target: HexCoordLike) {
-    return this.swapState(stateApi.moveAlongSafePath(this.#state, toRuntimeCoord(target)));
+    return this.swapState(
+      stateApi.moveAlongSafePath(this.#state, toRuntimeCoord(target)),
+    );
   }
 
   setHomeHex(coord?: HexCoordLike) {
@@ -185,7 +206,9 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
   }
 
   interactWithStructureUntilDepleted() {
-    return this.swapState(stateApi.interactWithStructureUntilDepleted(this.#state));
+    return this.swapState(
+      stateApi.interactWithStructureUntilDepleted(this.#state),
+    );
   }
 
   healAtFactionNpc() {
@@ -257,7 +280,9 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
   }
 
   setInventoryItemLocked(itemId: string, locked: boolean) {
-    return this.swapState(stateApi.setInventoryItemLocked(this.#state, itemId, locked));
+    return this.swapState(
+      stateApi.setInventoryItemLocked(this.#state, itemId, locked),
+    );
   }
 
   sortInventory() {
@@ -293,7 +318,9 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
   }
 
   syncPlayerStatusEffects(worldTimeMs = this.#state.worldTimeMs) {
-    return this.swapState(stateApi.syncPlayerStatusEffects(this.#state, worldTimeMs));
+    return this.swapState(
+      stateApi.syncPlayerStatusEffects(this.#state, worldTimeMs),
+    );
   }
 
   triggerEarthshake() {
@@ -305,7 +332,9 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
   }
 
   getTile(coord: HexCoordLike) {
-    return this.wrapTile(stateApi.getTileAt(this.#state, toRuntimeCoord(coord)));
+    return this.wrapTile(
+      stateApi.getTileAt(this.#state, toRuntimeCoord(coord)),
+    );
   }
 
   getEnemiesAt(coord: HexCoordLike) {
@@ -377,7 +406,10 @@ export class RealmfallWorld extends EventEmitter<RealmfallWorldEvents> {
     }
 
     if (previous.combat !== next.combat) {
-      this.emit('combatUpdated', next.combat ? this.wrapCombat(next.combat) : null);
+      this.emit(
+        'combatUpdated',
+        next.combat ? this.wrapCombat(next.combat) : null,
+      );
     }
 
     if (previous.combat && !next.combat) {
@@ -432,7 +464,9 @@ function mergePlayerState(
     favoriteRecipeIds: Array.isArray(player.favoriteRecipeIds)
       ? player.favoriteRecipeIds
       : fallback.favoriteRecipeIds,
-    inventory: Array.isArray(player.inventory) ? player.inventory : fallback.inventory,
+    inventory: Array.isArray(player.inventory)
+      ? player.inventory
+      : fallback.inventory,
     equipment: isRecord(player.equipment)
       ? { ...fallback.equipment, ...player.equipment }
       : fallback.equipment,
@@ -467,7 +501,10 @@ function normalizeCoord<T extends { q: number; r: number } | null | undefined>(
   return fallback;
 }
 
-function sameCoord(left: { q: number; r: number }, right: { q: number; r: number }) {
+function sameCoord(
+  left: { q: number; r: number },
+  right: { q: number; r: number },
+) {
   return left.q === right.q && left.r === right.r;
 }
 

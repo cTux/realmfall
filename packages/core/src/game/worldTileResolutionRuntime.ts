@@ -47,9 +47,7 @@ function hydrateItem(
     locked: item.locked,
     slot: item.slot as Item['slot'],
     icon: item.icon,
-    tint:
-      item.tint ??
-      (configuredItem ? configuredItem.tint : undefined),
+    tint: item.tint ?? (configuredItem ? configuredItem.tint : undefined),
     name: item.name,
     quantity: item.quantity,
     tier: item.tier,

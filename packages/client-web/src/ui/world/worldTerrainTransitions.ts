@@ -71,7 +71,9 @@ export function getTerrainTransitionBandPolygons(
   overlay: TerrainTransitionOverlay,
 ) {
   const vertices = chunkPolygon(poly);
-  const [startIndex, endIndex] = EDGE_VERTEX_INDEX_BY_DIRECTION[overlay.edgeIndex] ?? [0, 1];
+  const [startIndex, endIndex] = EDGE_VERTEX_INDEX_BY_DIRECTION[
+    overlay.edgeIndex
+  ] ?? [0, 1];
   const start = vertices[startIndex];
   const end = vertices[endIndex];
   if (!start || !end) {
@@ -112,7 +114,10 @@ function getPolygonCenter(points: Array<{ x: number; y: number }>) {
   return { x: total.x / count, y: total.y / count };
 }
 
-function midpoint(left: { x: number; y: number }, right: { x: number; y: number }) {
+function midpoint(
+  left: { x: number; y: number },
+  right: { x: number; y: number },
+) {
   return {
     x: (left.x + right.x) / 2,
     y: (left.y + right.y) / 2,
@@ -143,8 +148,16 @@ function getColorContrast(left: number, right: number) {
 
 function mixColor(left: number, right: number, amount: number) {
   const progress = Math.max(0, Math.min(1, amount));
-  const red = Math.round(((left >> 16) & 0xff) + (((right >> 16) & 0xff) - ((left >> 16) & 0xff)) * progress);
-  const green = Math.round(((left >> 8) & 0xff) + (((right >> 8) & 0xff) - ((left >> 8) & 0xff)) * progress);
-  const blue = Math.round((left & 0xff) + ((right & 0xff) - (left & 0xff)) * progress);
+  const red = Math.round(
+    ((left >> 16) & 0xff) +
+      (((right >> 16) & 0xff) - ((left >> 16) & 0xff)) * progress,
+  );
+  const green = Math.round(
+    ((left >> 8) & 0xff) +
+      (((right >> 8) & 0xff) - ((left >> 8) & 0xff)) * progress,
+  );
+  const blue = Math.round(
+    (left & 0xff) + ((right & 0xff) - (left & 0xff)) * progress,
+  );
   return (red << 16) | (green << 8) | blue;
 }

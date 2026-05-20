@@ -7,7 +7,7 @@ This spec covers the repository quality baseline and current test coverage shape
 ## Current Solution
 
 - Client-side `src/*` and `scripts/*` paths below live under `packages/client-web/` after the monorepo split unless the path explicitly names another package.
-- The repository uses TypeScript strict mode, Oxlint, Stylelint, Prettier, Vitest, Husky, Vite, and Storybook.
+- The repository uses TypeScript strict mode, Oxlint, Stylelint, Oxfmt, Vitest, Husky, Vite, and Storybook.
 - Root verification entrypoints cover the shared workspace typecheck, lint, build, and automated test paths across `packages/common`, `packages/server-world`, `packages/server-auth`, `packages/ui-react`, and `packages/client-web`, while package-local scripts keep narrower verification available for iteration.
 - Client Vitest coverage is split between a DOM-free `node` project for gameplay, persistence, i18n, and script tests and a `jsdom` project for React, Pixi, and other browser-surface tests.
 - Dedicated memory-leak scripts run a custom `fuite` dock-window toggle scenario against local HTTPS dev and production builds, writing JSON analysis snapshots into `.tests/memory-leaks/`.
@@ -33,7 +33,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - UI, renderer, Storybook, and helper tests that only need builders, selectors, or shared types now import `src/game/stateFactory.ts`, `src/game/stateSelectors.ts`, or `src/game/stateTypes.ts` instead of the mutation-heavy `src/game/state.ts`, which keeps `vitest related` on gameplay mutation files scoped to the tests that actually exercise those entrypoints.
 - Tests that exercise typed gameplay helpers use complete domain fixtures or builder-backed objects instead of partial literals, so `pnpm typecheck` catches real integration drift rather than test-only shape shortcuts.
 - `scripts/tests/app-ui-state-boundaries.test.ts` guards that non-game client source modules do not drift back to local `packages/client-web/src/game/*` imports and instead consume gameplay runtime code through `@realmfall/core/game/*`.
-- `scripts/run-staged-quality.mjs` batches staged Prettier, Oxlint, Stylelint, and `vitest related` file lists into argument-length-safe chunks so Windows commit hooks can validate large staged refactors without hitting process launch limits.
+- `scripts/run-staged-quality.mjs` batches staged Oxfmt, Oxlint, Stylelint, and `vitest related` file lists into argument-length-safe chunks so Windows commit hooks can validate large staged refactors without hitting process launch limits.
 - World-render coverage is split across focused suites such as `src/ui/world/renderSceneCache.test.ts`, `src/ui/world/renderSceneEnemyMarkers.test.ts`, `src/ui/world/renderSceneClaimMarkers.test.ts`, `src/ui/world/renderSceneWorldBossMarkers.test.ts`, `src/ui/world/renderSceneInteractions.test.ts`, `src/ui/world/renderSceneAtmosphere.test.ts`, `src/ui/world/renderSceneReuse.test.ts`, `src/ui/world/renderSceneCacheInvalidation.test.ts`, `src/ui/world/renderSceneMarkerAnimations.test.ts`, and `src/ui/world/renderScenePools.test.ts` instead of one renderer umbrella file.
 - The codebase favors deterministic tests for gameplay and rendering calculations.
 - Shared browser-test helpers such as `src/ui/uiTestHelpers.tsx`, `src/ui/uiRecipeBookTestHelpers.tsx`, `src/ui/uiTooltipContentTestHelpers.ts`, and `src/ui/uiWindowMarkupTestHelpers.tsx` keep jsdom host setup and fixture wiring out of the split suites, while gameplay helpers such as `src/game/stateCombatTestHelpers.ts`, `src/game/stateCraftingTestHelpers.ts`, and `src/game/stateWorldActionsTestHelpers.ts` keep repeated seed setup out of the smaller `node` suites.
@@ -87,7 +87,7 @@ This spec covers the repository quality baseline and current test coverage shape
 - `.oxlintrc.json`
 - `.husky/pre-commit`
 - `.husky/pre-push`
-- `prettier.config.cjs`
+- `.oxfmtrc.jsonc`
 - `src/ui/components/**/*.stories.tsx`
 - `packages/ui-react/src/components/**/*.stories.tsx`
 - `packages/server-world/src/dev.ts`
