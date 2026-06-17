@@ -24,7 +24,7 @@
     "@realmfall/common": "workspace:*",
     "@realmfall/core": "workspace:*",
     "@realmfall/ui-react": "workspace:*",
-    "@rexa-developer/tiks": "^0.1.9",
+    "@rexa-developer/tiks": "^0.3.0",
     "@tanstack/react-virtual": "^3.13.24",
     "comlink": "^4.4.2",
     "easy-cancelable-promise": "^2.0.1",
